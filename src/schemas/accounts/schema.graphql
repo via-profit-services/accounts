@@ -73,7 +73,7 @@ type AccountsQuery {
   """
   Returns account by ID
   """
-  account(id: ID!): Account!
+  account(id: ID!): Account
 
   checkLoginExists(
     login: String
