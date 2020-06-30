@@ -26,9 +26,12 @@ export interface IAccount {
   createdAt: Date;
   updatedAt: Date;
   deleted: Boolean;
+  avatar: {id: string} | null;
+  files: Array<{id: string}> | null;
 }
 
-export type IAccountTableModelOutput = Omit<IAccount, 'createdAt' | 'updatedAt' | 'roles'> & {
+export type IAccountTableModelOutput = Omit<IAccount,
+'createdAt' | 'updatedAt' | 'roles' | 'avatar' | 'files'> & {
   roles: string[];
   createdAt: Date;
   updatedAt: Date;
@@ -36,14 +39,14 @@ export type IAccountTableModelOutput = Omit<IAccount, 'createdAt' | 'updatedAt' 
 }
 
 export type IAccountUpdateInfo = Omit<IAccount,
-'id' | 'createdAt' | 'updatedAt' | 'cursor' | 'deleted' | 'roles'> & {
+'id' | 'createdAt' | 'updatedAt' | 'cursor' | 'deleted' | 'roles' | 'avatar' | 'files'> & {
   updatedAt: string | Date;
   roles: string[] | string;
   deleted?: boolean;
 };
 
 export type IAccountCreateInfo = Omit<IAccount,
-'id' | 'createdAt' | 'updatedAt' | 'cursor' | 'deleted' | 'roles'> & {
+'id' | 'createdAt' | 'updatedAt' | 'cursor' | 'deleted' | 'roles' | 'avatar' | 'files'> & {
   id?: string;
   createdAt: string;
   updatedAt: string | Date;
@@ -57,4 +60,9 @@ export interface IUpdateArgs {
 
 export interface ICreateArgs {
   input: IAccountCreateInfo;
+}
+
+export interface ICheckLoginExistsArgs {
+  login: string;
+  skipId: string;
 }
