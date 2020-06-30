@@ -19,19 +19,25 @@ export interface IAccount {
     createdAt: Date;
     updatedAt: Date;
     deleted: Boolean;
+    avatar: {
+        id: string;
+    } | null;
+    files: Array<{
+        id: string;
+    }> | null;
 }
-export declare type IAccountTableModelOutput = Omit<IAccount, 'createdAt' | 'updatedAt' | 'roles'> & {
+export declare type IAccountTableModelOutput = Omit<IAccount, 'createdAt' | 'updatedAt' | 'roles' | 'avatar' | 'files'> & {
     roles: string[];
     createdAt: Date;
     updatedAt: Date;
     totalCount: number;
 };
-export declare type IAccountUpdateInfo = Omit<IAccount, 'id' | 'createdAt' | 'updatedAt' | 'cursor' | 'deleted' | 'roles'> & {
+export declare type IAccountUpdateInfo = Omit<IAccount, 'id' | 'createdAt' | 'updatedAt' | 'cursor' | 'deleted' | 'roles' | 'avatar' | 'files'> & {
     updatedAt: string | Date;
     roles: string[] | string;
     deleted?: boolean;
 };
-export declare type IAccountCreateInfo = Omit<IAccount, 'id' | 'createdAt' | 'updatedAt' | 'cursor' | 'deleted' | 'roles'> & {
+export declare type IAccountCreateInfo = Omit<IAccount, 'id' | 'createdAt' | 'updatedAt' | 'cursor' | 'deleted' | 'roles' | 'avatar' | 'files'> & {
     id?: string;
     createdAt: string;
     updatedAt: string | Date;
