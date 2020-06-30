@@ -1,0 +1,32 @@
+import { IResolverObject, IFieldResolver } from 'graphql-tools';
+
+import createDataloaders from '../loaders';
+import { IAccount, Context } from '../types';
+
+interface IParent {
+  id: string;
+}
+type TAccountResolver = IResolverObject<IParent, Context>;
+
+const accountResolver = new Proxy<TAccountResolver>({
+  id: () => ({}),
+  createdAt: () => ({}),
+  updatedAt: () => ({}),
+  status: () => ({}),
+  name: () => ({}),
+  login: () => ({}),
+  password: () => ({}),
+  roles: () => ({}),
+}, {
+  get: (target, prop: keyof IAccount) => {
+    const resolver: IFieldResolver<IParent, Context> = async (parent, args, context) => {
+      const { id } = parent;
+      const loaders = createDataloaders(context);
+      const account = await loaders.accounts.load(id);
+      return account[prop];
+    };
+    return resolver;
+  },
+});
+
+export default accountResolver;
