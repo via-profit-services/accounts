@@ -3,6 +3,7 @@ import {
 } from '@via-profit-services/core';
 import { IResolverObject } from 'graphql-tools';
 
+import { ROLES_LIST } from '../constants';
 import createLoaders from '../loaders';
 import AccountsService from '../service';
 import { Context, AccountStatus, ICheckLoginExistsArgs } from '../types';
@@ -29,6 +30,7 @@ export const accountsQueryResolver: IResolverObject<any, Context> = {
     }
   },
   statusesList: () => Object.values(AccountStatus),
+  rolesList: () => ROLES_LIST,
   me: (parent, args, context) => {
     if (context.token.uuid === '') {
       throw new UnauthorizedError('Unknown account');

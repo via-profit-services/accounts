@@ -62,6 +62,7 @@ type AccountsQuery {
   Returns Account statuses list
   """
   statusesList: [AccountStatus!]!
+  rolesList: [String!]!
 
   """
   Returns Your account data
