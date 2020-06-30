@@ -19,10 +19,6 @@ extend type Subscription {
   accountWasDeleted: [ID!]!
 }
 
-
-"""
-Account status
-"""
 enum AccountStatus {
   allowed
   forbidden
