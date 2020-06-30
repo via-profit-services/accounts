@@ -7,7 +7,7 @@ import {
   extractNodeIds,
   IDirectionRange,
   arrayOfIdsToArrayOfObjectIds,
-  schemas,
+  AuthService,
 } from '@via-profit-services/core';
 import { FileStorage } from '@via-profit-services/file-storage';
 import moment from 'moment-timezone';
@@ -17,8 +17,6 @@ import {
   Context, IAccount, IAccountTableModelOutput, IAccountUpdateInfo,
   IAccountCreateInfo, AccountStatus,
 } from './types';
-
-const AuthService = schemas.auth.service;
 
 
 class Accounts {
@@ -148,6 +146,9 @@ class Accounts {
       ...accountData,
       updatedAt: moment.tz(timezone).format(),
     });
+    if (data.password) {
+      data.password = AuthService.cryptUserPassword(data.password);
+    }
     await knex<IAccountUpdateInfo>('accounts')
       .update(data)
       .where('id', id)
