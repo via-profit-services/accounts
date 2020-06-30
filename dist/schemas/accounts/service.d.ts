@@ -12,6 +12,7 @@ declare class Accounts {
     updateAccount(id: string, accountData: Partial<IAccountUpdateInfo>): Promise<void>;
     createAccount(accountData: Partial<IAccountCreateInfo>): Promise<string>;
     deleteAccount(id: string): Promise<void>;
+    checkLoginExists(login: string, skipId: string): Promise<boolean>;
 }
 export default Accounts;
 interface IProps {

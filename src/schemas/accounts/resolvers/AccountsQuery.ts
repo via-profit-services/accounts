@@ -5,7 +5,7 @@ import { IResolverObject } from 'graphql-tools';
 
 import createLoaders from '../loaders';
 import AccountsService from '../service';
-import { Context, AccountStatus } from '../types';
+import { Context, AccountStatus, ICheckLoginExistsArgs } from '../types';
 
 
 export const accountsQueryResolver: IResolverObject<any, Context> = {
@@ -37,6 +37,13 @@ export const accountsQueryResolver: IResolverObject<any, Context> = {
     return { id: context.token.uuid };
   },
   account: (parent, args: {id: string}) => ({ id: args.id }),
+  checkLoginExists: async (parent, args: ICheckLoginExistsArgs, context) => {
+    const { login, skipId } = args;
+    const accountsService = new AccountsService({ context });
+    const result = await accountsService.checkLoginExists(login, skipId);
+
+    return result;
+  },
 };
 
 export default accountsQueryResolver;

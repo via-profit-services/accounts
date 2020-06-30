@@ -179,6 +179,18 @@ class Accounts {
       status: AccountStatus.forbidden,
     });
   }
+
+  public async checkLoginExists(login: string, skipId: string): Promise<boolean> {
+    const { context } = this.props;
+    const { knex } = context;
+
+    const list = await knex<IAccountTableModelOutput, IAccountTableModelOutput[]>('accounts')
+      .select('id')
+      .where('login', TWhereAction.EQ, login)
+      .whereNot('id', skipId);
+
+    return !!list.length;
+  }
 }
 
 export default Accounts;

@@ -2,8 +2,10 @@
 import fs from 'fs';
 import path from 'path';
 import { IInitProps, configureLogger } from '@via-profit-services/core';
+import { configureFileStorageLogger } from '@via-profit-services/file-storage';
 import dotenv from 'dotenv';
 import moment from 'moment-timezone';
+
 
 // project root path
 const rootPath = path.join(__dirname, '..', '..');
@@ -13,8 +15,15 @@ dotenv.config({
   path: path.resolve(__dirname, '../../.env'),
 });
 
+const fileStorageLogger = configureFileStorageLogger({
+  logDir: path.resolve(rootPath, process.env.LOG),
+});
+
 const logger = configureLogger({
   logDir: path.resolve(rootPath, process.env.LOG),
+  loggers: {
+    fileStorage: fileStorageLogger,
+  },
 });
 
 moment.tz.setDefault(process.env.TIMEZONE);
@@ -75,17 +84,19 @@ const serverConfig: IInitProps = {
 };
 
 const configureApp = (props?: IProps): IInitProps => {
-  const { typeDefs, resolvers } = props || {};
+  const { typeDefs, resolvers, expressMiddlewares } = props || {};
   return {
     ...serverConfig,
     typeDefs,
     resolvers,
+    expressMiddlewares,
   };
 };
 
 interface IProps {
   typeDefs: IInitProps['typeDefs'];
   resolvers: IInitProps['resolvers'];
+  expressMiddlewares?: IInitProps['expressMiddlewares'];
 }
 
 export default configureApp;

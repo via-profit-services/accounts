@@ -1,14 +1,21 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { App, schemas } from '@via-profit-services/core';
+import { makeSchema } from '@via-profit-services/file-storage';
 import chalk from 'chalk';
 import { v4 as uuidv4 } from 'uuid';
 
 import { typeDefs, resolvers } from '../schemas/accounts';
 import { configureApp } from '../utils/configureApp';
 
+
+const fileStorageData = makeSchema({
+  hostname: `localhost:${process.env.PORT}`,
+});
+
 const config = configureApp({
-  typeDefs: [typeDefs],
-  resolvers: [resolvers],
+  typeDefs: [typeDefs, fileStorageData.typeDefs],
+  resolvers: [resolvers, fileStorageData.resolvers],
+  expressMiddlewares: [fileStorageData.expressMiddleware],
 });
 const app = new App(config);
 const AuthService = schemas.auth.service;

@@ -61,3 +61,8 @@ export interface IUpdateArgs {
 export interface ICreateArgs {
   input: IAccountCreateInfo;
 }
+
+export interface ICheckLoginExistsArgs {
+  login: string;
+  skipId: string;
+}

@@ -73,6 +73,11 @@ type AccountsQuery {
   Returns account by ID
   """
   account(id: ID!): Account!
+
+  checkLoginExists(
+    login: String
+    skipId: ID!
+  ): Boolean!
 }
 
 
