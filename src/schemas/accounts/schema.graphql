@@ -19,10 +19,6 @@ extend type Subscription {
   accountWasDeleted: [ID!]!
 }
 
-
-"""
-Account status
-"""
 enum AccountStatus {
   allowed
   forbidden
@@ -157,7 +153,6 @@ input InputAccountCreateData {
   login: String!
   password: String!
   roles: [String!]!
-  status: AccountStatus
 }
 
 
