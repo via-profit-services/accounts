@@ -2,7 +2,7 @@
     "name": "@via-profit-services/accounts",
     "private": true,
     "support": "https://via-profit.ru",
-    "version": "0.6.2",
+    "version": "0.7.0",
     "description": "Via Profit Accounts Schema",
     "main": "dist/index.js",
     "scripts": {
