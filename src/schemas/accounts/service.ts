@@ -4,8 +4,12 @@ import {
   IListResponse,
   convertWhereToKnex,
   convertOrderByToKnex,
+  extractNodeIds,
+  IDirectionRange,
+  arrayOfIdsToArrayOfObjectIds,
   schemas,
 } from '@via-profit-services/core';
+import { FileStorage } from '@via-profit-services/file-storage';
 import moment from 'moment-timezone';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -64,7 +68,7 @@ class Accounts {
       where,
     } = filter;
 
-    const nodes = await knex
+    const response = await knex
       .select([
         'accounts.*',
         knex.raw('count(*) over() as "totalCount"'),
@@ -74,15 +78,43 @@ class Accounts {
       .where((builder) => convertWhereToKnex(builder, where))
       .where((builder) => builder.where('deleted', false))
       .limit(limit)
-      .offset(offset);
-    return ({
-      totalCount: nodes.length ? Number(nodes[0].totalCount) : 0,
-      limit,
-      offset,
+      .offset(offset)
+      .then(async (nodes) => {
+        const fileStorage = new FileStorage({ context });
+        const fileList = await fileStorage.getFiles({
+          limit: nodes.length * 100,
+          where: [['owner', TWhereAction.IN, extractNodeIds(nodes)]],
+          orderBy: [{ field: 'createdAt', direction: IDirectionRange.ASC }],
+        });
+
+        return {
+          totalCount: nodes.length ? Number(nodes[0].totalCount) : 0,
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          nodes: nodes.map(({ totalCount, ...nodeData }) => {
+            // get file of current driver
+            const files = fileList.nodes.filter((f) => f.owner === nodeData.id) || null;
+            const avatar = files.find((f) => f.category === 'avatar') || null;
+
+            return {
+              ...nodeData,
+              files: files ? arrayOfIdsToArrayOfObjectIds(files.map((f) => f.id)) : null,
+              avatar: avatar ? { id: avatar.id } : null,
+            };
+          }),
+        };
+      });
+
+    const { totalCount, nodes } = response;
+
+
+    return {
+      totalCount,
       nodes,
       where,
       orderBy,
-    });
+      limit,
+      offset,
+    };
   }
 
   public async getAccountsByIds(ids: string[]): Promise<IAccount[]> {

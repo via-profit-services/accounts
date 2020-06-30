@@ -10,6 +10,8 @@ type TAccountResolver = IResolverObject<IParent, Context>;
 
 const accountResolver = new Proxy<TAccountResolver>({
   id: () => ({}),
+  avatar: () => ({}),
+  files: () => ({}),
   createdAt: () => ({}),
   updatedAt: () => ({}),
   status: () => ({}),
@@ -23,6 +25,14 @@ const accountResolver = new Proxy<TAccountResolver>({
       const { id } = parent;
       const loaders = createDataloaders(context);
       const account = await loaders.accounts.load(id);
+
+      if (prop === 'avatar' && account.avatar) {
+        return {
+          ...account.avatar,
+          transform: args.transform || null,
+        };
+      }
+
       return account[prop];
     };
     return resolver;

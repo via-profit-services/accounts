@@ -121,6 +121,8 @@ Account data
 """
 type Account implements Node {
   id: ID!
+  avatar(transform: ImageTransformInput): File
+  files: [File!]
   name: String!
   login: String!
   password: String!
