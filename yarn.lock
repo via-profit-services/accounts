@@ -1168,9 +1168,9 @@
     winston-daily-rotate-file "^4.4.2"
     ws "^7.2.3"
 
-"@via-profit-services/core@ssh://git@gitlab.com:via-profit-services/core.git#semver:^0.24.3":
-  version "0.24.3"
-  resolved "ssh://git@gitlab.com:via-profit-services/core.git#5c05b42287bb45031e249e4691d828fe6f4048cf"
+"@via-profit-services/core@ssh://git@gitlab.com:via-profit-services/core.git#semver:^0.24.6":
+  version "0.24.6"
+  resolved "ssh://git@gitlab.com:via-profit-services/core.git#cd5d442d70161fdcb85ba87872c04703a0af0c10"
   dependencies:
     "@graphql-toolkit/core" "^0.9.1"
     "@graphql-toolkit/schema-merging" "^0.9.1"
