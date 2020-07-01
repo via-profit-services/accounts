@@ -31,14 +31,22 @@ export const accountsQueryResolver: IResolverObject<any, Context> = {
   },
   statusesList: () => Object.values(AccountStatus),
   rolesList: () => ROLES_LIST,
-  me: (parent, args, context) => {
+  me: async (parent, args, context) => {
     if (context.token.uuid === '') {
       throw new UnauthorizedError('Unknown account');
     }
+    const loaders = createLoaders(context);
+    const account = await loaders.accounts.load(context.token.uuid);
 
-    return { id: context.token.uuid };
+    return account;
   },
-  account: (parent, args: {id: string}) => ({ id: args.id }),
+  account: async (parent, args: {id: string}, context) => {
+    const { id } = args;
+    const loaders = createLoaders(context);
+    const account = await loaders.accounts.load(id);
+
+    return account;
+  },
   checkLoginExists: async (parent, args: ICheckLoginExistsArgs, context) => {
     const { login, skipId } = args;
     const accountsService = new AccountsService({ context });
