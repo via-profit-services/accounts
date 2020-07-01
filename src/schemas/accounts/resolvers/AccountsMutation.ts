@@ -66,14 +66,17 @@ const accountsMutationResolver: IResolverObject<any, Context> = {
   },
   delete: async (parent, args: { id: string }, context) => {
     const { id } = args;
-    const { logger, pubsub } = context;
+    const { logger, pubsub, token } = context;
     const accountsService = new AccountsService({ context });
     const loaders = createLoaders(context);
     const fileStorage = new FileStorage({ context });
     const authService = new AuthService({ context });
 
+    logger.server.debug(`Delete account ${id} request`, { initiator: token.uuid });
+
     // delete files
     try {
+      logger.server.debug(`Delete account ${id} files request`, { initiator: token.uuid });
       fileStorage.deleteFilesByOwner(id);
     } catch (err) {
       logger.server.error('Failed to delete account files', { err, id });
@@ -82,6 +85,7 @@ const accountsMutationResolver: IResolverObject<any, Context> = {
 
     // revoke all tokens of this account
     try {
+      logger.server.debug(`Revoke account ${id} tokens request`, { initiator: token.uuid });
       authService.revokeAccountTokens(id);
     } catch (err) {
       logger.server.error('Failed to revoke account tokens', { err, id });
