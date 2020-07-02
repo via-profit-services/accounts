@@ -64,6 +64,7 @@ class Accounts {
       offset,
       orderBy,
       where,
+      search,
     } = filter;
 
     const response = await knex
@@ -75,6 +76,20 @@ class Accounts {
       .orderBy(convertOrderByToKnex(orderBy))
       .where((builder) => convertWhereToKnex(builder, where))
       .where((builder) => builder.where('deleted', false))
+      .where((builder) => {
+        // This is a temporary solution until the «Search» module is implemented
+        if (search) {
+          search.forEach(({ field, query }) => {
+            query.split(' ').map((subquery) => {
+              // search by another field.
+              // Note: Set type ::text forcibly
+              return builder.orWhereRaw(`"${field}"::text ${TWhereAction.ILIKE} '%${subquery}%'`);
+            });
+          });
+        }
+        return builder;
+      })
+
       .limit(limit)
       .offset(offset)
       .then(async (nodes) => {

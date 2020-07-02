@@ -51,11 +51,11 @@ type AccountsQuery {
   """
   list(
     first: Int
-    last: Int
+    offset: Int
     after: String
-    before: String
-    status: AccountStatus
     orderBy: [AccountOrderBy]
+    filter: AccountListFilter
+    search: AccountFilterSearch
   ): AccountListConnection!
 
   """
@@ -80,6 +80,37 @@ type AccountsQuery {
     skipId: ID!
   ): Boolean!
 }
+
+
+"""
+Possible data to filter list of accounts
+"""
+input AccountListFilter {
+  status: [AccountStatus!]
+}
+
+
+
+"""
+Account search filter
+"""
+input AccountFilterSearch {
+
+  fields: [AccountFilterSearchField!]!
+
+  """
+  Search query string
+  """
+  query: String!
+}
+
+"""
+Possible fields to search accounts
+"""
+enum AccountFilterSearchField {
+  name
+}
+
 
 
 
