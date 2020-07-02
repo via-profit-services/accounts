@@ -21,7 +21,7 @@
 ### Установка
 
 ```bash
-yarn add ssh://git@gitlab.com:via-profit-services/accounts.git#semver:^0.1.8
+yarn add ssh://git@gitlab.com:via-profit-services/accounts.git#semver:^0.1.9
 ```
 
 Список версий [см. здесь](https://gitlab.com/via-profit-services/accounts/-/tags)
