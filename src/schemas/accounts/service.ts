@@ -89,7 +89,6 @@ class Accounts {
         }
         return builder;
       })
-
       .limit(limit)
       .offset(offset)
       .then(async (nodes) => {
