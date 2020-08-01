@@ -1,5 +1,6 @@
 import {
-  ServerError, UnauthorizedError, buildCursorConnection, buildQueryFilter, TInputFilter,
+  ServerError, UnauthorizedError, buildCursorConnection,
+  buildQueryFilter, TInputFilter, TWhereAction,
 } from '@via-profit-services/core';
 import { IResolverObject } from 'graphql-tools';
 
@@ -16,6 +17,7 @@ export const accountsQueryResolver: IResolverObject<any, Context> = {
     const accountsService = new AccountsService({ context });
 
     try {
+      filter.where.push(['deleted', TWhereAction.EQ, false]);
       const accountsConnection = await accountsService.getAccounts(filter);
       const connection = buildCursorConnection(accountsConnection, 'accounts');
 

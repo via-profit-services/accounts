@@ -19,6 +19,7 @@ const accountResolver = new Proxy<TAccountResolver>({
   login: () => ({}),
   password: () => ({}),
   roles: () => ({}),
+  deleted: () => ({}),
 }, {
   get: (target, prop: keyof IAccount) => {
     const resolver: IFieldResolver<IParent, Context> = async (parent, args, context) => {

@@ -75,7 +75,6 @@ class Accounts {
       .from<IAccountTableModelOutput, IAccountTableModelOutput[]>('accounts')
       .orderBy(convertOrderByToKnex(orderBy))
       .where((builder) => convertWhereToKnex(builder, where))
-      .where((builder) => builder.where('deleted', false))
       .where((builder) => {
         // This is a temporary solution until the «Search» module is implemented
         if (search) {
