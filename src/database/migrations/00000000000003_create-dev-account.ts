@@ -6,7 +6,7 @@
  * This migration will create development account
  */
 
-import * as Knex from 'knex';
+import { Knex } from '@via-profit-services/core';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function up(knex: Knex): Promise<any> {

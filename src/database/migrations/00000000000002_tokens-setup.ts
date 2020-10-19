@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 /**
  * @via-profit-services/core
  *
@@ -6,7 +5,7 @@
  * This migration will create `tokens` table
  */
 
-import * as Knex from 'knex';
+import { Knex } from '@via-profit-services/core';
 
 export async function up(knex: Knex): Promise<any> {
   return knex.raw(`
