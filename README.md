@@ -13,7 +13,7 @@
 
 ## <a name="dependencies"></a> Зависимости
 
- - [File Storage](https://gitlab.com/via-profit-services/file-storage)
+ - [File Storage](https://github.com/via-profit-services/file-storage)
 
 
 ## <a name="setup"></a> Установка и настройка
@@ -21,10 +21,10 @@
 ### Установка
 
 ```bash
-yarn add ssh://git@gitlab.com:via-profit-services/accounts.git#semver:^0.1.12
+yarn add ssh://git@github.com:via-profit-services/accounts.git#semver:^0.1.12
 ```
 
-Список версий [см. здесь](https://gitlab.com/via-profit-services/accounts/-/tags)
+Список версий [см. здесь](https://github.com/via-profit-services/accounts/-/tags)
 
 ### Миграции
 

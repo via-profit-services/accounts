@@ -24,7 +24,7 @@ module.exports = merge(baseConfig, {
       banner: `
  Via Profit services / Accounts
 
- Repository https://gitlab.com/via-profit-services/accounts
+ Repository https://github.com/via-profit-services/accounts
  Contact    promo@via-profit.ru
  Website    https://via-profit.ru
       `,
