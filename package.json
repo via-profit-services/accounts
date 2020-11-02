@@ -34,13 +34,13 @@
     },
     "repository": {
         "type": "git",
-        "url": "git@gitlab.com:via-profit-services/accounts.git"
+        "url": "git@github.com:via-profit-services/accounts.git"
     },
     "author": "Via Profit <promo@via-profit.ru>",
     "license": "MIT",
     "dependencies": {
-        "@via-profit-services/core": "ssh://git@gitlab.com:via-profit-services/core.git#semver:^0.30.1",
-        "@via-profit-services/file-storage": "ssh://git@gitlab.com:via-profit-services/file-storage.git#semver:^0.14.5",
+        "@via-profit-services/core": "ssh://git@github.com:via-profit-services/core.git#semver:^0.30.1",
+        "@via-profit-services/file-storage": "ssh://git@github.com:via-profit-services/file-storage.git#semver:^0.14.5",
         "graphql": "^14.6.0",
         "graphql-tools": "^4.0.7",
         "moment": "^2.24.0",
