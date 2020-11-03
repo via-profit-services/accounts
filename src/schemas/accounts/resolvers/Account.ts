@@ -36,6 +36,7 @@ const accountResolver = new Proxy<TAccountResolver>({
 
       return account[prop];
     };
+
     return resolver;
   },
 });

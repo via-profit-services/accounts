@@ -20,6 +20,7 @@ export default function createLoaders(context: Context) {
 
   loaders.accounts = new DataLoader(async (ids: string[]) => {
     const nodes = await service.getAccountsByIds(ids);
+
     return collateForDataloader(ids, nodes);
   });
 

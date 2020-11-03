@@ -4,6 +4,10 @@
 
 > Via Profit services / **Accounts** - это пакет, который является частью сервиса, базирующегося на `via-profit-services` и представляет собой реализацию схемы для работы с аккаунтами пользователей.
 
+![npm (scoped)](https://img.shields.io/npm/v/@via-profit-services/accounts?color=blue)
+![Libraries.io dependency status for latest release, scoped npm package](https://img.shields.io/librariesio/release/npm/@via-profit-services/accounts?color=red)
+
+
 ## Содержание
 
 - [Зависимости](#dependencies)
@@ -13,6 +17,7 @@
 
 ## <a name="dependencies"></a> Зависимости
 
+ - [Core](https://github.com/via-profit-services/core)
  - [File Storage](https://github.com/via-profit-services/file-storage)
 
 

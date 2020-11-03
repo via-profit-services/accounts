@@ -79,13 +79,14 @@ class Accounts {
         // This is a temporary solution until the «Search» module is implemented
         if (search) {
           search.forEach(({ field, query }) => {
-            query.split(' ').map((subquery) => {
+            query.split(' ').map((subquery) =>
               // search by another field.
               // Note: Set type ::text forcibly
-              return builder.orWhereRaw(`"${field}"::text ${TWhereAction.ILIKE} '%${subquery}%'`);
-            });
+               builder.orWhereRaw(`"${field}"::text ${TWhereAction.ILIKE} '%${subquery}%'`),
+            );
           });
         }
+
         return builder;
       })
       .limit(limit)
@@ -134,11 +135,13 @@ class Accounts {
       offset: 0,
       limit: ids.length,
     });
+
     return nodes;
   }
 
   public async getAccount(id: string): Promise<IAccount | false> {
     const nodes = await this.getAccountsByIds([id]);
+
     return nodes.length ? nodes[0] : false;
   }
 

@@ -25,7 +25,7 @@ export interface IAccount {
   roles: IAccountRole[];
   createdAt: Date;
   updatedAt: Date;
-  deleted: Boolean;
+  deleted: boolean;
   avatar: {id: string} | null;
   files: Array<{id: string}> | null;
 }
