@@ -1,10 +1,19 @@
 {
     "name": "@via-profit-services/accounts",
-    "private": true,
     "support": "https://via-profit.ru",
     "version": "0.1.12",
     "description": "Via Profit Accounts Schema",
     "main": "dist/index.js",
+    "engines": {
+        "node": ">= 12.8.3",
+        "npm": ">= 6.14.8"
+    },
+    "keywords": [
+        "graphql",
+        "via-profit",
+        "accounts",
+        "users"
+    ],
     "scripts": {
         "dist": "yarn lint && yarn test && yarn build:dist",
         "start": "yarn start:dev",
@@ -25,8 +34,7 @@
         "knex:seed:make": "yarn via-profit-core:knex seed make --name",
         "knex:seed:run": "yarn via-profit-core:knex seed run --name",
         "preversion": "yarn dist && git add --all && git commit -m \"Build\"",
-        "postversion:readme": "yarn replace '/accounts\\.git#semver:\\^\\d+\\.\\d+\\.\\d+' \"/accounts.git#semver:^$npm_package_version\" ./README.md",
-        "postversion": "yarn postversion:readme && git add --all && git commit -m \" Bump README.md\" && git push --tags",
+        "postversion": "git push --tags",
         "release:patch": "yarn version --patch",
         "release:minor": "yarn version --minor",
         "release:major": "yarn version --major",
@@ -36,7 +44,15 @@
         "type": "git",
         "url": "git@github.com:via-profit-services/accounts.git"
     },
-    "author": "Via Profit <promo@via-profit.ru>",
+    "author": {
+        "name": "Via Profit",
+        "email": "promo@via-profit.ru",
+        "url": "https://dev.via-profit.ru"
+    },
+    "contributors": [
+        "Vasily Novosad <delhsmail@gmail.com>",
+        "Pavel Natalin <trubonru@gmail.com>"
+    ],
     "license": "MIT",
     "dependencies": {
         "@via-profit-services/core": "ssh://git@github.com:via-profit-services/core.git#semver:^0.30.1",
