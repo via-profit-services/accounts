@@ -3,6 +3,7 @@ const FileManagerPlugin = require('filemanager-webpack-plugin');
 const { ProgressPlugin, IgnorePlugin, BannerPlugin } = require('webpack');
 const merge = require('webpack-merge');
 const nodeExternals = require('webpack-node-externals');
+const packageInfo = require('../package.json');
 const baseConfig = require('./webpack.config.base');
 
 module.exports = merge(baseConfig, {
@@ -24,9 +25,8 @@ module.exports = merge(baseConfig, {
       banner: `
  Via Profit services / Accounts
 
- Repository https://github.com/via-profit-services/accounts
- Contact    promo@via-profit.ru
- Website    https://via-profit.ru
+Repository ${packageInfo.repository.url}
+Contact    ${packageInfo.support}
       `,
     }),
     new FileManagerPlugin({

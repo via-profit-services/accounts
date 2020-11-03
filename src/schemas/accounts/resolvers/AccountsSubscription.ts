@@ -9,9 +9,7 @@ const accountsSubscription: IResolverObject = {
   // fire when account with variables.id was updated
   accountWasUpdated: {
     subscribe: withFilter(
-      (parent, args, context) => {
-        return context.pubsub.asyncIterator(SubscriptionTriggers.ACCOUNT_UPDATED);
-      },
+      (parent, args, context) => context.pubsub.asyncIterator(SubscriptionTriggers.ACCOUNT_UPDATED),
       (payload: {
         accountWasUpdated: IAccount;
       }, variables: {
@@ -20,9 +18,9 @@ const accountsSubscription: IResolverObject = {
     ),
   },
   accountWasDeleted: {
-    subscribe: (parent, args, context) => {
-      return context.pubsub.asyncIterator(SubscriptionTriggers.ACCOUNT_DELETED);
-    },
+    subscribe: (parent, args, context) => context.pubsub.asyncIterator(
+      SubscriptionTriggers.ACCOUNT_DELETED,
+    ),
   },
 };
 
