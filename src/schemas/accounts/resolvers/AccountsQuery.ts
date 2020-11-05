@@ -1,8 +1,7 @@
 import {
   ServerError, UnauthorizedError, buildCursorConnection,
-  buildQueryFilter, TInputFilter, TWhereAction,
+  buildQueryFilter, TInputFilter, TWhereAction, IObjectTypeResolver,
 } from '@via-profit-services/core';
-import { IResolverObject } from 'graphql-tools';
 
 import { ROLES_LIST } from '../constants';
 import createLoaders from '../loaders';
@@ -10,7 +9,7 @@ import AccountsService from '../service';
 import { Context, AccountStatus, ICheckLoginExistsArgs } from '../types';
 
 
-export const accountsQueryResolver: IResolverObject<any, Context> = {
+export const accountsQueryResolver: IObjectTypeResolver<any, Context> = {
   list: async (source, args: TInputFilter, context) => {
     const loaders = createLoaders(context);
     const filter = buildQueryFilter(args);

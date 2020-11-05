@@ -12,6 +12,8 @@
 # webpack temporary dir
 /build
 
+/dist
+
 # jwt keys
 /keys
 

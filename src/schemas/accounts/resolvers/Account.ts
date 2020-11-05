@@ -1,4 +1,4 @@
-import { IResolverObject, IFieldResolver } from 'graphql-tools';
+import { IObjectTypeResolver, IFieldResolver } from '@via-profit-services/core';
 
 import createDataloaders from '../loaders';
 import { IAccount, Context } from '../types';
@@ -6,7 +6,7 @@ import { IAccount, Context } from '../types';
 interface IParent {
   id: string;
 }
-type TAccountResolver = IResolverObject<IParent, Context>;
+type TAccountResolver = IObjectTypeResolver<IParent, Context>;
 
 const accountResolver = new Proxy<TAccountResolver>({
   id: () => ({}),

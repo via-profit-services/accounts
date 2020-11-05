@@ -6,8 +6,6 @@ declare namespace NodeJS {
 
     GQL_ENDPOINT: string;
     GQL_SUBSCRIPTIONENDPOINT: string;
-    GQL_USE_PLAYGROUND: boolean;
-    GQL_USE_VOYAGER: boolean;
 
     DB_HOST: string;
     DB_USER: string;

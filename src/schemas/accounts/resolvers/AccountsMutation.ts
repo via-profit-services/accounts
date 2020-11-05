@@ -1,8 +1,6 @@
 
-import { ServerError, BadRequestError, AuthService } from '@via-profit-services/core';
+import { ServerError, BadRequestError, AuthService, IObjectTypeResolver } from '@via-profit-services/core';
 import { FileStorage } from '@via-profit-services/file-storage';
-
-import { IResolverObject } from 'graphql-tools';
 
 import createLoaders from '../loaders';
 import AccountsService from '../service';
@@ -10,7 +8,7 @@ import {
   Context, IUpdateArgs, ICreateArgs, AccountStatus, SubscriptionTriggers,
 } from '../types';
 
-const accountsMutationResolver: IResolverObject<any, Context> = {
+const accountsMutationResolver: IObjectTypeResolver<any, Context> = {
   update: async (parent, args: IUpdateArgs, context) => {
     const { id, input } = args;
     const { logger, pubsub } = context;

@@ -1,10 +1,9 @@
-import { withFilter } from '@via-profit-services/core';
-import { IResolverObject } from 'graphql-tools';
+import { withFilter, IObjectTypeResolver } from '@via-profit-services/core';
 
 import { IAccount, SubscriptionTriggers } from '../types';
 
 
-const accountsSubscription: IResolverObject = {
+const accountsSubscription: IObjectTypeResolver = {
 
   // fire when account with variables.id was updated
   accountWasUpdated: {
