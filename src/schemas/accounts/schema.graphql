@@ -53,7 +53,7 @@ type AccountsQuery {
     first: Int
     offset: Int
     after: String
-    orderBy: [AccountOrderBy]
+    orderBy: [AccountOrderBy!]
     filter: AccountListFilter
     search: AccountFilterSearch
   ): AccountListConnection!
@@ -203,5 +203,5 @@ Accounts list bundle
 type AccountListConnection implements Connection {
   totalCount: Int!
   pageInfo: PageInfo!
-  edges: [AccountsEdge]!
+  edges: [AccountsEdge!]!
 }

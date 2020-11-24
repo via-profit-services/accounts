@@ -2,18 +2,18 @@
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "baseUrl": "./src",
-    "declaration": false,
+    "declaration": true,
     "esModuleInterop": true,
     "module": "commonjs",
     "moduleResolution": "node",
     "noImplicitAny": true,
-    "outDir": "./build",
+    "outDir": "./dist",
     "paths": {
       "~/*": ["./*"]
     },
     "resolveJsonModule": true,
     "rootDir": "./src",
-    "sourceMap": true,
+    "sourceMap": false,
     "target": "es6",
     "typeRoots": ["node_modules/@types", "src/@types"]
   },
