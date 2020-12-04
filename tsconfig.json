@@ -10,7 +10,7 @@
     "outDir": "./dist",
     "resolveJsonModule": true,
     "rootDir": "./src",
-    "sourceMap": false,
+    "sourceMap": true,
     "target": "es6",
     "types": [
       "node"

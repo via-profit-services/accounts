@@ -63,6 +63,7 @@ Contact    ${packageInfo.support}
     /moment/,
     /moment-timezone/,
     /uuid/,
+    /graphql/,
     /winston/,
     /winston-daily-rotate-file/,
   ],

@@ -1,5 +1,5 @@
 import type { Configuration, JwtConfig, AccessTokenPayload } from '@via-profit-services/accounts';
-import type { Middleware } from '@via-profit-services/core';
+import type { Middleware, Context } from '@via-profit-services/core';
 
 import AccountsService from './AccountsService';
 import authLogger from './auth-logger';
@@ -16,7 +16,7 @@ import resolvers from './resolvers';
 import typeDefs from './typeDefs';
 import UnauthorizedError from './UnauthorizedError';
 
-const accountsMiddlweare = (props: Configuration): Middleware => {
+const accountsMiddleware = (props: Configuration): Middleware => {
   const middleware: Middleware = {
     context: ({ context, config }) => {
       const { logDir } = config;
@@ -38,7 +38,7 @@ const accountsMiddlweare = (props: Configuration): Middleware => {
         iss: '',
       };
 
-      return {
+      const composedContext: Context = {
         ...context,
         token,
         jwt,
@@ -47,6 +47,8 @@ const accountsMiddlweare = (props: Configuration): Middleware => {
           auth: logger, // append sql logger
         },
       };
+
+      return composedContext;
     },
   };
 
@@ -62,4 +64,4 @@ export {
   UnauthorizedError,
 };
 
-export default accountsMiddlweare;
+export default accountsMiddleware;
