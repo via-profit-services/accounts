@@ -509,6 +509,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/bcryptjs@npm:^2.4.2":
+  version: 2.4.2
+  resolution: "@types/bcryptjs@npm:2.4.2"
+  checksum: 91013aa8a5e8185137af1fb011de7f794f5bc71400e0aebba2252985a4d0c5eb4c477617c4aa4c20fdb21f05320ac0095eb8b596c004ff5e3315b656e58a0c72
+  languageName: node
+  linkType: hard
+
 "@types/color-name@npm:^1.1.1":
   version: 1.1.1
   resolution: "@types/color-name@npm:1.1.1"
@@ -910,6 +917,7 @@ __metadata:
     "@graphql-tools/schema": ^7.1.2
     "@graphql-tools/utils": ^7.1.2
     "@jagi/jest-transform-graphql": ^1.0.2
+    "@types/bcryptjs": ^2.4.2
     "@types/jest": ^24.0.23
     "@types/jsonwebtoken": ^8.5.0
     "@types/knex": ^0.16.1
@@ -926,6 +934,7 @@ __metadata:
     "@via-profit-services/core": "file://home/dhs/Projects/@via-profit-services/core"
     "@via-profit-services/eslint-config": ^0.1.11
     "@via-profit-services/knex": "file://home/dhs/Projects/@via-profit-services/knex"
+    bcryptjs: ^2.4.3
     cross-env: ^6.0.3
     dotenv: ^8.2.0
     eslint: ^7.12.1
@@ -949,6 +958,7 @@ __metadata:
     moment: ^2.29.1
     moment-timezone: ^0.5.32
     nodemon-webpack-plugin: ^4.3.2
+    pg: ^8.5.1
     prettier: ^2.1.2
     supertest: ^4.0.2
     ts-jest: ^24.2.0
@@ -1021,7 +1031,7 @@ __metadata:
 
 "@via-profit-services/knex@file://home/dhs/Projects/@via-profit-services/knex::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
   version: 0.1.0
-  resolution: "@via-profit-services/knex@file://home/dhs/Projects/@via-profit-services/knex#//home/dhs/Projects/@via-profit-services/knex::hash=fbb0d1&locator=%40via-profit-services%2Faccounts%40workspace%3A."
+  resolution: "@via-profit-services/knex@file://home/dhs/Projects/@via-profit-services/knex#//home/dhs/Projects/@via-profit-services/knex::hash=32bc8a&locator=%40via-profit-services%2Faccounts%40workspace%3A."
   dependencies:
     pg: ^8.5.1
     pg-hstore: ^2.3.3
@@ -1034,7 +1044,7 @@ __metadata:
     moment-timezone: "*"
     winston: "*"
     winston-daily-rotate-file: "*"
-  checksum: 76397d62bbb61eb81419c64c4f629239cd9f6f74a47f3d023a2b8773297bdb8b634e1a9b413175e3e895855b6866e4e4f207985f652e58a220f27a5384b4260e
+  checksum: 9d3bf89ff91dfa83568c0e7eac178608bd2a766c52c79f3e8b326e8a98b568dc682333dd0017828347fb7e4f4635d36c0d22e14972c98c7a3232b447ac83fbd3
   languageName: node
   linkType: hard
 
@@ -1857,6 +1867,13 @@ __metadata:
   dependencies:
     tweetnacl: ^0.14.3
   checksum: 3f57eb99bbc02352f68ff31e446997f4d21cc9a5e5286449dc1fe0116ec5dac5a4aa538967d45714fa9320312d2be8d16126f2d357da1dd40a3d546b96e097ed
+  languageName: node
+  linkType: hard
+
+"bcryptjs@npm:^2.4.3":
+  version: 2.4.3
+  resolution: "bcryptjs@npm:2.4.3"
+  checksum: 5a320711757b5932da200856a5193cad0123df7c43b46417172eabf2aa436a8f08f64851722052fea6335453f96290005b6694a7dd26d8951810362de343175c
   languageName: node
   linkType: hard
 

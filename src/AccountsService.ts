@@ -1,26 +1,29 @@
 import type {
   Account, AccountsServiceProps, AccountInputInfo,
-  AccountTableModelOutput, AccountStatus,
+  AccountTableModelOutput, AccountStatus, AccessTokenPayload, TokenPackage,
 } from '@via-profit-services/accounts';
-import { OutputFilter, ListResponse } from '@via-profit-services/core';
+import { OutputFilter, ListResponse, ServerError } from '@via-profit-services/core';
 import {
   convertWhereToKnex, convertOrderByToKnex,
   convertSearchToKnex, extractTotalCountPropOfNode,
 } from '@via-profit-services/knex';
+import bcryptjs from 'bcryptjs';
+import fs from 'fs';
+import jwt from 'jsonwebtoken';
 
 import moment from 'moment-timezone';
 import { v4 as uuidv4 } from 'uuid';
 
 interface AccountsTableModel {
-  id: string;
-  login: string;
-  createdAt: string;
-  updatedAt: string;
-  password: string;
-  roles: string;
-  status: string;
-  deleted: boolean;
-  totalCount: number;
+  readonly id: string;
+  readonly login: string;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+  readonly password: string;
+  readonly roles: string;
+  readonly status: string;
+  readonly deleted: boolean;
+  readonly totalCount: number;
 }
 
 interface AccountsTableModelResult {
@@ -41,6 +44,81 @@ class AccountsService {
 
   public constructor(props: AccountsServiceProps) {
     this.props = props;
+  }
+
+  public static cryptUserPassword(password: string) {
+    const salt = bcryptjs.genSaltSync(10);
+
+    return bcryptjs.hashSync(password, salt);
+  }
+
+  public static getAccountStatusesList(): string[] {
+    return ['allowed', 'forbidden'];
+  }
+
+  public generateTokens(
+    payload: Pick<AccessTokenPayload, 'uuid' | 'roles'>,
+    exp?: {
+      access: number;
+      refresh: number;
+    },
+  ): TokenPackage {
+    const { context } = this.props;
+
+    const accessExpires = exp?.access ? exp.access : context.jwt.accessTokenExpiresIn;
+    const refreshExpires = exp?.refresh ? exp.refresh : context.jwt.refreshTokenExpiresIn;
+
+    // check file to access and readable
+    try {
+      fs.accessSync(context.jwt.privateKey);
+    } catch (err) {
+      throw new ServerError('Failed to open JWT privateKey file', { err });
+    }
+
+    const privatKey = fs.readFileSync(context.jwt.privateKey);
+
+    const accessTokenPayload = {
+      ...payload,
+      type: 'access',
+      id: uuidv4(),
+      exp: Math.floor(Date.now() / 1000) + Number(accessExpires),
+      iss: context.jwt.issuer,
+    };
+
+    const refreshTokenPayload = {
+      ...payload,
+      type: 'refresh',
+      id: uuidv4(),
+      associated: accessTokenPayload.id,
+      exp: Math.floor(Date.now() / 1000) + Number(refreshExpires),
+      iss: context.jwt.issuer,
+    };
+
+    const accessToken = jwt.sign(accessTokenPayload, privatKey, {
+      algorithm: context.jwt.algorithm,
+    });
+
+
+    const refreshToken = jwt.sign(refreshTokenPayload, privatKey, {
+      algorithm: context.jwt.algorithm,
+    });
+
+    return {
+      accessToken: {
+        token: accessToken,
+        payload: {
+          ...accessTokenPayload,
+          type: 'access',
+        },
+      },
+      refreshToken: {
+        token: refreshToken,
+        payload: {
+          ...refreshTokenPayload,
+          type: 'refresh',
+        },
+      },
+    };
   }
 
   public static getDefaultAccountData(): AccountInputInfo {
@@ -166,14 +244,19 @@ class AccountsService {
     });
   }
 
-  public async checkLoginExists(login: string, skipId: string): Promise<boolean> {
+  public async checkLoginExists(login: string, skipId?: string): Promise<boolean> {
     const { context } = this.props;
     const { knex } = context;
 
-    const list = await knex<AccountTableModelOutput, AccountTableModelOutput[]>('accounts')
+    const request = knex<AccountTableModelOutput, AccountTableModelOutput[]>('accounts')
       .select('id')
-      .where('login', '=', login)
-      .whereNot('id', skipId);
+      .where('login', '=', login);
+
+    if (skipId) {
+      request.whereNotIn('id', [skipId]);
+    }
+
+    const list = await request;
 
     return !!list.length;
   }

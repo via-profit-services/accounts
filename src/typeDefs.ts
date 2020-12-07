@@ -6,6 +6,10 @@ const schema = gql`
     accounts: AccountsQuery!
   }
 
+  extend type Mutation {
+    accounts: AccountsMutation!
+  }
+
   interface Profile {
     id: ID!
     createdAt: DateTime!
@@ -30,6 +34,18 @@ const schema = gql`
     forbidden
   }
 
+  enum AccountOrderField {
+    login
+    createdAt
+    updatedAt
+  }
+
+  enum TokenType {
+    access
+    refresh
+  }
+
+
   """
   Accounts module queries
   """
@@ -42,9 +58,129 @@ const schema = gql`
 
 
     """
-    Returns account by ID
+    Returns account data by ID
     """
     account(id: ID!): Account
+
+    """
+    Display list of all posible roles
+    """
+    rolesList: [String!]!
+
+    """
+    Check if passed login exists
+    """
+    checkLoginExists(login: String! skipId: ID): Boolean!
+
+    """
+    Returns Accounts list bundle
+    """
+    list(
+      first: Int
+      offset: Int
+      after: String
+      orderBy: [AccountOrderBy!]
+      filter: AccountListFilter
+      search: AccountFilterSearch
+    ): AccountListConnection!
+
+
+    """
+    Returns Account statuses list
+    """
+    statusesList: [AccountStatus!]!
+  }
+
+
+  """
+  Account edge bundle
+  """
+  type AccountsEdge implements Edge {
+    node: Account!
+    cursor: String!
+  }
+
+  """
+  Possible data to filter list of accounts
+  """
+  input AccountListFilter {
+    status: [AccountStatus!]
+  }
+
+  """
+  Account search filter
+  """
+  input AccountFilterSearch {
+
+    fields: [AccountFilterSearchField!]!
+
+    """
+    Search query string
+    """
+    query: String!
+  }
+  
+  """
+  Possible fields to search accounts
+  """
+  enum AccountFilterSearchField {
+    login
+  }
+
+  """
+  Ordering options for accounts returned from the connection
+  """
+  input AccountOrderBy {
+    field: AccountOrderField!
+    direction: OrderDirection!
+  }
+
+  """
+  Accounts list bundle
+  """
+  type AccountListConnection implements Connection {
+    totalCount: Int!
+    pageInfo: PageInfo!
+    edges: [AccountsEdge!]!
+  }
+
+  type AccountsMutation {
+    getToken(login: String! password: String!): TokenRsponse!
+  }
+
+  type TokenRsponse {
+    result: Boolean!
+    accessToken: AccessToken
+    refreshToken: RefreshToken
+  }
+  
+  type AccessToken {
+    token: String!
+    payload: AccessTokenPayload!
+  }
+  
+  type RefreshToken {
+    token: String!
+    payload: RefreshTokenPayload!
+  }
+
+  type AccessTokenPayload {
+    type: TokenType!
+    id: ID!
+    uuid: ID!
+    roles: [String!]!
+    exp: Int!
+    iss: String!
+  }
+
+  type RefreshTokenPayload {
+    type: TokenType!
+    id: ID!
+    uuid: ID!
+    roles: [String!]!
+    exp: Int!
+    iss: String!
+    associated: AccessToken!
   }
 `;
 

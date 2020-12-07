@@ -66,8 +66,14 @@ declare module '@via-profit-services/accounts' {
   export type JwtConfig = Required<Configuration>;
 
   export interface TokenPackage {
-    accessToken: TokenInfo;
-    refreshToken: TokenInfo;
+    accessToken: {
+      token: string;
+      payload: AccessTokenPayload;
+    };
+    refreshToken: {
+      token: string;
+      payload: RefreshTokenPayload;
+    };
   }
 
   export type AccessTokenPayload = {
@@ -105,7 +111,7 @@ declare module '@via-profit-services/accounts' {
     /**
      * Token type (only for internal identify)
      */
-    type: 'access';
+    type: 'refresh';
 
     /**
      * Access token ID associated value
@@ -122,8 +128,6 @@ declare module '@via-profit-services/accounts' {
     token: string;
     payload: RefreshTokenPayload;
   }
-
-  export type TokenInfo = AccessToken | RefreshToken;
 
   export interface Account {
     id: string;
@@ -160,7 +164,7 @@ declare module '@via-profit-services/accounts' {
 
   export interface CheckLoginExistsArgs {
     login: string;
-    skipId: string;
+    skipId?: string;
   }
 
   export interface DataLoadersCollection {

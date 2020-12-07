@@ -6,7 +6,6 @@ import {
 } from '@via-profit-services/core';
 
 import AccountsService from '../AccountsService';
-import { ROLES_LIST } from '../constants';
 import createLoaders from '../loaders';
 import UnauthorizedError from '../UnauthorizedError';
 
@@ -32,7 +31,7 @@ export const accountsQueryResolver: IObjectTypeResolver<any, Context> = {
     }
   },
   statusesList: (): AccountStatus[] => ['allowed', 'forbidden'],
-  rolesList: () => ROLES_LIST,
+  // rolesList: () => ROLES_LIST,
   me: async (parent, args, context) => {
 
     if (context.token.uuid === '') {

@@ -1,20 +1,25 @@
 /* eslint-disable no-console */
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import Application, { typeDefs, resolvers } from '@via-profit-services/core';
+import knexMiddleware from '@via-profit-services/knex';
+import dotenv from 'dotenv';
+import path from 'path';
 
 import accountsMiddleware, {
-  // resolvers as accountsResolvers,
-  // typeDefs as accountsTypeDefs,
+  resolvers as accountsResolvers,
+  typeDefs as accountsTypeDefs,
 } from '../index';
+
+dotenv.config();
 
 const schema = makeExecutableSchema({
   typeDefs: [
     typeDefs,
-    // accountsTypeDefs,
+    accountsTypeDefs,
   ],
   resolvers: [
     resolvers,
-    // accountsResolvers,
+    accountsResolvers,
   ],
 })
 
@@ -29,9 +34,17 @@ const app = new Application({
     password: '',
   },
   middlewares: [
+    knexMiddleware({
+      connection: {
+        user: process.env.DB_USER,
+        database: process.env.DB_NAME,
+        password: process.env.DB_PASSWORD,
+        host: process.env.DB_HOST,
+      },
+    }),
     accountsMiddleware({
-      privateKey: '',
-      publicKey: '',
+      privateKey: path.resolve(__dirname, './jwtRS256.key'),
+      publicKey: path.resolve(__dirname, './jwtRS256.key/pub'),
     }),
   ],
 });

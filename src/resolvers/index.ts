@@ -8,7 +8,7 @@ import Query from './Query';
 export default {
   Query,
   Mutation,
-  Subscription,
+  // Subscription,
   AccountsQuery,
   AccountsMutation,
   Account,

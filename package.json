@@ -18,11 +18,15 @@
         "dist": "yarn lint && yarn test && yarn build:dist",
         "build:dev": "cross-env NODE_ENV=development webpack --config ./webpack/webpack-config-dev.ts",
         "build:dist": "webpack --config ./webpack/webpack-config-prod.ts",
+        "build:migrations": "webpack --config ./webpack/webpack-config-migrations.ts",
         "start": "yarn build:dev --watch",
         "debug": "cross-env DEBUG=true yarn build:dev --watch",
         "analyze": "cross-env ANALYZE=true yarn build:dist",
         "test": "jest",
         "lint": "eslint --ext .ts ./src/ --fix .",
+        "migrate:latest": "yarn knex migrate:latest --knexfile ./.knex/knexfile.js",
+        "migrate:up": "yarn knex migrate:up --knexfile ./.knex/knexfile.js",
+        "migrate:down": "yarn knex migrate:down --knexfile ./.knex/knexfile.js",
         "postversion": "git push --tags",
         "release:patch": "yarn version --patch",
         "release:minor": "yarn version --minor",
@@ -47,6 +51,7 @@
         "@graphql-tools/schema": "^7.1.2",
         "@graphql-tools/utils": "^7.1.2",
         "@jagi/jest-transform-graphql": "^1.0.2",
+        "@types/bcryptjs": "^2.4.2",
         "@types/jest": "^24.0.23",
         "@types/jsonwebtoken": "^8.5.0",
         "@types/knex": "^0.16.1",
@@ -85,6 +90,7 @@
         "moment": "^2.29.1",
         "moment-timezone": "^0.5.32",
         "nodemon-webpack-plugin": "^4.3.2",
+        "pg": "^8.5.1",
         "prettier": "^2.1.2",
         "supertest": "^4.0.2",
         "ts-jest": "^24.2.0",
@@ -111,6 +117,7 @@
         "winston-daily-rotate-file": "*"
     },
     "dependencies": {
+        "bcryptjs": "^2.4.3",
         "jsonwebtoken": "^8.5.1"
     }
 }
