@@ -145,11 +145,17 @@ const schema = gql`
   }
 
   type AccountsMutation {
-    getToken(login: String! password: String!): TokenRsponse!
+    token(login: String! password: String!): TokenRegistrationResponse!
   }
 
-  type TokenRsponse {
-    result: Boolean!
+  type TokenRegistrationError implements Error {
+    name: String!
+    msg: String!
+  }
+
+  union TokenRegistrationResponse = TokenBag | TokenRegistrationError
+
+  type TokenBag {
     accessToken: AccessToken
     refreshToken: RefreshToken
   }

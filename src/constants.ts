@@ -6,3 +6,7 @@ export const DEFAULT_SIGNATURE_ISSUER = 'via-profit-services';
 export const LOG_FILENAME_AUTH = 'auth-%DATE%.log';
 export const ACCESS_TOKEN_EMPTY_ID = 'NOT_ASSIGNED';
 export const ACCESS_TOKEN_EMPTY_UUID = 'NOT_ASSIGNED';
+export const ACCESS_TOKEN_EMPTY_ISSUER = 'NOT_ASSIGNED';
+export const TOKEN_BEARER_KEY = 'Authorization';
+export const TOKEN_BEARER = 'Bearer';
+export const REDIS_TOKENS_BLACKLIST = 'tokensBlackList';

@@ -33,7 +33,7 @@ const webpackDevConfig: Configuration = merge(baseConfig, {
     /moment-timezone/,
     /uuid/,
     /winston/,
-    /graphql/,
+    /^graphql$/,
     /winston-daily-rotate-file/,
   ],
 });

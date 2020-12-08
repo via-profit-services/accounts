@@ -54,16 +54,36 @@ declare module '@via-profit-services/accounts' {
      */
     refreshTokenExpiresIn?: number;
     /**
-     * Cert private key file path
+     * Cert private key file path or key content
      */
-    privateKey: string;
+    privateKey: string | Buffer;
     /**
-     * Cert public key file path
+     * Cert public key file path or key content
      */
-    publicKey: string;
+    publicKey: string | Buffer;
   }
 
-  export type JwtConfig = Required<Configuration>;
+  export interface JwtConfig {
+    algorithm?: Algorithm;
+    issuer?: string;
+    accessTokenExpiresIn?: number;
+    refreshTokenExpiresIn?: number;
+    privateKey: Buffer;
+    publicKey: Buffer;
+  }
+
+
+  export type TokenRegistrationResponseSuccess = TokenPackage & {
+    __typename: 'TokenBag'
+  }
+  
+  export type TokenRegistrationResponseFailure = {
+    name: string;
+    msg: string;
+    __typename: 'TokenRegistrationError'
+  } 
+
+  export type TokenRegistrationResponse = TokenRegistrationResponseSuccess | TokenRegistrationResponseFailure;
 
   export interface TokenPackage {
     accessToken: {

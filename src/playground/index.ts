@@ -44,7 +44,7 @@ const app = new Application({
     }),
     accountsMiddleware({
       privateKey: path.resolve(__dirname, './jwtRS256.key'),
-      publicKey: path.resolve(__dirname, './jwtRS256.key/pub'),
+      publicKey: path.resolve(__dirname, './jwtRS256.key.pub'),
     }),
   ],
 });

@@ -1,9 +1,10 @@
-import { IObjectTypeResolver } from '@graphql-tools/utils';
-import { UpdateArgs, CreateArgs } from '@via-profit-services/accounts';
+import type { IObjectTypeResolver } from '@graphql-tools/utils';
+import type { TokenPackage, UpdateArgs, CreateArgs, TokenRegistrationResponse } from '@via-profit-services/accounts';
 import { ServerError, BadRequestError, Context } from '@via-profit-services/core';
 
 import AccountsService from '../AccountsService';
 import createLoaders from '../loaders';
+import UnauthorizedError from '../UnauthorizedError';
 
 interface GetTokenArgs {
   login: string;
@@ -109,14 +110,48 @@ const accountsMutationResolver: IObjectTypeResolver<any, Context> = {
   //     throw new ServerError(`Failed to delete account with id ${id}`, { id });
   //   }
   // },
-  getToken: async (parent: any, args: GetTokenArgs, context) => {
+  token: async ( _: any, args: GetTokenArgs, context): Promise<TokenRegistrationResponse> => {
     const { login, password } = args;
+    const { logger } = context;
+    const accountsService = new AccountsService({ context });
+    const account = await accountsService.getAccountByCredentials(login, password);
 
-    console.log({ login, password })
+    if (!account) {
+      logger.auth.debug(
+        `Authorization attempt with login «${login}» failed. Invalid login or password`,
+      );
 
-    return {
-      result: false,
-    };
+      return {
+        name: 'UnauthorizedError',
+        msg: 'Invalid login or password',
+        __typename: 'TokenRegistrationError',
+      };
+    }
+
+    if (account.status === 'forbidden') {
+      logger.auth.debug(
+        `Authorization attempt with login «${login}» failed. Account locked`,
+      );
+
+      return {
+        name: 'UnauthorizedError',
+        msg: 'Account locked',
+        __typename: 'TokenRegistrationError',
+      };
+    }
+
+    logger.auth.debug(`Authorization attempt with login «${login}» success`);
+
+    try {
+      const tokens = await accountsService.registerTokens({ uuid: account.id });
+
+      return {
+        ...tokens,
+        __typename: 'TokenBag',
+      }
+    } catch (err) {
+      throw new ServerError('Failed to register tokens', { err });
+    }
   },
 };
 

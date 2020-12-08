@@ -1,6 +1,6 @@
 import type {
-  Account, AccountsServiceProps, AccountInputInfo,
-  AccountTableModelOutput, AccountStatus, AccessTokenPayload, TokenPackage,
+  Account, AccountsServiceProps, AccountInputInfo, AccessTokenPayload,
+  AccountTableModelOutput, AccountStatus, TokenPackage, JwtConfig,
 } from '@via-profit-services/accounts';
 import { OutputFilter, ListResponse, ServerError } from '@via-profit-services/core';
 import {
@@ -8,11 +8,13 @@ import {
   convertSearchToKnex, extractTotalCountPropOfNode,
 } from '@via-profit-services/knex';
 import bcryptjs from 'bcryptjs';
-import fs from 'fs';
-import jwt from 'jsonwebtoken';
-
+import { IncomingMessage } from 'http';
+import jsonwebtoken from 'jsonwebtoken';
 import moment from 'moment-timezone';
 import { v4 as uuidv4 } from 'uuid';
+
+import { TOKEN_BEARER_KEY, TOKEN_BEARER, REDIS_TOKENS_BLACKLIST } from './constants';
+import UnauthorizedError from './UnauthorizedError';
 
 interface AccountsTableModel {
   readonly id: string;
@@ -46,6 +48,9 @@ class AccountsService {
     this.props = props;
   }
 
+  /**
+   * Just crypt password
+   */
   public static cryptUserPassword(password: string) {
     const salt = bcryptjs.genSaltSync(10);
 
@@ -56,33 +61,34 @@ class AccountsService {
     return ['allowed', 'forbidden'];
   }
 
+  /**
+   * Generate token pair (access + refresh)
+   */
   public generateTokens(
-    payload: Pick<AccessTokenPayload, 'uuid' | 'roles'>,
+    payload: {
+      uuid: string;
+      roles: string[];
+    },
     exp?: {
       access: number;
       refresh: number;
     },
   ): TokenPackage {
     const { context } = this.props;
+    const {
+      accessTokenExpiresIn, refreshTokenExpiresIn, issuer,
+      algorithm, privateKey,
+    } = context.jwt;
 
-    const accessExpires = exp?.access ? exp.access : context.jwt.accessTokenExpiresIn;
-    const refreshExpires = exp?.refresh ? exp.refresh : context.jwt.refreshTokenExpiresIn;
-
-    // check file to access and readable
-    try {
-      fs.accessSync(context.jwt.privateKey);
-    } catch (err) {
-      throw new ServerError('Failed to open JWT privateKey file', { err });
-    }
-
-    const privatKey = fs.readFileSync(context.jwt.privateKey);
+    const accessExpires = exp?.access ?? accessTokenExpiresIn;
+    const refreshExpires = exp?.refresh ?? refreshTokenExpiresIn;
 
     const accessTokenPayload = {
       ...payload,
       type: 'access',
       id: uuidv4(),
       exp: Math.floor(Date.now() / 1000) + Number(accessExpires),
-      iss: context.jwt.issuer,
+      iss: issuer,
     };
 
     const refreshTokenPayload = {
@@ -91,28 +97,22 @@ class AccountsService {
       id: uuidv4(),
       associated: accessTokenPayload.id,
       exp: Math.floor(Date.now() / 1000) + Number(refreshExpires),
-      iss: context.jwt.issuer,
+      iss: issuer,
     };
 
-    const accessToken = jwt.sign(accessTokenPayload, privatKey, {
-      algorithm: context.jwt.algorithm,
-    });
-
-
-    const refreshToken = jwt.sign(refreshTokenPayload, privatKey, {
-      algorithm: context.jwt.algorithm,
-    });
+    const accessTokenString = jsonwebtoken.sign(accessTokenPayload, privateKey, { algorithm });
+    const refreshTokenString = jsonwebtoken.sign(refreshTokenPayload, privateKey, { algorithm });
 
     return {
       accessToken: {
-        token: accessToken,
+        token: accessTokenString,
         payload: {
           ...accessTokenPayload,
           type: 'access',
         },
       },
       refreshToken: {
-        token: refreshToken,
+        token: refreshTokenString,
         payload: {
           ...refreshTokenPayload,
           type: 'refresh',
@@ -120,6 +120,54 @@ class AccountsService {
       },
     };
   }
+
+  /**
+   * Generate new tokens pair and register it
+   */
+  public async registerTokens(data: { uuid: string }): Promise<TokenPackage> {
+    const { context } = this.props;
+    const { knex, logger } = context;
+    const { uuid } = data;
+
+    const account = await this.getAccount(uuid);
+
+    if (!account) {
+      throw new UnauthorizedError(`Account with id[${uuid}] not found`);
+    }
+
+    const tokens = this.generateTokens({
+      uuid: account.id,
+      roles: account.roles,
+    });
+
+    try {
+      await knex('tokens').insert([
+        {
+          id: tokens.accessToken.payload.id,
+          account: tokens.accessToken.payload.uuid,
+          type: 'access',
+          expiredAt: moment(tokens.accessToken.payload.exp * 1000).format(),
+        },
+        {
+          id: tokens.refreshToken.payload.id,
+          account: tokens.refreshToken.payload.uuid,
+          type: 'refresh',
+          associated: tokens.accessToken.payload.id,
+          expiredAt: moment(tokens.refreshToken.payload.exp * 1000).format(),
+        },
+      ]);
+    } catch (err) {
+      throw new ServerError('Failed to register tokens', err);
+    }
+
+    logger.auth.info('New Access token was registered', {
+      accessTokenID: tokens.accessToken.payload.id,
+      refreshTokenID: tokens.refreshToken.payload.id,
+    });
+
+    return tokens;
+  }
+
 
   public static getDefaultAccountData(): AccountInputInfo {
     return {
@@ -165,11 +213,11 @@ class AccountsService {
       .limit(limit)
       .offset(offset)
       .then((nodes) => ({
+        ...extractTotalCountPropOfNode(nodes),
           offset,
           limit,
           orderBy,
           where,
-          ...extractTotalCountPropOfNode(nodes),
         }))
 
     return result;
@@ -260,6 +308,71 @@ class AccountsService {
 
     return !!list.length;
   }
+
+
+  public async getAccountByCredentials(login: string, password: string): Promise<Account | false> {
+    const account = await this.getAccountByLogin(login);
+    if (account && bcryptjs.compareSync(String(password), String(account.password))) {
+      return account;
+    }
+
+    return false;
+  }
+
+  public static extractTokenFromSubscription(connectionParams: any): string | false {
+    if (typeof connectionParams === 'object' && TOKEN_BEARER_KEY in connectionParams) {
+      const [bearer, token] = String(connectionParams[TOKEN_BEARER_KEY]).split(' ');
+
+      if (bearer === TOKEN_BEARER && token !== '') {
+        return String(token);
+      }
+    }
+
+    return false;
+  }
+
+  public static extractTokenFromRequest(request: IncomingMessage): string | false {
+    const { headers } = request;
+
+    // try to get access token from headers
+    if (TOKEN_BEARER_KEY.toLocaleLowerCase() in headers) {
+      const [bearer, tokenFromHeader] = String(headers[TOKEN_BEARER_KEY.toLocaleLowerCase()]).split(' ');
+
+      if (bearer === TOKEN_BEARER && tokenFromHeader !== '') {
+        return String(tokenFromHeader);
+      }
+    }
+
+    return false;
+  }
+
+  public async verifyToken(token: string): Promise<AccessTokenPayload | false> {
+    const { context } = this.props;
+    const { redis, logger, jwt } = context;
+    const { privateKey, algorithm } = jwt;
+
+    try {
+      const payload = jsonwebtoken.verify(String(token), privateKey, {
+        algorithms: [algorithm],
+      }) as AccessTokenPayload;
+
+      const revokeStatus = await redis.sismember(REDIS_TOKENS_BLACKLIST, payload.id);
+      if (revokeStatus) {
+        logger.auth.info('Token was revoked', { payload });
+
+        return false;
+      }
+
+      return payload;
+    } catch (err) {
+      logger.auth.info('Invalid token', { err });
+      logger.server.error('Failed to validate the token', { err });
+
+      return false;
+    }
+  }
+
+
 }
 
 export default AccountsService;
