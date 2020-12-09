@@ -1,8 +1,9 @@
 declare module '@via-profit-services/accounts' {
   import { Algorithm } from 'jsonwebtoken';
   import { DocumentNode } from 'graphql';
-  import { Middleware, DataLoader, Node, Context, ErrorHandler } from '@via-profit-services/core';
-  
+  import { Middleware, DataLoader, Node, Context, ErrorHandler, OutputFilter, ListResponse } from '@via-profit-services/core';
+  import { IncomingMessage } from 'http';
+
   export type AccountStatus = 'allowed' | 'forbidden';
   export type TokenType = 'access' | 'refresh';
   export type SubscriptionTriggers = 'account-updated' | 'account-deleted';
@@ -205,12 +206,46 @@ declare module '@via-profit-services/accounts' {
   /**
    * Accounts service
    */
-  // export class AccountsService {
-  //   private readonly props: AccountsServiceProps;
-  //   static getDefaultAccountData(): AccountInputInfo;
-  //   prepareDataToInsert(accountInputData: Partial<AccountInputInfo>): Partial<AccountInputInfo>; 
-  //   constructor(props: AccountsServiceProps);
-  // }
+  export class AccountsService {
+      props: AccountsServiceProps;
+      constructor(props: AccountsServiceProps);
+      /**
+       * Just crypt password
+       */
+      static cryptUserPassword(password: string): string;
+      static getAccountStatusesList(): string[];
+      /**
+       * Generate token pair (access + refresh)
+       */
+      generateTokens(payload: {
+          uuid: string;
+          roles: string[];
+      }, exp?: {
+          access: number;
+          refresh: number;
+      }): TokenPackage;
+      /**
+       * Generate new tokens pair and register it
+       */
+      registerTokens(data: {
+          uuid: string;
+      }): Promise<TokenPackage>;
+      static getDefaultAccountData(): AccountInputInfo;
+      prepareDataToInsert(accountInputData: Partial<AccountInputInfo>): Partial<AccountInputInfo>;
+      getAccounts(filter: Partial<OutputFilter>): Promise<ListResponse<Account>>;
+      getAccountsByIds(ids: string[]): Promise<Account[]>;
+      getAccount(id: string): Promise<Account | false>;
+      getAccountByLogin(login: string): Promise<Account | false>;
+      updateAccount(id: string, accountData: Partial<AccountInputInfo>): Promise<void>;
+      createAccount(accountData: Partial<AccountInputInfo>): Promise<string>;
+      deleteAccount(id: string): Promise<void>;
+      checkLoginExists(login: string, skipId?: string): Promise<boolean>;
+      getAccountByCredentials(login: string, password: string): Promise<Account | false>;
+      static extractTokenFromSubscription(connectionParams: any): string | false;
+      static extractTokenFromRequest(request: IncomingMessage): string | false;
+      verifyToken(token: string): Promise<AccessTokenPayload | false>;
+  }
+
 
 
   export class UnauthorizedError extends Error implements ErrorHandler {

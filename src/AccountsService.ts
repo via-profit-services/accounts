@@ -1,6 +1,6 @@
 import type {
   Account, AccountsServiceProps, AccountInputInfo, AccessTokenPayload,
-  AccountTableModelOutput, AccountStatus, TokenPackage, JwtConfig,
+  AccountTableModelOutput, AccountStatus, TokenPackage,
 } from '@via-profit-services/accounts';
 import { OutputFilter, ListResponse, ServerError } from '@via-profit-services/core';
 import {

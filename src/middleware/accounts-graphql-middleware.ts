@@ -75,6 +75,16 @@ const accountsGraphqlMiddleware: AccountsGraphqlMiddleware = (props) => {
       if (bearerTokenPayload) {
         token = bearerTokenPayload;
       } else {
+        const operation = info.operation.operation;
+        const fieldName = info.fieldName;
+        const value = info.operation.name?.value ?? null;
+
+        console.log({
+          operation,
+          fieldName,
+          value,
+        })
+        console.log(info);
         throw new UnauthorizedError('Invalid token');
       }
     }
