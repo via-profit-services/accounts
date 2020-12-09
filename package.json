@@ -15,7 +15,7 @@
         "users"
     ],
     "scripts": {
-        "dist": "yarn lint && yarn test && yarn build:dist",
+        "dist": "yarn lint && yarn build:dist",
         "build:dev": "cross-env NODE_ENV=development webpack --config ./webpack/webpack-config-dev.ts",
         "build:dist": "webpack --config ./webpack/webpack-config-prod.ts",
         "build:migrations": "webpack --config ./webpack/webpack-config-migrations.ts",
