@@ -1,4 +1,8 @@
-.*
+.yarn/*
+.env
+.knex/knexfile.js
+.vscode/*
+
 /assets
 /build
 /keys
