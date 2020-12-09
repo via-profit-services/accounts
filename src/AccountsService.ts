@@ -210,8 +210,8 @@ class AccountsService {
       .orderBy(convertOrderByToKnex(orderBy))
       .where((builder) => convertWhereToKnex(builder, where))
       .where((builder) => convertSearchToKnex(builder, search))
-      .limit(limit)
-      .offset(offset)
+      .limit(limit || 1)
+      .offset(offset || 0)
       .then((nodes) => ({
         ...extractTotalCountPropOfNode(nodes),
           offset,
