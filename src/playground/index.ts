@@ -39,9 +39,9 @@ const { accountsMiddleware } = accountsMiddlewareFactory({
   publicKey: path.resolve(__dirname, './jwtRS256.key.pub'),
 });
 
-const PORT = 9005;
+const PORT = 9006;
 const app = express();
-const server = http.createServer();
+const server = http.createServer(app);
 const application = factory({
   server,
   schema,

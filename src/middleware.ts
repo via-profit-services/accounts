@@ -73,16 +73,16 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = (config) => {
         if (bearerTokenPayload) {
           token = bearerTokenPayload;
         } else {
-          const operation = info.operation.operation;
-          const fieldName = info.fieldName;
-          const value = info.operation.name?.value ?? null;
-
-          console.log({
-            operation,
-            fieldName,
-            value,
-          })
           console.log(info);
+          console.log('------')
+          console.log(info.operation.selectionSet);
+
+
+          if (info.returnType.toString() === 'AccountsMutation!') {
+            // if (info) {
+
+            // }
+          }
           throw new UnauthorizedError('Invalid token');
         }
       }
