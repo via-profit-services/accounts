@@ -1073,7 +1073,7 @@ __metadata:
 
 "@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
   version: 0.31.6
-  resolution: "@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core#//home/dhs/Projects/@via-profit-services/core::hash=13da0d&locator=%40via-profit-services%2Faccounts%40workspace%3A."
+  resolution: "@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core#//home/dhs/Projects/@via-profit-services/core::hash=b3465b&locator=%40via-profit-services%2Faccounts%40workspace%3A."
   dependencies:
     bufferutil: ^4.0.2
     content-type: ^1.0.4
@@ -1106,7 +1106,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: 78e05a9e775484b653ef8a6d799d7123bbad3c9484d0fe10b7b6b439bba85e097e56af53193c1187c55821c1d31168f8791691c7ed006b7ae56419c88a06ec2f
+  checksum: 975c86e35f968ecf88bbb657a01dc8a963a51b7e602d52b8e3dd74a9ff335e520c7a3288778349084bf953d58c2202714224926df59067927df40233a1f76c16
   languageName: node
   linkType: hard
 
@@ -1119,7 +1119,7 @@ __metadata:
 
 "@via-profit-services/knex@file://home/dhs/Projects/@via-profit-services/knex::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
   version: 0.1.0
-  resolution: "@via-profit-services/knex@file://home/dhs/Projects/@via-profit-services/knex#//home/dhs/Projects/@via-profit-services/knex::hash=5e71d7&locator=%40via-profit-services%2Faccounts%40workspace%3A."
+  resolution: "@via-profit-services/knex@file://home/dhs/Projects/@via-profit-services/knex#//home/dhs/Projects/@via-profit-services/knex::hash=2e0171&locator=%40via-profit-services%2Faccounts%40workspace%3A."
   dependencies:
     pg: ^8.5.1
     pg-hstore: ^2.3.3
@@ -1132,7 +1132,7 @@ __metadata:
     moment-timezone: "*"
     winston: "*"
     winston-daily-rotate-file: "*"
-  checksum: 94eaee1e98c9d29a9d978302d158c201336cb18aed925efc60bd2c1664e033e0cf9b7daa2a2c93176b92e43011648b7e31d80e19101084a50788a467ec32e799
+  checksum: 3ce96254a2c187aaed615b803d7208a711e437001c49faad0e559741f7dfa0787223e066bc510aea4f2d5eb8cdc10dc85af2f67b489e1fc2fd4035ae772f27d1
   languageName: node
   linkType: hard
 
