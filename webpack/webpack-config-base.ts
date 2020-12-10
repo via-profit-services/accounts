@@ -22,15 +22,15 @@ const webpackBaseConfig: Configuration = {
   },
   externals: [
     ...knexExternals,
-    /@via-profit-services\/core/,
-    /@via-profit-services\/knex/,
-    /moment/,
-    /moment-timezone/,
-    /uuid/,
-    /dataloader/,
-    /winston/,
+    /^@via-profit-services\/core/,
+    /^@via-profit-services\/knex/,
+    /^moment$/,
+    /^moment-timezone$/,
+    /^uuid$/,
+    /^dataloader$/,
+    /^winston$/,
     /^graphql$/,
-    /winston-daily-rotate-file/,
+    /^winston-daily-rotate-file$/,
   ],
 }
 
