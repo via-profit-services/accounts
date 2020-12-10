@@ -192,7 +192,11 @@ declare module '@via-profit-services/accounts' {
     accounts: DataLoader<string,  Node<Account>>;
   }
 
-  export type AccountsMiddleware = (config: Configuration) => Middleware;
+  export type AccountsMiddlewareFactory = (
+    config: Configuration
+  ) => {
+    accountsMiddleware: Middleware;
+  };
   export const typeDefs: DocumentNode;
   export const resolvers: any;
   export const loaders: DataLoadersCollection;
@@ -255,9 +259,9 @@ declare module '@via-profit-services/accounts' {
     constructor(message: string, metaData?: any);
   }
 
-  const accountsMiddleware: AccountsMiddleware;
+  const accountsMiddlewareFactory: AccountsMiddlewareFactory;
 
-  export default accountsMiddleware;
+  export default accountsMiddlewareFactory;
 }
 
 

@@ -1072,7 +1072,7 @@ __metadata:
 
 "@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
   version: 0.31.6
-  resolution: "@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core#//home/dhs/Projects/@via-profit-services/core::hash=0d9e3f&locator=%40via-profit-services%2Faccounts%40workspace%3A."
+  resolution: "@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core#//home/dhs/Projects/@via-profit-services/core::hash=aa1998&locator=%40via-profit-services%2Faccounts%40workspace%3A."
   dependencies:
     bufferutil: ^4.0.2
     content-type: ^1.0.4
@@ -1084,6 +1084,7 @@ __metadata:
     graphql-middleware: ^4.0.2
     graphql-redis-subscriptions: ^2.2.1
     graphql-subscriptions: ^1.1.0
+    graphql-ws: ^3.0.0
     ioredis: ^4.16.3
     raw-body: ^2.4.1
     session-file-store: ^1.5.0
@@ -1103,7 +1104,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: 3a4112feb1a40eaf12fd9c49d69194c88044f1d1aec52fb61520fa58eb09f35e0cf86265cde565a85d988a81bbb744b8730bb7fa6c96be30ef121f8e4585da1d
+  checksum: a7ea0daaa843a1475af9da2ed2d351dd8f921f3994d144d10d16598f525601c035e5eda370e65fb69d2635acb76b41f8e1ff68e8b6a0c9e390011108d34ada16
   languageName: node
   linkType: hard
 
@@ -1116,7 +1117,7 @@ __metadata:
 
 "@via-profit-services/knex@file://home/dhs/Projects/@via-profit-services/knex::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
   version: 0.1.0
-  resolution: "@via-profit-services/knex@file://home/dhs/Projects/@via-profit-services/knex#//home/dhs/Projects/@via-profit-services/knex::hash=e51cf5&locator=%40via-profit-services%2Faccounts%40workspace%3A."
+  resolution: "@via-profit-services/knex@file://home/dhs/Projects/@via-profit-services/knex#//home/dhs/Projects/@via-profit-services/knex::hash=ede84d&locator=%40via-profit-services%2Faccounts%40workspace%3A."
   dependencies:
     pg: ^8.5.1
     pg-hstore: ^2.3.3
@@ -1129,7 +1130,7 @@ __metadata:
     moment-timezone: "*"
     winston: "*"
     winston-daily-rotate-file: "*"
-  checksum: fa7a6eab7088c6b85422ca87aaed26747e281898f6822245482df78a958507385d9db7e3a4f4fbdcdb9ad88716a3f96fb6c9bf8cb21f4a08a4aab2352bd5f155
+  checksum: f58fb027ff5f3b3d18c53254aeb4d7669c1f63c47d861365d74a69874e88dc641c63474f7756a3a079a7554778fb42e7289d25782adacbfbb69aabd859ac5c8c
   languageName: node
   linkType: hard
 
@@ -4793,6 +4794,15 @@ fsevents@~2.1.2:
   peerDependencies:
     graphql: ^0.13.0 || ^14.0.0 || ^15.0.0
   checksum: 93f62ea9b1d66c5a9a5b43ef510be462b4d64e0e469e9d49b42f9b1343a445902096170f6c58b35988495ae628fd456666254cb2cbf14ea2814bb053c9c84057
+  languageName: node
+  linkType: hard
+
+"graphql-ws@npm:^3.0.0":
+  version: 3.0.1
+  resolution: "graphql-ws@npm:3.0.1"
+  peerDependencies:
+    graphql: ">=0.11 <=15"
+  checksum: c44dbe4f7fae9148872e628e07680d639447aed3df20c837c3a3759e6353f30f5c1a562189444eebe142ed118ae5806c3e7edf69077ebef10de3dd80b0fb4779
   languageName: node
   linkType: hard
 

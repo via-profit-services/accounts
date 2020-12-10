@@ -1,11 +1,13 @@
 /* eslint-disable no-console */
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import Application, { typeDefs, resolvers } from '@via-profit-services/core';
-import knexMiddleware from '@via-profit-services/knex';
+import factory, { typeDefs, resolvers } from '@via-profit-services/core';
+import knexMiddlewareFactory from '@via-profit-services/knex';
 import dotenv from 'dotenv';
+import express from 'express';
+import http from 'http';
 import path from 'path';
 
-import accountsMiddleware, {
+import accountsMiddlewareFactory, {
   resolvers as accountsResolvers,
   typeDefs as accountsTypeDefs,
 } from '../index';
@@ -21,40 +23,33 @@ const schema = makeExecutableSchema({
     resolvers,
     accountsResolvers,
   ],
-})
+});
 
-const app = new Application({
+const { knexMiddleware } = knexMiddlewareFactory({
+  connection: {
+    user: process.env.DB_USER,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    host: process.env.DB_HOST,
+  },
+});
+
+const { accountsMiddleware } = accountsMiddlewareFactory({
+  privateKey: path.resolve(__dirname, './jwtRS256.key'),
+  publicKey: path.resolve(__dirname, './jwtRS256.key.pub'),
+});
+
+const PORT = 9005;
+const app = express();
+const server = http.createServer();
+const application = factory({
+  server,
   schema,
   debug: true,
   enableIntrospection: true,
-  port: 9005,
-  redis: {
-    host: 'localhost',
-    port: 6379,
-    password: '',
-  },
-  middlewares: [
-    knexMiddleware({
-      connection: {
-        user: process.env.DB_USER,
-        database: process.env.DB_NAME,
-        password: process.env.DB_PASSWORD,
-        host: process.env.DB_HOST,
-      },
-    }),
-    accountsMiddleware({
-      privateKey: path.resolve(__dirname, './jwtRS256.key'),
-      publicKey: path.resolve(__dirname, './jwtRS256.key.pub'),
-    }),
-  ],
+  middleware: [knexMiddleware, accountsMiddleware],
 });
 
-app.bootstrap(({ resolveUrl }) => {
-  const {
-    graphql,
-    subscriptions,
-  } = resolveUrl;
+app.use(application);
+server.listen(PORT, () => console.log(`Server started at http://localhost:${PORT}/graphql`))
 
-  console.log(`GraphQL server started at ${graphql}`);
-  console.log(`Subscription server started at ${subscriptions}`);
-});
