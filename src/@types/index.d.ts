@@ -15,6 +15,7 @@ declare module '@via-profit-services/accounts' {
    * @see [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken)
    */
   export interface Configuration {
+    logDir: string;
     /**
      * Signature algorithm. Could be one of these values :
      * - HS256:    HMAC using SHA-256 hash algorithm (default)

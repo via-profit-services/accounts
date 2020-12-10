@@ -11,7 +11,13 @@ import accountsMiddlewareFactory from '../index';
 
 dotenv.config();
 
+const PORT = 9006;
+const LOGDIR = './log';
+const app = express();
+const server = http.createServer(app);
+
 const knex = knexMiddlewareFactory({
+  logDir: LOGDIR,
   connection: {
     user: process.env.DB_USER,
     database: process.env.DB_NAME,
@@ -22,14 +28,12 @@ const knex = knexMiddlewareFactory({
 
 
 const accounts = accountsMiddlewareFactory({
+  logDir: LOGDIR,
   privateKey: path.resolve(__dirname, './jwtRS256.key'),
   publicKey: path.resolve(__dirname, './jwtRS256.key.pub'),
 });
 
 
-const PORT = 9006;
-const app = express();
-const server = http.createServer(app);
 const schema = makeExecutableSchema({
   typeDefs: [
     typeDefs,
