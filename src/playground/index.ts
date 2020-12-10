@@ -47,6 +47,7 @@ const schema = makeExecutableSchema({
 
 
 const application = factory({
+  logDir: LOGDIR,
   server,
   schema,
   debug: true,
