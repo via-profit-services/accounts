@@ -19,7 +19,7 @@ import typeDefs from './typeDefs';
 
 
 const accountsMiddlewareFactory: AccountsMiddlewareFactory = (config) => {
-  const { privateKey, publicKey } = config;
+  const { privateKey, publicKey, logDir } = config;
   const jwt: JwtConfig = {
     issuer: DEFAULT_SIGNATURE_ISSUER,
     algorithm: DEFAULT_SIGNATURE_ALGORITHM,
@@ -28,11 +28,11 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = (config) => {
     privateKey: typeof privateKey === 'string' ? fs.readFileSync(privateKey) : privateKey,
     publicKey: typeof publicKey === 'string' ? fs.readFileSync(publicKey) : publicKey,
   };
+  const logger = authLogger({ logDir });
 
   const middleware: Middleware = (props) => {
-    const { logDir } = props.config;
     const { request } = props;
-    const logger = authLogger({ logDir });
+
     logger.debug('Graphql Middleware initialize');
 
     const keys: Pick<Configuration, 'privateKey' | 'publicKey'> = {
