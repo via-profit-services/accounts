@@ -13,7 +13,9 @@ import {
   ACCESS_TOKEN_EMPTY_UUID,
   ACCESS_TOKEN_EMPTY_ISSUER,
 } from './constants';
-import UnauthorizedError from './UnauthorizedError';
+import dataloaderFacroty from './dataloaders';
+import resolvers from './resolvers';
+import typeDefs from './typeDefs';
 
 
 const accountsMiddlewareFactory: AccountsMiddlewareFactory = (config) => {
@@ -27,7 +29,7 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = (config) => {
     publicKey: typeof publicKey === 'string' ? fs.readFileSync(publicKey) : publicKey,
   };
 
-  const accountsMiddleware: Middleware = (props) => {
+  const middleware: Middleware = (props) => {
     const { logDir } = props.config;
     const { request } = props;
     const logger = authLogger({ logDir });
@@ -55,7 +57,7 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = (config) => {
       exp: 0,
     };
 
-    const middleware: GraphqlMiddleware = async (resolve, parent, args, context, info) => {
+    const graphqlMiddleware: GraphqlMiddleware = async (resolve, parent, args, context, info) => {
       const composedContext: Context = {
         ...context,
         token,
@@ -63,6 +65,10 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = (config) => {
         logger: {
           ...context.logger, // original loggers
           auth: logger, // append sql logger
+        },
+        dataloader: {
+          ...context.dataloader, // original dataloaders
+          ...dataloaderFacroty(context), // append account dataloaders
         },
       };
 
@@ -73,28 +79,30 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = (config) => {
         if (bearerTokenPayload) {
           token = bearerTokenPayload;
         } else {
-          console.log(info);
-          console.log('------')
-          console.log(info.operation.selectionSet);
+          // console.log(info);
+          // console.log('------')
+          // console.log(info.operation.selectionSet);
 
 
-          if (info.returnType.toString() === 'AccountsMutation!') {
-            // if (info) {
+          // if (info.returnType.toString() === 'AccountsMutation!') {
+          //   // if (info) {
 
-            // }
-          }
-          throw new UnauthorizedError('Invalid token');
+          //   // }
+          // }
+          // throw new UnauthorizedError('Invalid token');
         }
       }
 
       return await resolve(parent, args, composedContext, info);
     }
 
-    return middleware;
+    return graphqlMiddleware;
   }
 
   return {
-    accountsMiddleware,
+    middleware,
+    resolvers,
+    typeDefs,
   }
 }
 

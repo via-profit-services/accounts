@@ -6,12 +6,11 @@ import {
 } from '@via-profit-services/core';
 
 import AccountsService from '../AccountsService';
-import createLoaders from '../loaders';
 import UnauthorizedError from '../UnauthorizedError';
 
 export const accountsQueryResolver: IObjectTypeResolver<any, Context> = {
   list: async (source, args: InputFilter, context) => {
-    const loaders = createLoaders(context);
+    const { dataloader } = context;
     const filter = buildQueryFilter(args);
     const accountsService = new AccountsService({ context });
 
@@ -22,7 +21,7 @@ export const accountsQueryResolver: IObjectTypeResolver<any, Context> = {
 
       // fill the cache
       accountsConnection.nodes.forEach((node) => {
-        loaders.accounts.clear(node.id).prime(node.id, node);
+        dataloader.accounts.clear(node.id).prime(node.id, node);
       });
 
       return connection;
@@ -37,15 +36,15 @@ export const accountsQueryResolver: IObjectTypeResolver<any, Context> = {
     if (context.token.uuid === '') {
       throw new UnauthorizedError('Unknown account');
     }
-    const loaders = createLoaders(context);
-    const account = await loaders.accounts.load(context.token.uuid);
+    const { dataloader } = context;
+    const account = await dataloader.accounts.load(context.token.uuid);
 
     return account;
   },
   account: async (parent, args: {id: string}, context) => {
     const { id } = args;
-    const loaders = createLoaders(context);
-    const account = await loaders.accounts.load(id);
+    const { dataloader } = context;
+    const account = await dataloader.accounts.load(id);
 
     return account;
   },

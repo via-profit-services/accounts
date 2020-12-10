@@ -3,7 +3,6 @@ import type { TokenPackage, UpdateArgs, CreateArgs, TokenRegistrationResponse } 
 import { ServerError, BadRequestError, Context } from '@via-profit-services/core';
 
 import AccountsService from '../AccountsService';
-import createLoaders from '../loaders';
 import UnauthorizedError from '../UnauthorizedError';
 
 interface GetTokenArgs {

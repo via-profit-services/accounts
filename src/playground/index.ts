@@ -7,25 +7,11 @@ import express from 'express';
 import http from 'http';
 import path from 'path';
 
-import accountsMiddlewareFactory, {
-  resolvers as accountsResolvers,
-  typeDefs as accountsTypeDefs,
-} from '../index';
+import accountsMiddlewareFactory from '../index';
 
 dotenv.config();
 
-const schema = makeExecutableSchema({
-  typeDefs: [
-    typeDefs,
-    accountsTypeDefs,
-  ],
-  resolvers: [
-    resolvers,
-    accountsResolvers,
-  ],
-});
-
-const { knexMiddleware } = knexMiddlewareFactory({
+const knex = knexMiddlewareFactory({
   connection: {
     user: process.env.DB_USER,
     database: process.env.DB_NAME,
@@ -34,22 +20,42 @@ const { knexMiddleware } = knexMiddlewareFactory({
   },
 });
 
-const { accountsMiddleware } = accountsMiddlewareFactory({
+
+const accounts = accountsMiddlewareFactory({
   privateKey: path.resolve(__dirname, './jwtRS256.key'),
   publicKey: path.resolve(__dirname, './jwtRS256.key.pub'),
 });
 
+
 const PORT = 9006;
 const app = express();
 const server = http.createServer(app);
+const schema = makeExecutableSchema({
+  typeDefs: [
+    typeDefs,
+    accounts.typeDefs,
+  ],
+  resolvers: [
+    resolvers,
+    accounts.resolvers,
+  ],
+});
+
+
 const application = factory({
   server,
   schema,
   debug: true,
   enableIntrospection: true,
-  middleware: [knexMiddleware, accountsMiddleware],
+  middleware: [
+    knex.middleware,
+    accounts.middleware,
+  ],
 });
 
 app.use(application);
-server.listen(PORT, () => console.log(`Server started at http://localhost:${PORT}/graphql`))
+server.listen(PORT, () => {
+  console.log(`GraphQL Server started at http://localhost:${PORT}/graphql`);
+  console.log(`Subscriptions server started at ws://localhost:${PORT}/graphql`);
+})
 

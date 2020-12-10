@@ -1,8 +1,9 @@
 declare module '@via-profit-services/accounts' {
   import { Algorithm } from 'jsonwebtoken';
   import { DocumentNode } from 'graphql';
-  import { Middleware, DataLoader, Node, Context, ErrorHandler, OutputFilter, ListResponse } from '@via-profit-services/core';
+  import { Middleware, Node, Context, ErrorHandler, OutputFilter, ListResponse, DataLoaderCollection } from '@via-profit-services/core';
   import { IncomingMessage } from 'http';
+  import { IResolvers } from '@graphql-tools/utils';
 
   export type AccountStatus = 'allowed' | 'forbidden';
   export type TokenType = 'access' | 'refresh';
@@ -188,18 +189,13 @@ declare module '@via-profit-services/accounts' {
     skipId?: string;
   }
 
-  export interface DataLoadersCollection {
-    accounts: DataLoader<string,  Node<Account>>;
-  }
-
   export type AccountsMiddlewareFactory = (
     config: Configuration
   ) => {
-    accountsMiddleware: Middleware;
+    middleware: Middleware;
+    typeDefs: DocumentNode;
+    resolvers: IResolvers;
   };
-  export const typeDefs: DocumentNode;
-  export const resolvers: any;
-  export const loaders: DataLoadersCollection;
 
   /**
    * Accounts service constructor props
@@ -259,6 +255,7 @@ declare module '@via-profit-services/accounts' {
     constructor(message: string, metaData?: any);
   }
 
+
   const accountsMiddlewareFactory: AccountsMiddlewareFactory;
 
   export default accountsMiddlewareFactory;
@@ -266,7 +263,8 @@ declare module '@via-profit-services/accounts' {
 
 
 declare module '@via-profit-services/core' {
-  import { JwtConfig, AccessTokenPayload } from '@via-profit-services/accounts';
+  import DataLoader from 'dataloader';
+  import { JwtConfig, AccessTokenPayload, Account } from '@via-profit-services/accounts';
 
   interface Context {
     /**
@@ -276,6 +274,15 @@ declare module '@via-profit-services/core' {
     jwt: JwtConfig;
     token: AccessTokenPayload;
   }
+
+  
+  interface DataLoaderCollection {
+    /**
+     * Accounts dataloader
+     */
+    accounts: DataLoader<string, Node<Account>>;
+  }
+  
 
   interface LoggersCollection {
     /**

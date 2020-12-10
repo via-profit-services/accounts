@@ -1,4 +1,3 @@
-import { knexExternals } from '@via-profit-services/knex/dist/webpack-utils';
 import fs from 'fs';
 import path from 'path';
 import { BannerPlugin, Configuration, Compiler } from 'webpack';
@@ -55,17 +54,6 @@ Contact    ${packageInfo.support}
 
       },
     },
-  ],
-  externals: [
-    ...knexExternals,
-    /@via-profit-services\/core/,
-    /@via-profit-services\/knex/,
-    /moment/,
-    /moment-timezone/,
-    /uuid/,
-    /^graphql$/,
-    /winston/,
-    /winston-daily-rotate-file/,
   ],
 });
 

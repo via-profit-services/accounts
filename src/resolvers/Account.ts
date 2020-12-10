@@ -2,8 +2,6 @@ import { IObjectTypeResolver, IFieldResolver } from '@graphql-tools/utils';
 import { Account } from '@via-profit-services/accounts';
 import { Context } from '@via-profit-services/core';
 
-import createDataloaders from '../loaders';
-
 interface Parent {
   id: string;
 }
@@ -20,8 +18,8 @@ const accountResolver = new Proxy<IObjectTypeResolver<Parent, Context>>({
   get: (target, prop: keyof Account) => {
     const resolver: IFieldResolver<Parent, Context> = async (parent, args, context) => {
       const { id } = parent;
-      const loaders = createDataloaders(context);
-      const account = await loaders.accounts.load(id);
+      const { dataloader } = context;
+      const account = await dataloader.accounts.load(id);
 
       return account[prop];
     };

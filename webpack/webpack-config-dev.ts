@@ -1,4 +1,3 @@
-import { knexExternals } from '@via-profit-services/knex/dist/webpack-utils';
 import NodemonPlugin from 'nodemon-webpack-plugin';
 import path from 'path';
 import { Configuration, WebpackPluginInstance } from 'webpack';
@@ -24,17 +23,6 @@ const webpackDevConfig: Configuration = merge(baseConfig, {
         : 'yarn node ./build/index.js',
       watch: ['./build'],
     }) as WebpackPluginInstance,
-  ],
-  externals: [
-    ...knexExternals,
-    /@via-profit-services\/core/,
-    /@via-profit-services\/knex/,
-    /moment/,
-    /moment-timezone/,
-    /uuid/,
-    /winston/,
-    /^graphql$/,
-    /winston-daily-rotate-file/,
   ],
 });
 
