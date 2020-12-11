@@ -1,7 +1,7 @@
 {
     "name": "@via-profit-services/accounts",
     "support": "https://via-profit.ru",
-    "version": "0.1.16",
+    "version": "0.1.16-rc.2",
     "description": "Via Profit Accounts Schema",
     "main": "dist/index.js",
     "engines": {
@@ -68,9 +68,9 @@
         "@types/webpack-node-externals": "^2.5.0",
         "@typescript-eslint/eslint-plugin": "^4.9.1",
         "@typescript-eslint/parser": "^4.9.1",
-        "@via-profit-services/core": "file://home/dhs/Projects/@via-profit-services/core",
+        "@via-profit-services/core": "file://home/dhs/Projects/@via-profit-services/core/package.tgz",
         "@via-profit-services/eslint-config": "^0.1.11",
-        "@via-profit-services/knex": "file://home/dhs/Projects/@via-profit-services/knex",
+        "@via-profit-services/knex": "file://home/dhs/Projects/@via-profit-services/knex/package.tgz",
         "cross-env": "^6.0.3",
         "dataloader": "^2.0.0",
         "dotenv": "^8.2.0",
@@ -97,6 +97,7 @@
         "nodemon-webpack-plugin": "^4.3.2",
         "pg": "^8.5.1",
         "prettier": "^2.1.2",
+        "raw-loader": "^4.0.2",
         "supertest": "^4.0.2",
         "ts-jest": "^24.2.0",
         "ts-loader": "^6.2.1",

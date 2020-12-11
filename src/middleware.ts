@@ -15,7 +15,6 @@ import {
 } from './constants';
 import dataloaderFacroty from './dataloaders';
 import resolvers from './resolvers';
-import typeDefs from './typeDefs';
 
 
 const accountsMiddlewareFactory: AccountsMiddlewareFactory = (config) => {
@@ -33,7 +32,6 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = (config) => {
   const middleware: Middleware = (props) => {
     const { request } = props;
 
-    logger.debug('Graphql Middleware initialize');
 
     const keys: Pick<Configuration, 'privateKey' | 'publicKey'> = {
       privateKey: '',
@@ -102,7 +100,6 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = (config) => {
   return {
     middleware,
     resolvers,
-    typeDefs,
   }
 }
 

@@ -194,7 +194,7 @@ declare module '@via-profit-services/accounts' {
     config: Configuration
   ) => {
     middleware: Middleware;
-    typeDefs: DocumentNode;
+    // typeDefs: DocumentNode;
     resolvers: IResolvers;
   };
 

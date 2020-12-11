@@ -1,13 +1,16 @@
 /* eslint-disable no-console */
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import factory, { typeDefs, resolvers } from '@via-profit-services/core';
+import factory, { resolvers } from '@via-profit-services/core';
+import coreSchema from '@via-profit-services/core/dist/schema.graphql';
 import knexMiddlewareFactory from '@via-profit-services/knex';
 import dotenv from 'dotenv';
 import express from 'express';
 import http from 'http';
 import path from 'path';
 
+
 import accountsMiddlewareFactory from '../index';
+import accountsSchema from '../schema.graphql';
 
 dotenv.config();
 
@@ -33,11 +36,10 @@ const accounts = accountsMiddlewareFactory({
   publicKey: path.resolve(__dirname, './jwtRS256.key.pub'),
 });
 
-
 const schema = makeExecutableSchema({
   typeDefs: [
-    typeDefs,
-    accounts.typeDefs,
+    coreSchema,
+    accountsSchema,
   ],
   resolvers: [
     resolvers,

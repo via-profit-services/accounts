@@ -2,6 +2,9 @@
 .env
 .knex/knexfile.js
 .vscode/*
+.eslintignore
+.eslintrc
+.prettierrc
 
 /assets
 /build
@@ -17,3 +20,4 @@
 /yarn.lock
 /yarn-error.lock
 /dump.rdb
+/package.tgz

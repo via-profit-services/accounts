@@ -20,6 +20,7 @@
 /dump.rdb
 
 /sessions
+/package.tgz
 
 .yarn/*
 !.yarn/releases

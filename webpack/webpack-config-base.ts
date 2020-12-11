@@ -7,8 +7,11 @@ const webpackBaseConfig: Configuration = {
     rules: [
       {
         test: /\.ts$/,
-        exclude: /node_modules/,
         use: 'ts-loader',
+      },
+      {
+        test: /\.graphql$/,
+        use: 'raw-loader',
       },
     ],
   },
@@ -17,8 +20,7 @@ const webpackBaseConfig: Configuration = {
     __dirname: true,
   },
   resolve: {
-    // .mjs needed for https://github.com/graphql/graphql-js/issues/1272
-    extensions: ['.ts', '.mjs', '.js', '.json', '.gql', '.graphql'],
+    extensions: ['.ts', '.js', '.graphql'],
   },
   externals: [
     ...knexExternals,

@@ -1015,9 +1015,9 @@ __metadata:
     "@types/webpack-node-externals": ^2.5.0
     "@typescript-eslint/eslint-plugin": ^4.9.1
     "@typescript-eslint/parser": ^4.9.1
-    "@via-profit-services/core": "file://home/dhs/Projects/@via-profit-services/core"
+    "@via-profit-services/core": "file://home/dhs/Projects/@via-profit-services/core/package.tgz"
     "@via-profit-services/eslint-config": ^0.1.11
-    "@via-profit-services/knex": "file://home/dhs/Projects/@via-profit-services/knex"
+    "@via-profit-services/knex": "file://home/dhs/Projects/@via-profit-services/knex/package.tgz"
     bcryptjs: ^2.4.3
     cross-env: ^6.0.3
     dataloader: ^2.0.0
@@ -1046,6 +1046,7 @@ __metadata:
     nodemon-webpack-plugin: ^4.3.2
     pg: ^8.5.1
     prettier: ^2.1.2
+    raw-loader: ^4.0.2
     supertest: ^4.0.2
     ts-jest: ^24.2.0
     ts-loader: ^6.2.1
@@ -1071,9 +1072,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
-  version: 0.31.6
-  resolution: "@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core#//home/dhs/Projects/@via-profit-services/core::hash=b3465b&locator=%40via-profit-services%2Faccounts%40workspace%3A."
+"@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core/package.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
+  version: 0.31.6-rc.1
+  resolution: "@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core/package.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
   dependencies:
     bufferutil: ^4.0.2
     content-type: ^1.0.4
@@ -1106,7 +1107,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: 975c86e35f968ecf88bbb657a01dc8a963a51b7e602d52b8e3dd74a9ff335e520c7a3288778349084bf953d58c2202714224926df59067927df40233a1f76c16
+  checksum: 89f21f265cce74d1c9f2a0d881690d61cd9979ce31ac95018df193dadd1e89b364eed1062de3c0ef3e67efc341c1e2308bb0f58d909bf7b66244a0ed9a9de103
   languageName: node
   linkType: hard
 
@@ -1117,9 +1118,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@via-profit-services/knex@file://home/dhs/Projects/@via-profit-services/knex::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
-  version: 0.1.0
-  resolution: "@via-profit-services/knex@file://home/dhs/Projects/@via-profit-services/knex#//home/dhs/Projects/@via-profit-services/knex::hash=2e0171&locator=%40via-profit-services%2Faccounts%40workspace%3A."
+"@via-profit-services/knex@file://home/dhs/Projects/@via-profit-services/knex/package.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
+  version: 0.1.0-rc.1
+  resolution: "@via-profit-services/knex@file://home/dhs/Projects/@via-profit-services/knex/package.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
   dependencies:
     pg: ^8.5.1
     pg-hstore: ^2.3.3
@@ -1132,7 +1133,7 @@ __metadata:
     moment-timezone: "*"
     winston: "*"
     winston-daily-rotate-file: "*"
-  checksum: 3ce96254a2c187aaed615b803d7208a711e437001c49faad0e559741f7dfa0787223e066bc510aea4f2d5eb8cdc10dc85af2f67b489e1fc2fd4035ae772f27d1
+  checksum: e79c7ffdcc98724b3262fcfc6b08875ae95cd8141e8a5f6b5da1d8be2ef8f4d24affbcf9763d59d986f9783ab19ce7336f110cd47d2703de5bf97e4e3d4ccc18
   languageName: node
   linkType: hard
 
@@ -6302,6 +6303,17 @@ fsevents@~2.1.2:
   languageName: node
   linkType: hard
 
+"json5@npm:^2.1.2":
+  version: 2.1.3
+  resolution: "json5@npm:2.1.3"
+  dependencies:
+    minimist: ^1.2.5
+  bin:
+    json5: lib/cli.js
+  checksum: 957e4937106cf59975aa0281e68911534d65c8a25be5b4d3559aa55eba351ccab516a943a60ba33e461e4b8af749939986e311de910cbcfd197410b57d971741
+  languageName: node
+  linkType: hard
+
 "jsonfile@npm:^4.0.0":
   version: 4.0.0
   resolution: "jsonfile@npm:4.0.0"
@@ -6576,6 +6588,17 @@ fsevents@~2.1.2:
     emojis-list: ^3.0.0
     json5: ^1.0.1
   checksum: 9fd690e57ad78d32ff2942383b4a7a175eba575280ba5aca3b4d03183fec34aa0db314f49bd3301adf7e60b02471644161bf53149e8f2d18fd6a52627e95a927
+  languageName: node
+  linkType: hard
+
+"loader-utils@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "loader-utils@npm:2.0.0"
+  dependencies:
+    big.js: ^5.2.2
+    emojis-list: ^3.0.0
+    json5: ^2.1.2
+  checksum: a1c2e48781e1501e126a32c39bc1fb1a7e2f02bd99e5aeb8853ddaf3c121fffefcc4579367f97ca6890b58369e571af1c9ec82e4e20db238d560ab359ff25c33
   languageName: node
   linkType: hard
 
@@ -8603,6 +8626,18 @@ fsevents@~2.1.2:
     iconv-lite: 0.4.24
     unpipe: 1.0.0
   checksum: dc56e010d276f2fc3a17c2dd071f857917cd3734f64051488c845a9878a1eb47e03a9644861f135568d8ab4c2062072700b73060956b36f3a987025bc809402f
+  languageName: node
+  linkType: hard
+
+"raw-loader@npm:^4.0.2":
+  version: 4.0.2
+  resolution: "raw-loader@npm:4.0.2"
+  dependencies:
+    loader-utils: ^2.0.0
+    schema-utils: ^3.0.0
+  peerDependencies:
+    webpack: ^4.0.0 || ^5.0.0
+  checksum: 1a08968df5bf185923102de589dc28da6c9953f87059c80de3cbfdfb47bc15907f23f5e21048f03af2842df01d0dde2630826697c783c4c9683ea71f04f4538d
   languageName: node
   linkType: hard
 
