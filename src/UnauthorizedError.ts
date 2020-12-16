@@ -1,6 +1,6 @@
-import { ErrorHandler } from '@via-profit-services/core';
+import { ForbiddenError } from '@via-profit-services/core';
 
-export default class UnauthorizedError extends Error implements ErrorHandler {
+export default class UnauthorizedError extends ForbiddenError {
   public metaData: any;
 
   public status: number;

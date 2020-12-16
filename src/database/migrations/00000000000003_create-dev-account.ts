@@ -1,12 +1,4 @@
-/* eslint-disable import/no-extraneous-dependencies */
-/**
- * @via-profit-services/core
- *
- * This migration file was created by the @via-profit-services/core package
- * This migration will create development account
- */
-
-import { Knex } from '@via-profit-services/knex';
+import Knex from 'knex';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function up(knex: Knex): Promise<any> {

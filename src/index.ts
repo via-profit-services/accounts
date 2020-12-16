@@ -1,10 +1,11 @@
-import AccountsService from './AccountsService';
-import middleware from './middleware';
+import factory from './middleware-factory';
+import resolvers from './resolvers';
+import typeDefs from './schema.graphql';
 import UnauthorizedError from './UnauthorizedError';
 
 export {
-  AccountsService,
   UnauthorizedError,
+  resolvers,
+  factory,
+  typeDefs,
 };
-
-export default middleware;

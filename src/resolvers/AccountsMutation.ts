@@ -1,9 +1,6 @@
 import type { IObjectTypeResolver } from '@graphql-tools/utils';
-import type { TokenPackage, UpdateArgs, CreateArgs, TokenRegistrationResponse } from '@via-profit-services/accounts';
-import { ServerError, BadRequestError, Context } from '@via-profit-services/core';
-
-import AccountsService from '../AccountsService';
-import UnauthorizedError from '../UnauthorizedError';
+import type { UpdateArgs, TokenRegistrationResponse } from '@via-profit-services/accounts';
+import { ServerError, Context } from '@via-profit-services/core';
 
 interface GetTokenArgs {
   login: string;
@@ -11,42 +8,41 @@ interface GetTokenArgs {
 }
 
 const accountsMutationResolver: IObjectTypeResolver<any, Context> = {
-  // update: async (parent, args: UpdateArgs, context) => {
-  //   const { id, input } = args;
-  //   const { logger, pubsub } = context;
-
-  //   const loaders = createLoaders(context);
-  //   const accountsService = new AccountsService({ context });
-
-  //   try {
-  //     await accountsService.updateAccount(id, input);
-  //   } catch (err) {
-  //     throw new ServerError('Failed to update account', { input, id });
-  //   }
+  update: async (parent, args: UpdateArgs, context) => {
+    const { id, input } = args;
+    const { dataloader, pubsub, services } = context;
 
 
-  //   if (input.status === 'forbidden') {
-  //     // revoke all tokens of this account
-  //     // try {
-  //     //   const authService = new AuthService({ context });
-  //     //   authService.revokeAccountTokens(id);
-  //     // } catch (err) {
-  //     //   logger.server.error('Failed to revoke account tokens', { err, id });
-  //     //   throw new ServerError('Failed to revoke account tokens', { err });
-  //     // }
-  //   }
+    try {
+      await services.accounts.updateAccount(id, input);
+    } catch (err) {
+      throw new ServerError('Failed to update account', { input, id });
+    }
 
 
-  //   loaders.accounts.clear(id);
+    if (input.status === 'forbidden') {
+      // revoke all tokens of this account
+      // try {
+      //   const authService = new AuthService({ context });
+      //   authService.revokeAccountTokens(id);
+      // } catch (err) {
+      //   logger.server.error('Failed to revoke account tokens', { err, id });
+      //   throw new ServerError('Failed to revoke account tokens', { err });
+      // }
+    }
 
-  //   const account = await loaders.accounts.load(id);
-  //   pubsub.publish('account-updated', {
-  //     accountWasUpdated: account,
-  //   });
+
+    dataloader.accounts.clear(id);
+
+    const account = await dataloader.accounts.load(id);
+
+    pubsub.publish('accountWasUpdated', {
+      accountWasUpdated: account,
+    });
 
 
-  //   return { id };
-  // },
+    return { id };
+  },
   // create: async (parent, args: CreateArgs, context) => {
   //   const { input } = args;
   //   const accountsService = new AccountsService({ context });
@@ -111,9 +107,8 @@ const accountsMutationResolver: IObjectTypeResolver<any, Context> = {
   // },
   token: async ( _: any, args: GetTokenArgs, context): Promise<TokenRegistrationResponse> => {
     const { login, password } = args;
-    const { logger } = context;
-    const accountsService = new AccountsService({ context });
-    const account = await accountsService.getAccountByCredentials(login, password);
+    const { logger, services } = context;
+    const account = await services.accounts.getAccountByCredentials(login, password);
 
     if (!account) {
       logger.auth.debug(
@@ -142,7 +137,7 @@ const accountsMutationResolver: IObjectTypeResolver<any, Context> = {
     logger.auth.debug(`Authorization attempt with login «${login}» success`);
 
     try {
-      const tokens = await accountsService.registerTokens({ uuid: account.id });
+      const tokens = await services.accounts.registerTokens({ uuid: account.id });
 
       return {
         ...tokens,

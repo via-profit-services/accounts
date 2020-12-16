@@ -5,18 +5,16 @@ import {
   buildQueryFilter, InputFilter,
 } from '@via-profit-services/core';
 
-import AccountsService from '../AccountsService';
 import UnauthorizedError from '../UnauthorizedError';
 
 export const accountsQueryResolver: IObjectTypeResolver<any, Context> = {
   list: async (source, args: InputFilter, context) => {
-    const { dataloader } = context;
+    const { dataloader, services } = context;
     const filter = buildQueryFilter(args);
-    const accountsService = new AccountsService({ context });
 
     try {
       filter.where.push(['deleted', '=', false]);
-      const accountsConnection = await accountsService.getAccounts(filter);
+      const accountsConnection = await services.accounts.getAccounts(filter);
       const connection = buildCursorConnection(accountsConnection, 'accounts');
 
       // fill the cache
@@ -26,6 +24,7 @@ export const accountsQueryResolver: IObjectTypeResolver<any, Context> = {
 
       return connection;
     } catch (err) {
+      console.error(err)
       throw new ServerError('Failed to get Accounts list', { err });
     }
   },
@@ -50,8 +49,8 @@ export const accountsQueryResolver: IObjectTypeResolver<any, Context> = {
   },
   checkLoginExists: async (parent, args: CheckLoginExistsArgs, context) => {
     const { login, skipId } = args;
-    const accountsService = new AccountsService({ context });
-    const result = await accountsService.checkLoginExists(login, skipId);
+    const { services } = context;
+    const result = await services.accounts.checkLoginExists(login, skipId);
 
     return result;
   },

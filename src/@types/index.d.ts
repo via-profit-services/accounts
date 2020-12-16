@@ -1,9 +1,7 @@
 declare module '@via-profit-services/accounts' {
   import { Algorithm } from 'jsonwebtoken';
-  import { DocumentNode } from 'graphql';
-  import { Middleware, Node, Context, ErrorHandler, OutputFilter, ListResponse, DataLoaderCollection } from '@via-profit-services/core';
+  import { Middleware, Context, ErrorHandler, OutputFilter, ListResponse } from '@via-profit-services/core';
   import { IncomingMessage } from 'http';
-  import { IResolvers } from '@graphql-tools/utils';
 
   export type AccountStatus = 'allowed' | 'forbidden';
   export type TokenType = 'access' | 'refresh';
@@ -15,7 +13,6 @@ declare module '@via-profit-services/accounts' {
    * @see [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken)
    */
   export interface Configuration {
-    logDir: string;
     /**
      * Signature algorithm. Could be one of these values :
      * - HS256:    HMAC using SHA-256 hash algorithm (default)
@@ -190,13 +187,7 @@ declare module '@via-profit-services/accounts' {
     skipId?: string;
   }
 
-  export type AccountsMiddlewareFactory = (
-    config: Configuration
-  ) => {
-    middleware: Middleware;
-    // typeDefs: DocumentNode;
-    resolvers: IResolvers;
-  };
+  export type AccountsMiddlewareFactory = (config: Configuration) => Promise<Middleware>;
 
   /**
    * Accounts service constructor props
@@ -208,7 +199,7 @@ declare module '@via-profit-services/accounts' {
   /**
    * Accounts service
    */
-  export class AccountsService {
+  class AccountsService {
     props: AccountsServiceProps;
     constructor(props: AccountsServiceProps);
     /**
@@ -232,7 +223,7 @@ declare module '@via-profit-services/accounts' {
     registerTokens(data: {
         uuid: string;
     }): Promise<TokenPackage>;
-    static getDefaultAccountData(): AccountInputInfo;
+    getDefaultAccountData(): AccountInputInfo;
     prepareDataToInsert(accountInputData: Partial<AccountInputInfo>): Partial<AccountInputInfo>;
     getAccounts(filter: Partial<OutputFilter>): Promise<ListResponse<Account>>;
     getAccountsByIds(ids: string[]): Promise<Account[]>;
@@ -243,8 +234,8 @@ declare module '@via-profit-services/accounts' {
     deleteAccount(id: string): Promise<void>;
     checkLoginExists(login: string, skipId?: string): Promise<boolean>;
     getAccountByCredentials(login: string, password: string): Promise<Account | false>;
-    static extractTokenFromSubscription(connectionParams: any): string | false;
-    static extractTokenFromRequest(request: IncomingMessage): string | false;
+    extractTokenFromSubscription(connectionParams: any): string | false;
+    extractTokenFromRequest(request: IncomingMessage): string | false;
     verifyToken(token: string): Promise<AccessTokenPayload | false>;
   }
 
@@ -257,15 +248,15 @@ declare module '@via-profit-services/accounts' {
   }
 
 
-  const accountsMiddlewareFactory: AccountsMiddlewareFactory;
-
-  export default accountsMiddlewareFactory;
+  export const resolvers: any;
+  export const typeDefs: string;
+  export const factory: AccountsMiddlewareFactory;
 }
 
 
 declare module '@via-profit-services/core' {
   import DataLoader from 'dataloader';
-  import { JwtConfig, AccessTokenPayload, Account } from '@via-profit-services/accounts';
+  import { JwtConfig, AccessTokenPayload, Account, AccountsService } from '@via-profit-services/accounts';
 
   interface Context {
     /**
@@ -282,6 +273,14 @@ declare module '@via-profit-services/core' {
      * Accounts dataloader
      */
     accounts: DataLoader<string, Node<Account>>;
+  }
+
+  interface ServicesCollection {
+
+    /**
+     * Accounts service
+     */
+    accounts: AccountsService;
   }
   
 

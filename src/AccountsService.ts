@@ -1,7 +1,9 @@
+/* eslint-disable import/max-dependencies */
 import type {
   Account, AccountsServiceProps, AccountInputInfo, AccessTokenPayload,
   AccountTableModelOutput, AccountStatus, TokenPackage,
 } from '@via-profit-services/accounts';
+import '@via-profit-services/subscriptions';
 import { OutputFilter, ListResponse, ServerError } from '@via-profit-services/core';
 import {
   convertWhereToKnex, convertOrderByToKnex,
@@ -51,13 +53,13 @@ class AccountsService {
   /**
    * Just crypt password
    */
-  public static cryptUserPassword(password: string) {
+  public cryptUserPassword(password: string) {
     const salt = bcryptjs.genSaltSync(10);
 
     return bcryptjs.hashSync(password, salt);
   }
 
-  public static getAccountStatusesList(): string[] {
+  public getAccountStatusesList(): string[] {
     return ['allowed', 'forbidden'];
   }
 
@@ -169,7 +171,7 @@ class AccountsService {
   }
 
 
-  public static getDefaultAccountData(): AccountInputInfo {
+  public getDefaultAccountData(): AccountInputInfo {
     return {
       id: uuidv4(),
       login: uuidv4(),
@@ -257,8 +259,7 @@ class AccountsService {
       updatedAt: moment.tz(timezone).format(),
     });
     if (data.password) {
-      data.password = 'dsdsdsd';
-      // data.password = AuthService.cryptUserPassword(data.password);
+      data.password = this.cryptUserPassword(data.password);
     }
     await knex<AccountInputInfo>('accounts')
       .update(data)
@@ -273,8 +274,7 @@ class AccountsService {
     const data = this.prepareDataToInsert({
       ...accountData,
       id: accountData.id ? accountData.id : uuidv4(),
-      password: 'dsdsdsd',
-      // password: AuthService.cryptUserPassword(accountData.password),
+      password: this.cryptUserPassword(accountData.password),
       createdAt,
       updatedAt: createdAt,
     });
@@ -319,7 +319,7 @@ class AccountsService {
     return false;
   }
 
-  public static extractTokenFromSubscription(connectionParams: any): string | false {
+  public extractTokenFromSubscription(connectionParams: any): string | false {
     if (typeof connectionParams === 'object' && TOKEN_BEARER_KEY in connectionParams) {
       const [bearer, token] = String(connectionParams[TOKEN_BEARER_KEY]).split(' ');
 
@@ -331,7 +331,7 @@ class AccountsService {
     return false;
   }
 
-  public static extractTokenFromRequest(request: IncomingMessage): string | false {
+  public extractTokenFromRequest(request: IncomingMessage): string | false {
     const { headers } = request;
 
     // try to get access token from headers

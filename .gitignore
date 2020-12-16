@@ -21,6 +21,7 @@
 
 /sessions
 /package.tgz
+/package-*.tgz
 
 .yarn/*
 !.yarn/releases
