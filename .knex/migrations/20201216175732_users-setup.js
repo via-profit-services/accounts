@@ -3,8 +3,8 @@ module.exports =
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 639:
-/***/ (function(__unused_webpack_module, exports) {
+/***/ 827:
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -18,56 +18,73 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.down = exports.up = void 0;
+const uuid_1 = __webpack_require__(231);
 function up(knex) {
     return __awaiter(this, void 0, void 0, function* () {
-        return knex.raw(`
+        const accounts = yield knex.select('*').from('accounts');
+        yield knex.raw(`
+    alter table "accounts" drop column "name" cascade; 
+    alter table "accounts" drop column "comment"; 
 
-    DROP TYPE IF EXISTS "accountStatus";
-    
-    CREATE TYPE "accountStatus" AS ENUM (
-      'allowed',
-      'forbidden'
-    );
-
-    DROP TYPE IF EXISTS "accountType";
-    CREATE TYPE "accountType" AS ENUM (
-      'stuff',
-      'client'
-    );
-
-    DROP TABLE IF EXISTS "accounts";
-    CREATE TABLE "accounts" (
+    CREATE TABLE "users" (
       "id" uuid NOT NULL,
+      "account" uuid NULL,
       "name" varchar(100) NOT NULL,
-      "login" varchar(100) NOT NULL,
-      "password" varchar(255) NOT NULL,
+      "phones" jsonb NOT NULL DEFAULT '[]'::jsonb,
       "createdAt" timestamptz NOT NULL DEFAULT now(),
       "updatedAt" timestamptz NOT NULL DEFAULT now(),
-      "status" "accountStatus" NOT NULL DEFAULT 'allowed'::"accountStatus",
-      "type" "accountType" NOT NULL DEFAULT 'client'::"accountType",
-      "roles" jsonb NOT NULL DEFAULT '[]'::jsonb,
       "deleted" boolean NOT NULL DEFAULT false,
       "comment" text NULL,
-      CONSTRAINT accounts_pkey PRIMARY KEY (id)
+      CONSTRAINT users_pkey PRIMARY KEY (id)
     );
  
-    CREATE INDEX "accountsDeletedIndex" ON accounts USING btree (deleted);
+    CREATE INDEX "usersDeletedIndex" ON users USING btree (deleted);
+    ALTER TABLE "users" ADD CONSTRAINT "usersToAccounts_fk" FOREIGN KEY (account) REFERENCES "accounts"(id) ON DELETE SET NULL;
 
   `);
+        if (accounts.length) {
+            yield knex.insert(accounts.map((account) => ({
+                id: uuid_1.v4(),
+                createdAt: account.createdAt,
+                updatedAt: account.updatedAt,
+                account: account.id,
+                name: account.name,
+                phones: '[]',
+                deleted: account.deleted,
+                comment: account.comment,
+            }))).into('users');
+        }
     });
 }
 exports.up = up;
 function down(knex) {
     return __awaiter(this, void 0, void 0, function* () {
-        return knex.raw(`
-    DROP TABLE IF EXISTS "accounts" CASCADE;
-    DROP TYPE IF EXISTS "accountStatus" CASCADE;
-    DROP TYPE IF EXISTS "accountType" CASCADE;
+        const users = yield knex('users').select('*').whereNotNull('account');
+        yield knex.raw(`
+    drop table if exists "users" cascade;
+    alter table "accounts" add column "name" varchar(100) NOT NULL default '';
+    alter table "accounts" add column "comment" text NULL;
   `);
+        yield users.reduce((prev, user) => __awaiter(this, void 0, void 0, function* () {
+            yield prev;
+            knex('accounts').update({
+                name: user.name,
+                comment: user.comment,
+            }).where({
+                id: user.account,
+            });
+        }), Promise.resolve());
     });
 }
 exports.down = down;
 
+
+/***/ }),
+
+/***/ 231:
+/***/ ((module) => {
+
+module.exports = require("uuid");;
 
 /***/ })
 
@@ -100,6 +117,6 @@ exports.down = down;
 /******/ 	// module exports must be returned from runtime so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(639);
+/******/ 	return __webpack_require__(827);
 /******/ })()
 ;

@@ -1015,9 +1015,9 @@ __metadata:
     "@types/webpack-node-externals": ^2.5.0
     "@typescript-eslint/eslint-plugin": ^4.9.1
     "@typescript-eslint/parser": ^4.9.1
-    "@via-profit-services/core": "file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.15.tgz"
+    "@via-profit-services/core": "file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.18.tgz"
     "@via-profit-services/eslint-config": ^0.1.11
-    "@via-profit-services/knex": "file://home/dhs/Projects/@via-profit-services/knex/package-0.1.0-rc.6.tgz"
+    "@via-profit-services/knex": "file://home/dhs/Projects/@via-profit-services/knex/package-0.1.0-rc.7.tgz"
     "@via-profit-services/subscriptions": "file://home/dhs/Projects/@via-profit-services/subscriptions/package-0.1.0-rc.6.tgz"
     bcryptjs: ^2.4.3
     cross-env: ^6.0.3
@@ -1075,9 +1075,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.15.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
-  version: 0.31.6-rc.15
-  resolution: "@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.15.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
+"@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.18.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
+  version: 0.31.6-rc.18
+  resolution: "@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.18.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
   dependencies:
     bufferutil: ^4.0.2
     utf-8-validate: ^5.0.3
@@ -1095,7 +1095,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: 3ed3e823877e7ac5329bcae4c14d2e53865290b566555fc72f490b1a2b618c38825ff77e4839f35011e570a792f7b8718371345f48e39ba5b1f096f2f63f6d8d
+  checksum: 2b8bf59806677d44e8461fd9f77d6283925b5ce670d5c56310a02f7785635ebcb3e4718c1c51cbf8b19a2f8b7d7f940e6ac9c818e5de4de63ae98152d154b850
   languageName: node
   linkType: hard
 
@@ -1106,9 +1106,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@via-profit-services/knex@file://home/dhs/Projects/@via-profit-services/knex/package-0.1.0-rc.6.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
-  version: 0.1.0-rc.6
-  resolution: "@via-profit-services/knex@file://home/dhs/Projects/@via-profit-services/knex/package-0.1.0-rc.6.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
+"@via-profit-services/knex@file://home/dhs/Projects/@via-profit-services/knex/package-0.1.0-rc.7.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
+  version: 0.1.0-rc.7
+  resolution: "@via-profit-services/knex@file://home/dhs/Projects/@via-profit-services/knex/package-0.1.0-rc.7.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
   dependencies:
     pg: ^8.5.1
     pg-hstore: ^2.3.3
@@ -1121,7 +1121,7 @@ __metadata:
     moment-timezone: "*"
     winston: "*"
     winston-daily-rotate-file: "*"
-  checksum: c2d31f473726577c3a0cf33430544a2f8f8f3a54014482216ecc7c4f1b74fe19d697aee151a0566d4fc09e00aca6fa70f12d9e958f0680ddb89cbee1af541727
+  checksum: ad1bfacc65f088808a5f2f23c8be422e7fd6ec9b63ae15a86fc3866fdfb062a4a1c74e91eee91b5ff86d87741d0ddc53a43c8d58ccde5f8a304e6ea4c5d61eeb
   languageName: node
   linkType: hard
 

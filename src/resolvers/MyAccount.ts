@@ -1,12 +1,12 @@
 import type { IObjectTypeResolver, IFieldResolver } from '@graphql-tools/utils';
-import type { Account } from '@via-profit-services/accounts';
+import type { MyAccount } from '@via-profit-services/accounts';
 import type { Context } from '@via-profit-services/core';
 import { ServerError } from '@via-profit-services/core';
 
 interface Parent {
   id: string;
 }
-const accountResolver = new Proxy<IObjectTypeResolver<Parent, Context>>({
+const MyAccountResolver = new Proxy<IObjectTypeResolver<Parent, Context>>({
   id: () => ({}),
   createdAt: () => ({}),
   updatedAt: () => ({}),
@@ -14,9 +14,8 @@ const accountResolver = new Proxy<IObjectTypeResolver<Parent, Context>>({
   login: () => ({}),
   password: () => ({}),
   roles: () => ({}),
-  deleted: () => ({}),
 }, {
-  get: (target, prop: keyof Account) => {
+  get: (_target, prop: keyof MyAccount) => {
     const resolver: IFieldResolver<Parent, Context> = async (parent, args, context) => {
       const { id } = parent;
       const { dataloader } = context;
@@ -36,4 +35,4 @@ const accountResolver = new Proxy<IObjectTypeResolver<Parent, Context>>({
   },
 });
 
-export default accountResolver;
+export default MyAccountResolver;

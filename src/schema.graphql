@@ -1,5 +1,6 @@
 extend type Query {
   accounts: AccountsQuery!
+  users: UsersQuery!
 }
 
 extend type Mutation {
@@ -10,8 +11,7 @@ extend type Subscription {
   """
   Called when the account with following id was updated
   """
-  accountWasUpdated (id: ID!): Account!
-
+  accountWasUpdated(id: ID!): Account!
 }
 
 interface Profile {
@@ -33,6 +33,26 @@ type Account implements Node {
   deleted: Boolean!
 }
 
+type MyAccount implements Node {
+  id: ID!
+  login: String!
+  password: String!
+  status: AccountStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  roles: [String!]!
+}
+
+type User implements Node & Profile {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  account: Account
+  deleted: Boolean!
+  name: String!
+  phones: [Phone!]
+}
+
 enum AccountStatus {
   allowed
   forbidden
@@ -49,17 +69,36 @@ enum TokenType {
   refresh
 }
 
+type UsersQuery {
+  """
+  Returns Users list bundle
+  """
+  list(
+    first: Int
+    offset: Int
+    after: String
+    orderBy: [UserOrderBy!]
+    filter: UserListFilter
+    search: UserFilterSearch
+  ): UserListConnection!
+
+  """
+  Returns user if exists
+  """
+  user(id: ID!): User
+}
+
 """
 Accounts module queries
 """
 type AccountsQuery {
   """
-  Returns Your account data
+  Returns Your account
   """
-  me: Account!
+  me: MyAccount!
 
   """
-  Returns account data by ID
+  Returns account if exists
   """
   account(id: ID!): Account
 
@@ -144,7 +183,7 @@ type AccountListConnection implements Connection {
 
 type AccountsMutation {
   token(login: String!, password: String!): TokenRegistrationResponse!
-  update(id: ID! input: AccountInput!): Account!
+  update(id: ID!, input: AccountInput!): Account!
 }
 
 input AccountInput {
@@ -198,3 +237,62 @@ type RefreshTokenPayload {
   iss: String!
   associated: AccessToken!
 }
+
+"""
+User edge bundle
+"""
+type UsersEdge implements Edge {
+  node: User!
+  cursor: String!
+}
+
+"""
+Possible data to filter list of users
+"""
+input UserListFilter {
+  account: [ID!]
+}
+
+"""
+User search filter
+"""
+input UserFilterSearch {
+  fields: [UserFilterSearchField!]!
+
+  """
+  Search query string
+  """
+  query: String!
+}
+
+
+"""
+Possible fields to search users
+"""
+enum UserFilterSearchField {
+  name
+}
+
+"""
+Ordering options for users returned from the connection
+"""
+input UserOrderBy {
+  field: UserOrderField!
+  direction: OrderDirection!
+}
+
+enum UserOrderField {
+  name
+  createdAt
+  updatedAt
+}
+
+"""
+Users list bundle
+"""
+type UserListConnection implements Connection {
+  totalCount: Int!
+  pageInfo: PageInfo!
+  edges: [UsersEdge!]!
+}
+

@@ -5,11 +5,7 @@ import DataLoader from 'dataloader';
 
 import AccountsService from './AccountsService';
 import authLogger from './auth-logger';
-import {
-  ACCESS_TOKEN_EMPTY_ID,
-  ACCESS_TOKEN_EMPTY_UUID,
-  ACCESS_TOKEN_EMPTY_ISSUER,
-} from './constants';
+
 
 interface Props {
   jwt: JwtConfig;
@@ -17,21 +13,10 @@ interface Props {
   config: MiddlewareProps['config'];
 }
 
-
 const contextMiddleware = (props: Props): Context => {
 
   const { context, config, jwt } = props;
   const { logDir } = config;
-
-  // Default token state
-  context.token = {
-    type: 'access',
-    id: ACCESS_TOKEN_EMPTY_ID,
-    uuid: ACCESS_TOKEN_EMPTY_UUID,
-    iss: ACCESS_TOKEN_EMPTY_ISSUER,
-    roles: [],
-    exp: 0,
-  };
 
   // JsonWebToken settings
   context.jwt = jwt;
@@ -39,12 +24,22 @@ const contextMiddleware = (props: Props): Context => {
   // Accounts Service
   context.services.accounts = new AccountsService({ context });
 
+  // Default token state
+  context.token = context.services.accounts.getDefaultTokenPayload();
+
   // Authorization Logger
   context.logger.auth = authLogger({ logDir });
 
   // Accounts Dataloader
   context.dataloader.accounts = new DataLoader(async (ids: string[]) => {
     const nodes = await context.services.accounts.getAccountsByIds(ids);
+
+    return collateForDataloader(ids, nodes);
+  });
+
+  // Users Dataloader
+  context.dataloader.users = new DataLoader(async (ids: string[]) => {
+    const nodes = await context.services.accounts.getUsersByIds(ids);
 
     return collateForDataloader(ids, nodes);
   });

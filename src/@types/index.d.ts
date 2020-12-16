@@ -1,6 +1,6 @@
 declare module '@via-profit-services/accounts' {
   import { Algorithm } from 'jsonwebtoken';
-  import { Middleware, Context, ErrorHandler, OutputFilter, ListResponse } from '@via-profit-services/core';
+  import { Middleware, Context, ErrorHandler, OutputFilter, ListResponse, Phone } from '@via-profit-services/core';
   import { IncomingMessage } from 'http';
 
   export type AccountStatus = 'allowed' | 'forbidden';
@@ -149,6 +149,18 @@ declare module '@via-profit-services/accounts' {
     payload: RefreshTokenPayload;
   }
 
+  export interface User {
+    id: string;
+    account: {
+      id: string;
+    };
+    name: string;
+    phones: Phone[];
+    createdAt: Date;
+    updatedAt: Date;
+    deleted: boolean;
+  }
+
   export interface Account {
     id: string;
     login: string;
@@ -159,6 +171,8 @@ declare module '@via-profit-services/accounts' {
     updatedAt: Date;
     deleted: boolean;
   }
+
+  export type MyAccount = Omit<Account, 'deleted'>;
 
   export type AccountTableModelOutput = Omit<Account, 'roles'> & {
     roles: string[];
@@ -223,6 +237,7 @@ declare module '@via-profit-services/accounts' {
     registerTokens(data: {
         uuid: string;
     }): Promise<TokenPackage>;
+    getDefaultTokenPayload(): AccessTokenPayload;
     getDefaultAccountData(): AccountInputInfo;
     prepareDataToInsert(accountInputData: Partial<AccountInputInfo>): Partial<AccountInputInfo>;
     getAccounts(filter: Partial<OutputFilter>): Promise<ListResponse<Account>>;
@@ -237,6 +252,9 @@ declare module '@via-profit-services/accounts' {
     extractTokenFromSubscription(connectionParams: any): string | false;
     extractTokenFromRequest(request: IncomingMessage): string | false;
     verifyToken(token: string): Promise<AccessTokenPayload | false>;
+    getUsers(filter: Partial<OutputFilter>): Promise<ListResponse<User>>;
+    getUsersByIds(ids: string[]): Promise<User[]>;
+    getUser(id: string): Promise<User | false>;
   }
 
 
@@ -256,7 +274,7 @@ declare module '@via-profit-services/accounts' {
 
 declare module '@via-profit-services/core' {
   import DataLoader from 'dataloader';
-  import { JwtConfig, AccessTokenPayload, Account, AccountsService } from '@via-profit-services/accounts';
+  import { JwtConfig, AccessTokenPayload, Account, User, AccountsService } from '@via-profit-services/accounts';
 
   interface Context {
     /**
@@ -273,6 +291,11 @@ declare module '@via-profit-services/core' {
      * Accounts dataloader
      */
     accounts: DataLoader<string, Node<Account>>;
+
+    /**
+     * Users dataloader
+     */
+    users: DataLoader<string, Node<User>>;
   }
 
   interface ServicesCollection {

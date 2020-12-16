@@ -51,13 +51,13 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (config) => {
       context: props.context,
     });
 
-    // cache accounts service
-
     // try to parse token
     const bearerToken = pool.context.services.accounts.extractTokenFromRequest(request);
     if (bearerToken) {
       const bearerTokenPayload = await pool.context.services.accounts.verifyToken(bearerToken);
-      pool.context.token = bearerTokenPayload || pool.context.token;
+      pool.context.token = bearerTokenPayload
+        ? bearerTokenPayload
+        : pool.context.services.accounts.getDefaultTokenPayload();
     }
 
 

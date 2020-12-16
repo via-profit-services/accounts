@@ -1,14 +1,14 @@
 import { IObjectTypeResolver } from '@graphql-tools/utils';
-import { AccountStatus, CheckLoginExistsArgs } from '@via-profit-services/accounts';
+import { AccountStatus, CheckLoginExistsArgs, Account } from '@via-profit-services/accounts';
 import {
   ServerError, buildCursorConnection, Context,
-  buildQueryFilter, InputFilter,
+  buildQueryFilter, InputFilter, CursorConnection,
 } from '@via-profit-services/core';
 
-import UnauthorizedError from '../UnauthorizedError';
+import { ACCESS_TOKEN_EMPTY_UUID } from '../constants';
 
 export const accountsQueryResolver: IObjectTypeResolver<any, Context> = {
-  list: async (source, args: InputFilter, context) => {
+  list: async (_parent, args: InputFilter, context): Promise<CursorConnection<Account>> => {
     const { dataloader, services } = context;
     const filter = buildQueryFilter(args);
 
@@ -29,25 +29,17 @@ export const accountsQueryResolver: IObjectTypeResolver<any, Context> = {
     }
   },
   statusesList: (): AccountStatus[] => ['allowed', 'forbidden'],
-  // rolesList: () => ROLES_LIST,
-  me: async (parent, args, context) => {
+  me: (_parent, _args, context) => {
+    const { token } = context;
 
-    if (context.token.uuid === '') {
-      throw new UnauthorizedError('Unknown account');
+    if (token.uuid === ACCESS_TOKEN_EMPTY_UUID) {
+      throw new ServerError('Service account can not be loaded in this field «me»', { uuid: token.uuid });
     }
-    const { dataloader } = context;
-    const account = await dataloader.accounts.load(context.token.uuid);
 
-    return account;
+    return { id: token.uuid }
   },
-  account: async (parent, args: {id: string}, context) => {
-    const { id } = args;
-    const { dataloader } = context;
-    const account = await dataloader.accounts.load(id);
-
-    return account;
-  },
-  checkLoginExists: async (parent, args: CheckLoginExistsArgs, context) => {
+  account: (parent: { id: string }) => parent,
+  checkLoginExists: async (_parent, args: CheckLoginExistsArgs, context): Promise<boolean> => {
     const { login, skipId } = args;
     const { services } = context;
     const result = await services.accounts.checkLoginExists(login, skipId);

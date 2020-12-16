@@ -1,6 +1,5 @@
-import { Context, ForbiddenError } from '@via-profit-services/core';
-import { ValidationRule, GraphQLError, isDefinitionNode } from 'graphql';
-
+import type { Context } from '@via-profit-services/core';
+import { ValidationRule } from 'graphql';
 
 type ValidatioRuleMiddleware = (props: {
   context: Context;
@@ -10,33 +9,33 @@ type ValidatioRuleMiddleware = (props: {
 const validationRuleMiddleware: ValidatioRuleMiddleware = (props) => {
 
   const { context } = props;
-  const { token } = context;
+  const { token, services } = context;
+  const defaultTokenPayload = services.accounts.getDefaultTokenPayload();
+
   let isIntrospection = false;
 
-  return (validationContext) => ({
-    Document: () => {
+  return () => ({
+    OperationDefinition: () => {
       isIntrospection = false;
     },
     Field: (node) => {
 
       // const type = validationContext.getType();
       // const fieldDef = validationContext.getFieldDef();
-      // const doc = validationContext.getDocument();
-
+      // const parentType = validationContext.getParentType();
 
       if (node.name.value === '__schema') {
         isIntrospection = true;
-        // console.log('is introspection')
       }
 
-
-      if (!isIntrospection) {
-
-        // check token and block request
-
-
+      if (isIntrospection) {
+        return;
       }
 
+      if (token.id === defaultTokenPayload.id) {
+        // eslint-disable-next-line no-console
+        console.log('Invalid token')
+      }
 
     },
   })
