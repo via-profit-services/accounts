@@ -309,7 +309,7 @@ declare module '@via-profit-services/core' {
 
   interface LoggersCollection {
     /**
-     * Database logger \
+     * Accounts logger \
      * \
      * Transports:
      *  - `debug` - File transport
