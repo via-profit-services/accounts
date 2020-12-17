@@ -122,6 +122,7 @@
         "graphql": "*",
         "moment": "*",
         "moment-timezone": "*",
+        "pg": "*",
         "uuid": "*",
         "winston": "*",
         "winston-daily-rotate-file": "*"
