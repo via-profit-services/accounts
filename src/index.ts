@@ -3,6 +3,7 @@ import resolvers from './resolvers';
 import typeDefs from './schema.graphql';
 import UnauthorizedError from './UnauthorizedError';
 
+export * from './constants';
 export {
   UnauthorizedError,
   resolvers,

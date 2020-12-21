@@ -265,6 +265,18 @@ declare module '@via-profit-services/accounts' {
     constructor(message: string, metaData?: any);
   }
 
+  export const ROLES_LIST: string[];
+  export const DEFAULT_ACCESS_TOKEN_EXPIRED: number;
+  export const DEFAULT_REFRESH_TOKEN_EXPIRED: number;
+  export const DEFAULT_SIGNATURE_ALGORITHM: 'RS256';
+  export const DEFAULT_SIGNATURE_ISSUER: string;
+  export const LOG_FILENAME_AUTH: string;
+  export const ACCESS_TOKEN_EMPTY_ID: string;
+  export const ACCESS_TOKEN_EMPTY_UUID: string;
+  export const ACCESS_TOKEN_EMPTY_ISSUER: string;
+  export const TOKEN_BEARER_KEY: string;
+  export const TOKEN_BEARER: string;
+  export const REDIS_TOKENS_BLACKLIST: string;
 
   export const resolvers: any;
   export const typeDefs: string;
