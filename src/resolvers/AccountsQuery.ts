@@ -1,8 +1,6 @@
 import { AccountStatus, Account, Resolvers } from '@via-profit-services/accounts';
 import { ServerError, buildCursorConnection, buildQueryFilter, CursorConnection } from '@via-profit-services/core';
 
-import { ACCESS_TOKEN_EMPTY_UUID } from '../constants';
-
 export const accountsQueryResolver: Resolvers['AccountsQuery'] = {
   list: async (_parent, args, context): Promise<CursorConnection<Account>> => {
     const { dataloader, services } = context;
