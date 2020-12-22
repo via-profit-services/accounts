@@ -1,14 +1,10 @@
-import { IObjectTypeResolver } from '@graphql-tools/utils';
-import { AccountStatus, CheckLoginExistsArgs, Account } from '@via-profit-services/accounts';
-import {
-  ServerError, buildCursorConnection, Context,
-  buildQueryFilter, InputFilter, CursorConnection,
-} from '@via-profit-services/core';
+import { AccountStatus, Account, Resolvers } from '@via-profit-services/accounts';
+import { ServerError, buildCursorConnection, buildQueryFilter, CursorConnection } from '@via-profit-services/core';
 
 import { ACCESS_TOKEN_EMPTY_UUID } from '../constants';
 
-export const accountsQueryResolver: IObjectTypeResolver<any, Context> = {
-  list: async (_parent, args: InputFilter, context): Promise<CursorConnection<Account>> => {
+export const accountsQueryResolver: Resolvers['AccountsQuery'] = {
+  list: async (_parent, args, context): Promise<CursorConnection<Account>> => {
     const { dataloader, services } = context;
     const filter = buildQueryFilter(args);
 
@@ -29,17 +25,9 @@ export const accountsQueryResolver: IObjectTypeResolver<any, Context> = {
     }
   },
   statusesList: (): AccountStatus[] => ['allowed', 'forbidden'],
-  me: (_parent, _args, context) => {
-    const { token } = context;
-
-    if (token.uuid === ACCESS_TOKEN_EMPTY_UUID) {
-      throw new ServerError('Service account can not be loaded in this field «me»', { uuid: token.uuid });
-    }
-
-    return { id: token.uuid }
-  },
-  account: (parent: { id: string }) => parent,
-  checkLoginExists: async (_parent, args: CheckLoginExistsArgs, context): Promise<boolean> => {
+  me: () => ({}),
+  account: (parent) => parent,
+  checkLoginExists: async (_parent, args, context): Promise<boolean> => {
     const { login, skipId } = args;
     const { services } = context;
     const result = await services.accounts.checkLoginExists(login, skipId);

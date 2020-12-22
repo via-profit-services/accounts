@@ -1,7 +1,8 @@
 declare module '@via-profit-services/accounts' {
   import { Algorithm } from 'jsonwebtoken';
-  import { Middleware, Context, ErrorHandler, OutputFilter, ListResponse, Phone } from '@via-profit-services/core';
+  import { InputFilter, Middleware, Context, ErrorHandler, OutputFilter, ListResponse, Phone } from '@via-profit-services/core';
   import { IncomingMessage } from 'http';
+  import { GraphQLFieldResolver } from 'graphql';
 
   export type AccountStatus = 'allowed' | 'forbidden';
   export type TokenType = 'access' | 'refresh';
@@ -187,19 +188,26 @@ declare module '@via-profit-services/accounts' {
     deleted?: boolean;
   };
 
-  export interface UpdateArgs {
+  interface UpdateArgs {
     id: string;
     input: AccountInputInfo;
   }
 
-  export interface CreateArgs {
+  interface CreateArgs {
     input: AccountInputInfo;
   }
 
-  export interface CheckLoginExistsArgs {
+  interface CheckLoginExistsArgs {
     login: string;
     skipId?: string;
   }
+
+
+  interface GetTokenArgs {
+    login: string;
+    password: string;
+  }
+
 
   export type AccountsMiddlewareFactory = (config: Configuration) => Promise<Middleware>;
 
@@ -208,6 +216,78 @@ declare module '@via-profit-services/accounts' {
    */
   export interface AccountsServiceProps {
     context: Context;
+  }
+
+  interface AccountParent {
+    id: string;
+  }
+
+  interface UserParent {
+    id: string;
+  }
+
+  export type AccountResolver = {
+    id: GraphQLFieldResolver<AccountParent, Context>;
+    createdAt: GraphQLFieldResolver<AccountParent, Context>;
+    updatedAt: GraphQLFieldResolver<AccountParent, Context>;
+    status: GraphQLFieldResolver<AccountParent, Context>;
+    login: GraphQLFieldResolver<AccountParent, Context>;
+    password: GraphQLFieldResolver<AccountParent, Context>;
+    roles: GraphQLFieldResolver<AccountParent, Context>;
+    deleted: GraphQLFieldResolver<AccountParent, Context>;
+  }
+
+  export type MyAccountResolver = {
+    id: GraphQLFieldResolver<unknown, Context>;
+    createdAt: GraphQLFieldResolver<unknown, Context>;
+    updatedAt: GraphQLFieldResolver<unknown, Context>;
+    status: GraphQLFieldResolver<unknown, Context>;
+    login: GraphQLFieldResolver<unknown, Context>;
+    password: GraphQLFieldResolver<unknown, Context>;
+    roles: GraphQLFieldResolver<unknown, Context>;
+  }
+
+  export type UserResolver = {
+    id: GraphQLFieldResolver<UserParent, Context>;
+    createdAt: GraphQLFieldResolver<UserParent, Context>;
+    updatedAt: GraphQLFieldResolver<UserParent, Context>;
+    name: GraphQLFieldResolver<UserParent, Context>;
+    phones: GraphQLFieldResolver<UserParent, Context>;
+    deleted: GraphQLFieldResolver<UserParent, Context>;
+  }
+
+  export type Resolvers = {
+    Query: {
+      accounts: GraphQLFieldResolver<unknown, Context>;
+      users: GraphQLFieldResolver<unknown, Context>;
+    };
+    Mutation: {
+      accounts: GraphQLFieldResolver<unknown, Context>;
+    };
+    Subscription: {
+      accountWasUpdated: {
+        subscribe: GraphQLFieldResolver<unknown, Context>;
+        resolve?: GraphQLFieldResolver<unknown, Context>;
+      }
+    };
+    AccountsQuery: {
+      list: GraphQLFieldResolver<unknown, Context, InputFilter>;
+      statusesList: GraphQLFieldResolver<unknown, Context>;
+      me: GraphQLFieldResolver<unknown, Context>;
+      account: GraphQLFieldResolver<{id: string}, Context>;
+      checkLoginExists: GraphQLFieldResolver<CheckLoginExistsArgs, Context>;
+    };
+    UsersQuery: {
+      list: GraphQLFieldResolver<unknown, Context, InputFilter>;
+      user: GraphQLFieldResolver<unknown, Context, { id: string }>;
+    };
+    AccountsMutation: {
+      update:  GraphQLFieldResolver<unknown, Context, UpdateArgs>;
+      token:  GraphQLFieldResolver<unknown, Context, GetTokenArgs>;
+    };
+    Account: AccountResolver;
+    MyAccount: MyAccountResolver;
+    User: UserResolver;
   }
 
   /**
@@ -278,7 +358,7 @@ declare module '@via-profit-services/accounts' {
   export const TOKEN_BEARER: string;
   export const REDIS_TOKENS_BLACKLIST: string;
 
-  export const resolvers: any;
+  export const resolvers: Resolvers;
   export const typeDefs: string;
   export const factory: AccountsMiddlewareFactory;
 }

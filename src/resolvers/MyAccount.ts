@@ -1,12 +1,9 @@
-import type { IObjectTypeResolver, IFieldResolver } from '@graphql-tools/utils';
-import type { MyAccount } from '@via-profit-services/accounts';
-import type { Context } from '@via-profit-services/core';
+import type { MyAccountResolver } from '@via-profit-services/accounts';
 import { ServerError } from '@via-profit-services/core';
 
-interface Parent {
-  id: string;
-}
-const MyAccountResolver = new Proxy<IObjectTypeResolver<Parent, Context>>({
+import { ACCESS_TOKEN_EMPTY_UUID } from '../constants';
+
+const MyAccount = new Proxy<MyAccountResolver>({
   id: () => ({}),
   createdAt: () => ({}),
   updatedAt: () => ({}),
@@ -15,18 +12,26 @@ const MyAccountResolver = new Proxy<IObjectTypeResolver<Parent, Context>>({
   password: () => ({}),
   roles: () => ({}),
 }, {
-  get: (_target, prop: keyof MyAccount) => {
-    const resolver: IFieldResolver<Parent, Context> = async (parent, args, context) => {
-      const { id } = parent;
+  get: (_target, prop: keyof MyAccountResolver) => {
+    const resolver: MyAccountResolver[keyof MyAccountResolver] = async (parent, _args, context) => {
+      const { token } = context;
       const { dataloader } = context;
 
+      if (token.uuid === ACCESS_TOKEN_EMPTY_UUID) {
+        throw new ServerError(
+          'Service account can not be loaded in this field «me». Please provide a valid access token with your request',
+          { uuid: token.uuid },
+        );
+      }
+
+
       try {
-        const account = await dataloader.accounts.load(id);
+        const account = await dataloader.accounts.load(token.uuid);
 
         return account[prop];
       } catch ( err ) {
         throw new ServerError(
-          `Failed to load account with id «${id}»`, { id },
+          `Failed to load account with id «${token.uuid}»`, { id: token.uuid },
         )
       }
     };
@@ -35,4 +40,4 @@ const MyAccountResolver = new Proxy<IObjectTypeResolver<Parent, Context>>({
   },
 });
 
-export default MyAccountResolver;
+export default MyAccount;

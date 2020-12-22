@@ -1,4 +1,4 @@
-import { IResolvers } from '@graphql-tools/utils';
+import { Resolvers } from '@via-profit-services/accounts';
 
 import Account from './Account';
 import AccountsMutation from './AccountsMutation';
@@ -10,7 +10,7 @@ import Query from './Query';
 import User from './User';
 import UsersQuery from './UsersQuery';
 
-const resolvers: IResolvers = {
+const resolvers: Resolvers = {
   Account,
   AccountsMutation,
   AccountsQuery,

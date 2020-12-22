@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import * as core from '@via-profit-services/core';
+import { factory, resolvers, typeDefs } from '@via-profit-services/core';
 import * as knex from '@via-profit-services/knex';
 import * as subscriptions from '@via-profit-services/subscriptions';
 import dotenv from 'dotenv';
@@ -38,19 +38,19 @@ const server = http.createServer(app);
 
   const schema = makeExecutableSchema({
     typeDefs: [
-      core.typeDefs,
+      typeDefs,
       accounts.typeDefs,
       subscriptions.typeDefs,
     ],
     resolvers: [
-      core.resolvers,
+      resolvers,
       accounts.resolvers,
       subscriptions.resolvers,
     ],
   });
 
 
-  const { viaProfitGraphql } = await core.factory({
+  const { viaProfitGraphql } = await factory({
     server,
     schema,
     debug: true,
@@ -64,6 +64,8 @@ const server = http.createServer(app);
 
   app.use(viaProfitGraphql);
   server.listen(PORT, () => {
+
+
     console.log(`GraphQL Server started at http://localhost:${PORT}/graphql`);
     console.log(`Subscriptions server started at ws://localhost:${PORT}/graphql`);
   })

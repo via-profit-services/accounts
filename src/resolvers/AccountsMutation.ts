@@ -1,17 +1,11 @@
-import type { IObjectTypeResolver } from '@graphql-tools/utils';
-import type { UpdateArgs, TokenRegistrationResponse } from '@via-profit-services/accounts';
-import { ServerError, Context } from '@via-profit-services/core';
+import type { Resolvers, TokenRegistrationResponse } from '@via-profit-services/accounts';
+import { ServerError } from '@via-profit-services/core';
 
-interface GetTokenArgs {
-  login: string;
-  password: string;
-}
 
-const accountsMutationResolver: IObjectTypeResolver<any, Context> = {
-  update: async (parent, args: UpdateArgs, context) => {
+const accountsMutationResolver: Resolvers['AccountsMutation'] = {
+  update: async (_parent, args, context) => {
     const { id, input } = args;
     const { dataloader, pubsub, services } = context;
-
 
     try {
       await services.accounts.updateAccount(id, input);
@@ -105,7 +99,7 @@ const accountsMutationResolver: IObjectTypeResolver<any, Context> = {
   //     throw new ServerError(`Failed to delete account with id ${id}`, { id });
   //   }
   // },
-  token: async ( _: any, args: GetTokenArgs, context): Promise<TokenRegistrationResponse> => {
+  token: async (_parent, args, context): Promise<TokenRegistrationResponse> => {
     const { login, password } = args;
     const { logger, services } = context;
     const account = await services.accounts.getAccountByCredentials(login, password);

@@ -1,12 +1,7 @@
-import type { IObjectTypeResolver, IFieldResolver } from '@graphql-tools/utils';
-import type { User } from '@via-profit-services/accounts';
-import type { Context } from '@via-profit-services/core';
+import type { UserResolver } from '@via-profit-services/accounts';
 import { ServerError } from '@via-profit-services/core';
 
-interface Parent {
-  id: string;
-}
-const userResolver = new Proxy<IObjectTypeResolver<Parent, Context>>({
+const userResolver = new Proxy<UserResolver>({
   id: () => ({}),
   createdAt: () => ({}),
   updatedAt: () => ({}),
@@ -14,8 +9,8 @@ const userResolver = new Proxy<IObjectTypeResolver<Parent, Context>>({
   phones: () => ({}),
   deleted: () => ({}),
 }, {
-  get: (target, prop: keyof User) => {
-    const resolver: IFieldResolver<Parent, Context> = async (parent, args, context) => {
+  get: (target, prop: keyof UserResolver) => {
+    const resolver: UserResolver[keyof UserResolver] = async (parent, _args, context) => {
       const { id } = parent;
       const { dataloader } = context;
 

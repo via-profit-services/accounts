@@ -1,14 +1,9 @@
-import { IObjectTypeResolver } from '@graphql-tools/utils';
-import type { User } from '@via-profit-services/accounts';
-
-import {
-  ServerError, buildCursorConnection, Context,
-  buildQueryFilter, InputFilter, CursorConnection,
-} from '@via-profit-services/core';
+import type { User, Resolvers } from '@via-profit-services/accounts';
+import { ServerError, buildCursorConnection, buildQueryFilter, CursorConnection } from '@via-profit-services/core';
 
 
-export const UsersQueryResolver: IObjectTypeResolver<any, Context> = {
-  list: async (_source, args: InputFilter, context): Promise<CursorConnection<User>> => {
+export const UsersQueryResolver: Resolvers['UsersQuery'] = {
+  list: async (_source, args, context): Promise<CursorConnection<User>> => {
     const { dataloader, services } = context;
     const filter = buildQueryFilter(args);
 
@@ -28,7 +23,7 @@ export const UsersQueryResolver: IObjectTypeResolver<any, Context> = {
       throw new ServerError('Failed to get Users list', { err });
     }
   },
-  user: async (parent, args: {id: string}, context): Promise<User> => {
+  user: async (_source, args, context): Promise<User> => {
     const { id } = args;
     const { dataloader } = context;
     const user = await dataloader.users.load(id);
