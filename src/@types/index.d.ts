@@ -335,6 +335,7 @@ declare module '@via-profit-services/accounts' {
     getUsers(filter: Partial<OutputFilter>): Promise<ListResponse<User>>;
     getUsersByIds(ids: string[]): Promise<User[]>;
     getUser(id: string): Promise<User | false>;
+    clearExpiredTokens(): void;
   }
 
 

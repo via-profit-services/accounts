@@ -40,6 +40,10 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (config) => {
     validationRule: null,
   };
 
+  const timers: { blacList: NodeJS.Timeout } = {
+    blacList: null,
+  };
+
   const middleware: Middleware = async (props) => {
 
     const { request } = props;
@@ -51,15 +55,24 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (config) => {
       context: props.context,
     });
 
-    // try to parse token
-    const bearerToken = pool.context.services.accounts.extractTokenFromRequest(request);
-    if (bearerToken) {
-      const bearerTokenPayload = await pool.context.services.accounts.verifyToken(bearerToken);
-      pool.context.token = bearerTokenPayload
-        ? bearerTokenPayload
-        : pool.context.services.accounts.getDefaultTokenPayload();
+    const { services } = pool.context;
+
+    // setup it once
+    // setup timer to clear expired tokens
+    if (!timers.blacList) {
+      timers.blacList = setInterval(() => {
+        services.accounts.clearExpiredTokens();
+      }, jwt.accessTokenExpiresIn);
     }
 
+    // try to parse token
+    const bearerToken = services.accounts.extractTokenFromRequest(request);
+    if (bearerToken) {
+      const bearerTokenPayload = await services.accounts.verifyToken(bearerToken);
+      pool.context.token = bearerTokenPayload
+        ? bearerTokenPayload
+        : services.accounts.getDefaultTokenPayload();
+    }
 
     pool.validationRule = pool.validationRule ?? validationRuleMiddleware({
       context: pool.context,

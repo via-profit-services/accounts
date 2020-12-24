@@ -1,5 +1,8 @@
+import { UnauthorizedError } from '@via-profit-services/accounts';
 import type { Context } from '@via-profit-services/core';
 import { ValidationRule } from 'graphql';
+
+import { TOKEN_BEARER, TOKEN_BEARER_KEY } from './constants';
 
 type ValidatioRuleMiddleware = (props: {
   context: Context;
@@ -20,10 +23,6 @@ const validationRuleMiddleware: ValidatioRuleMiddleware = (props) => {
     },
     Field: (node) => {
 
-      // const type = validationContext.getType();
-      // const fieldDef = validationContext.getFieldDef();
-      // const parentType = validationContext.getParentType();
-
       if (node.name.value === '__schema') {
         isIntrospection = true;
       }
@@ -33,8 +32,9 @@ const validationRuleMiddleware: ValidatioRuleMiddleware = (props) => {
       }
 
       if (token.id === defaultTokenPayload.id) {
-        // eslint-disable-next-line no-console
-        console.log('Invalid token')
+        throw new UnauthorizedError(
+          `Invalid token. Make sure that you provide a valid Accee Token as «${TOKEN_BEARER}: XXXX» in «${TOKEN_BEARER_KEY}» header`,
+        );
       }
 
     },

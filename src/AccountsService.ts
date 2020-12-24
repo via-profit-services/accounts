@@ -79,6 +79,29 @@ class AccountsService {
     this.props = props;
   }
 
+  public async clearExpiredTokens() {
+    const { context } = this.props;
+    const { knex, redis } = context;
+
+    const tokensList = await knex('tokens')
+      .select('id')
+      .where('expiredAt', '<', knex.raw('now()'));
+
+    const expiredIds = tokensList.map((data: {id: string}) => data.id);
+
+    if (expiredIds.length) {
+      try {
+        await redis.srem(REDIS_TOKENS_BLACKLIST, expiredIds);
+      } catch (err) {
+        throw new ServerError('Failed to remove data from BlackList', { err });
+      }
+    }
+
+    await knex('tokens')
+      .del()
+      .where('expiredAt', '<', knex.raw('now()'));
+  }
+
   public getDefaultTokenPayload(): AccessTokenPayload {
     return {
       type: 'access',
