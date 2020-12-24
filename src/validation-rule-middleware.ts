@@ -1,8 +1,8 @@
-import { UnauthorizedError } from '@via-profit-services/accounts';
 import type { Context } from '@via-profit-services/core';
 import { ValidationRule } from 'graphql';
 
 import { TOKEN_BEARER, TOKEN_BEARER_KEY } from './constants';
+import UnauthorizedError from './UnauthorizedError';
 
 type ValidatioRuleMiddleware = (props: {
   context: Context;
