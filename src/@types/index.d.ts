@@ -6,7 +6,6 @@ declare module '@via-profit-services/accounts' {
 
   export type AccountStatus = 'allowed' | 'forbidden';
   export type TokenType = 'access' | 'refresh';
-  export type SubscriptionTriggers = 'account-updated' | 'account-deleted';
   export type AccountRole = string;
 
   /**
@@ -14,6 +13,8 @@ declare module '@via-profit-services/accounts' {
    * @see [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken)
    */
   export interface Configuration {
+
+    permissionsMap: unknown;
     /**
      * Signature algorithm. Could be one of these values :
      * - HS256:    HMAC using SHA-256 hash algorithm (default)
@@ -264,12 +265,6 @@ declare module '@via-profit-services/accounts' {
     Mutation: {
       accounts: GraphQLFieldResolver<unknown, Context>;
     };
-    Subscription: {
-      accountWasUpdated: {
-        subscribe: GraphQLFieldResolver<unknown, Context>;
-        resolve?: GraphQLFieldResolver<unknown, Context>;
-      }
-    };
     AccountsQuery: {
       list: GraphQLFieldResolver<unknown, Context, InputFilter>;
       statusesList: GraphQLFieldResolver<unknown, Context>;
@@ -283,11 +278,15 @@ declare module '@via-profit-services/accounts' {
     };
     AccountsMutation: {
       update:  GraphQLFieldResolver<unknown, Context, UpdateArgs>;
-      token:  GraphQLFieldResolver<unknown, Context, GetTokenArgs>;
+      createToken:  GraphQLFieldResolver<unknown, Context, GetTokenArgs>;
     };
     Account: AccountResolver;
     MyAccount: MyAccountResolver;
     User: UserResolver;
+    TokenBag: {
+      accessToken: GraphQLFieldResolver<TokenRegistrationResponseSuccess, Context>;
+      refreshToken: GraphQLFieldResolver<TokenRegistrationResponseSuccess, Context>;
+    };
   }
 
   /**
@@ -329,7 +328,6 @@ declare module '@via-profit-services/accounts' {
     deleteAccount(id: string): Promise<void>;
     checkLoginExists(login: string, skipId?: string): Promise<boolean>;
     getAccountByCredentials(login: string, password: string): Promise<Account | false>;
-    extractTokenFromSubscription(connectionParams: any): string | false;
     extractTokenFromRequest(request: IncomingMessage): string | false;
     verifyToken(token: string): Promise<AccessTokenPayload | false>;
     getUsers(filter: Partial<OutputFilter>): Promise<ListResponse<User>>;

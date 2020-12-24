@@ -5,7 +5,7 @@ import { ServerError } from '@via-profit-services/core';
 const accountsMutationResolver: Resolvers['AccountsMutation'] = {
   update: async (_parent, args, context) => {
     const { id, input } = args;
-    const { dataloader, pubsub, services } = context;
+    const { dataloader, services } = context;
 
     try {
       await services.accounts.updateAccount(id, input);
@@ -27,13 +27,6 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
 
 
     dataloader.accounts.clear(id);
-
-    const account = await dataloader.accounts.load(id);
-
-    pubsub.publish('accountWasUpdated', {
-      accountWasUpdated: account,
-    });
-
 
     return { id };
   },
@@ -99,7 +92,7 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
   //     throw new ServerError(`Failed to delete account with id ${id}`, { id });
   //   }
   // },
-  token: async (_parent, args, context): Promise<TokenRegistrationResponse> => {
+  createToken: async (_parent, args, context): Promise<TokenRegistrationResponse> => {
     const { login, password } = args;
     const { logger, services } = context;
     const account = await services.accounts.getAccountByCredentials(login, password);

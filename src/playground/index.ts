@@ -2,7 +2,7 @@
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { factory, resolvers, typeDefs } from '@via-profit-services/core';
 import * as knex from '@via-profit-services/knex';
-import * as subscriptions from '@via-profit-services/subscriptions';
+import * as redis from '@via-profit-services/redis';
 import dotenv from 'dotenv';
 import express from 'express';
 import http from 'http';
@@ -14,6 +14,11 @@ dotenv.config();
 
 const PORT = 9005;
 const app = express();
+const redisConfig: redis.InitialProps = {
+  host: 'localhost',
+  port: 6379,
+  password: '',
+};
 const server = http.createServer(app);
 (async () => {
 
@@ -26,43 +31,57 @@ const server = http.createServer(app);
     },
   });
 
-  const pubSubMiddleware = subscriptions.factory({
-    endpoint: '/graphql',
-    server,
-  })
+  const redisMiddleware = redis.factory(redisConfig);
 
   const accountsMiddleware = await accounts.factory({
     privateKey: path.resolve(__dirname, './jwtRS256.key'),
     publicKey: path.resolve(__dirname, './jwtRS256.key.pub'),
+    permissionsMap: {
+      Query: {},
+      UsersQuery: {},
+      Account: {},
+      User: {
+        createdAt: {
+          allow: ['developer'],
+        },
+      },
+      Mutation: {},
+      AccountsMutation: {
+        createToken: {
+          disallow: ['authorized'],
+        },
+      },
+      TokenBag: {},
+      AccountsQuery: {},
+      MyAccount: {},
+    },
   });
 
   const schema = makeExecutableSchema({
     typeDefs: [
       typeDefs,
       accounts.typeDefs,
-      subscriptions.typeDefs,
     ],
     resolvers: [
       resolvers,
       accounts.resolvers,
-      subscriptions.resolvers,
     ],
   });
 
 
-  const { viaProfitGraphql } = await factory({
+  const { graphQLExpress } = await factory({
     server,
     schema,
     debug: true,
-    enableIntrospection: true,
+    introspection: true,
     middleware: [
-      accountsMiddleware,
       knexMiddleware,
-      pubSubMiddleware,
+      redisMiddleware,
+      accountsMiddleware, // <-- After redis and knex
     ],
   });
 
-  app.use(viaProfitGraphql);
+  app.use(graphQLExpress);
   server.listen(PORT, () => {
 
 

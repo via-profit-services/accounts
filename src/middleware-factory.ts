@@ -11,10 +11,9 @@ import {
 import contextMiddleware from './context-middleware';
 import validationRuleMiddleware from './validation-rule-middleware';
 
-
 const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (config) => {
   const {
-    privateKey, publicKey, algorithm, issuer,
+    privateKey, publicKey, algorithm, issuer, permissionsMap,
     refreshTokenExpiresIn, accessTokenExpiresIn,
   } = config;
 
@@ -46,13 +45,25 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (config) => {
 
   const middleware: Middleware = async (props) => {
 
-    const { request } = props;
+    const { request, context } = props;
+
+    // check knex dependencies
+    if (typeof context.knex === 'undefined') {
+      throw new ServerError(
+        '«@via-profit-services/knex» middleware is missing. If knex middleware is already connected, make sure that the connection order is correct: knex middleware must be connected before',
+      );
+    }
+    if (typeof context.redis === 'undefined') {
+      throw new ServerError(
+        '«@via-profit-services/redis is missing. If redis middleware is already connected, make sure that the connection order is correct: redis middleware must be connected before',
+      );
+    }
 
     // define static context at once
     pool.context = pool.context ?? contextMiddleware({
       jwt,
       config: props.config,
-      context: props.context,
+      context: context,
     });
 
     const { services } = pool.context;
@@ -62,20 +73,25 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (config) => {
     if (!timers.blacList) {
       timers.blacList = setInterval(() => {
         services.accounts.clearExpiredTokens();
-      }, jwt.accessTokenExpiresIn);
+      }, jwt.accessTokenExpiresIn * 1000);
     }
 
     // try to parse token
     const bearerToken = services.accounts.extractTokenFromRequest(request);
     if (bearerToken) {
+
       const bearerTokenPayload = await services.accounts.verifyToken(bearerToken);
+
       pool.context.token = bearerTokenPayload
         ? bearerTokenPayload
         : services.accounts.getDefaultTokenPayload();
     }
 
-    pool.validationRule = pool.validationRule ?? validationRuleMiddleware({
+
+    pool.validationRule = validationRuleMiddleware({
       context: pool.context,
+      config: props.config,
+      permissionsMap,
     });
 
 

@@ -3,7 +3,7 @@ import type {
   Account, AccountsServiceProps, AccountInputInfo, AccessTokenPayload,
   AccountTableModelOutput, AccountStatus, TokenPackage, User,
 } from '@via-profit-services/accounts';
-import '@via-profit-services/subscriptions';
+import '@via-profit-services/redis';
 import { OutputFilter, ListResponse, ServerError, Phone } from '@via-profit-services/core';
 import {
   convertWhereToKnex, convertOrderByToKnex,
@@ -202,7 +202,7 @@ class AccountsService {
 
     const tokens = this.generateTokens({
       uuid: account.id,
-      roles: account.roles,
+      roles: ['authorized'].concat(account.roles),
     });
 
     try {
@@ -414,25 +414,32 @@ class AccountsService {
     const { redis, logger, jwt } = context;
     const { privateKey, algorithm } = jwt;
 
+    let payload: AccessTokenPayload;
     try {
-      const payload = jsonwebtoken.verify(String(token), privateKey, {
+      payload = jsonwebtoken.verify(String(token), privateKey, {
         algorithms: [algorithm],
       }) as AccessTokenPayload;
 
-      const revokeStatus = await redis.sismember(REDIS_TOKENS_BLACKLIST, payload.id);
-      if (revokeStatus) {
-        logger.auth.info('Token was revoked', { payload });
-
-        return false;
-      }
-
-      return payload;
     } catch (err) {
-      logger.auth.info('Invalid token', { err });
-      logger.server.error('Failed to validate the token', { err });
+      logger.auth.debug('Token verification. Invalid token', { err });
 
       return false;
     }
+
+    try {
+      const revokeStatus = await redis.sismember(REDIS_TOKENS_BLACKLIST, payload.id);
+      if (revokeStatus) {
+        logger.auth.debug('Token verification. Token was revoked', { payload });
+
+        return false;
+      }
+    } catch (err) {
+      logger.auth.debug('Token verification. Failed to check token blacklist', { payload });
+
+      return false;
+    }
+
+    return payload;
   }
 
   public async getUsers(filter: Partial<OutputFilter>): Promise<ListResponse<User>> {

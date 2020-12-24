@@ -7,13 +7,6 @@ extend type Mutation {
   accounts: AccountsMutation!
 }
 
-extend type Subscription {
-  """
-  Called when the account with following id was updated
-  """
-  accountWasUpdated(id: ID!): Account!
-}
-
 interface Profile {
   id: ID!
   createdAt: DateTime!
@@ -182,7 +175,7 @@ type AccountListConnection implements Connection {
 }
 
 type AccountsMutation {
-  token(login: String!, password: String!): TokenRegistrationResponse!
+  createToken(login: String!, password: String!): TokenRegistrationResponse!
   update(id: ID!, input: AccountInput!): Account!
 }
 
