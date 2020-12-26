@@ -68,7 +68,7 @@
         "@types/webpack-node-externals": "^2.5.0",
         "@typescript-eslint/eslint-plugin": "^4.9.1",
         "@typescript-eslint/parser": "^4.9.1",
-        "@via-profit-services/core": "file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.44.tgz",
+        "@via-profit-services/core": "file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.45.tgz",
         "@via-profit-services/eslint-config": "^0.1.11",
         "@via-profit-services/knex": "file://home/dhs/Projects/@via-profit-services/knex/package-0.1.0-rc.13.tgz",
         "@via-profit-services/redis": "file://home/dhs/Projects/@via-profit-services/redis/package-0.1.0-rc.3.tgz",
