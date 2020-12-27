@@ -3,10 +3,16 @@ declare module '@via-profit-services/accounts' {
   import { InputFilter, Middleware, Context, ErrorHandler, OutputFilter, ListResponse, Phone } from '@via-profit-services/core';
   import { IncomingMessage } from 'http';
   import { GraphQLFieldResolver } from 'graphql';
+  import { EventEmitter } from 'events';
 
   export type AccountStatus = 'allowed' | 'forbidden';
   export type TokenType = 'access' | 'refresh';
   export type AccountRole = string;
+
+  export class AccountsEmitter extends EventEmitter {
+    on(event: 'authentification', callback: (tokenPackage: TokenPackage) => void): this;
+    on(event: 'got-access-token', callback: (tokenPayload: AccessTokenPayload) => void): this;
+  }
 
   /**
    * JWT configuration.
@@ -365,7 +371,7 @@ declare module '@via-profit-services/accounts' {
 
 declare module '@via-profit-services/core' {
   import DataLoader from 'dataloader';
-  import { JwtConfig, AccessTokenPayload, Account, User, AccountsService } from '@via-profit-services/accounts';
+import { JwtConfig, AccessTokenPayload, Account, User, AccountsService, AccountsEmitter } from '@via-profit-services/accounts';
 
   interface Context {
     /**
@@ -374,6 +380,10 @@ declare module '@via-profit-services/core' {
      */
     jwt: JwtConfig;
     token: AccessTokenPayload;
+  }
+
+  interface EmitterCollection {
+    accounts: AccountsEmitter;
   }
 
   

@@ -7,6 +7,7 @@ import {
   DEFAULT_REFRESH_TOKEN_EXPIRED,
   DEFAULT_SIGNATURE_ALGORITHM,
   DEFAULT_SIGNATURE_ISSUER,
+  EMITTER_EMIT_SUCCESS_AUTHORIZATION,
 } from './constants';
 import contextMiddleware from './context-middleware';
 import validationRuleMiddleware from './validation-rule-middleware';
@@ -68,6 +69,8 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (config) => {
 
     const { services } = pool.context;
 
+    pool.context.token = services.accounts.getDefaultTokenPayload();
+
     // setup it once
     // setup timer to clear expired tokens
     if (!timers.blacList) {
@@ -82,9 +85,10 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (config) => {
 
       const bearerTokenPayload = await services.accounts.verifyToken(bearerToken);
 
-      pool.context.token = bearerTokenPayload
-        ? bearerTokenPayload
-        : services.accounts.getDefaultTokenPayload();
+      if (bearerTokenPayload) {
+        pool.context.emitter.accounts.emit('got-access-token', bearerTokenPayload);
+        pool.context.token = bearerTokenPayload;
+      }
     }
 
 

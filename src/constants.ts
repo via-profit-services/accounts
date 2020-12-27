@@ -10,3 +10,4 @@ export const ACCESS_TOKEN_EMPTY_ISSUER = 'NOT_ASSIGNED';
 export const TOKEN_BEARER_KEY = 'Authorization';
 export const TOKEN_BEARER = 'Bearer';
 export const REDIS_TOKENS_BLACKLIST = 'tokensBlackList';
+export const EMITTER_EMIT_SUCCESS_AUTHORIZATION = 'emit-success-authorization';

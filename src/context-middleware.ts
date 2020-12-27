@@ -1,6 +1,7 @@
 import type { JwtConfig } from '@via-profit-services/accounts';
 import { MiddlewareProps, Context, collateForDataloader } from '@via-profit-services/core';
 import DataLoader from 'dataloader';
+import { EventEmitter } from 'events';
 
 
 import AccountsService from './AccountsService';
@@ -17,6 +18,11 @@ const contextMiddleware = (props: Props): Context => {
 
   const { context, config, jwt } = props;
   const { logDir } = config;
+
+  class AccountsEmitter extends EventEmitter {}
+
+  // accounts event emitter
+  context.emitter.accounts = new AccountsEmitter();
 
   // JsonWebToken settings
   context.jwt = jwt;

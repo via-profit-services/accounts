@@ -94,7 +94,7 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
   // },
   createToken: async (_parent, args, context): Promise<TokenRegistrationResponse> => {
     const { login, password } = args;
-    const { logger, services } = context;
+    const { logger, services, emitter } = context;
     const account = await services.accounts.getAccountByCredentials(login, password);
 
     if (!account) {
@@ -124,10 +124,11 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
     logger.auth.debug(`Authorization attempt with login «${login}» success`);
 
     try {
-      const tokens = await services.accounts.registerTokens({ uuid: account.id });
+      const tokenBag = await services.accounts.registerTokens({ uuid: account.id });
+      emitter.accounts.emit('authentification', tokenBag);
 
       return {
-        ...tokens,
+        ...tokenBag,
         __typename: 'TokenBag',
       }
     } catch (err) {

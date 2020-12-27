@@ -1005,7 +1005,7 @@ __metadata:
     "@types/webpack-node-externals": ^2.5.0
     "@typescript-eslint/eslint-plugin": ^4.9.1
     "@typescript-eslint/parser": ^4.9.1
-    "@via-profit-services/core": "file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.45.tgz"
+    "@via-profit-services/core": "file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.47.tgz"
     "@via-profit-services/eslint-config": ^0.1.11
     "@via-profit-services/knex": "file://home/dhs/Projects/@via-profit-services/knex/package-0.1.0-rc.13.tgz"
     "@via-profit-services/redis": "file://home/dhs/Projects/@via-profit-services/redis/package-0.1.0-rc.3.tgz"
@@ -1065,9 +1065,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.45.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
-  version: 0.31.6-rc.45
-  resolution: "@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.45.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
+"@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.47.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
+  version: 0.31.6-rc.47
+  resolution: "@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.47.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
   dependencies:
     bufferutil: ^4.0.2
     content-type: ^1.0.4
@@ -1086,7 +1086,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: 5b78ef655774cf837c502c4fd3b90916a6c5e437a834192b48a1ca9608797960092427251d205b8e1637d685fd3f2f528ec51debc1aad54b5bc83344b2af81d9
+  checksum: b4c0da590e045c61cdd7512a1b438d416570c4c6c7821d4ff308f3474d98eacb398c1c31c032c6c810abee81309d7d6017e4db61625ef39ad142c7fa617a6444
   languageName: node
   linkType: hard
 

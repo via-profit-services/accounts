@@ -78,6 +78,20 @@ const server = http.createServer(app);
       knexMiddleware,
       redisMiddleware,
       accountsMiddleware, // <-- After redis and knex
+      ({ context }) => {
+        // context.emitter.core
+        console.log('subscribee')
+
+        context.emitter.accounts.on('got-access-token', (data) => {
+          console.log('got-access-token', data);
+        });
+
+        context.emitter.accounts.on('authentification', (data) => {
+          console.log('authentification', data);
+        });
+
+        return {}
+      },
     ],
   });
 
