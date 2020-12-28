@@ -2,9 +2,9 @@ import type { JwtConfig } from '@via-profit-services/accounts';
 import { MiddlewareProps, Context, collateForDataloader } from '@via-profit-services/core';
 import DataLoader from 'dataloader';
 
-
 import authLogger from './auth-logger';
 import AccountsService from './services/AccountsService';
+import AuthentificationService from './services/AuthentificationService';
 import PermissionsService from './services/PermissionsService';
 import UsersService from './services/UsersService';
 
@@ -32,8 +32,11 @@ const contextMiddleware = (props: Props): Context => {
   // Users Service
   context.services.users = new UsersService({ context });
 
+  // Authentification Service
+  context.services.authentification = new AuthentificationService({ context });
+
   // Default token state
-  context.token = context.services.permissions.getDefaultTokenPayload();
+  context.token = context.services.authentification.getDefaultTokenPayload();
 
   // Authorization Logger
   context.logger.auth = authLogger({ logDir });

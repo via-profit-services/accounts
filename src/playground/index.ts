@@ -36,24 +36,13 @@ const server = http.createServer(app);
   const accountsMiddleware = await accounts.factory({
     privateKey: path.resolve(__dirname, './jwtRS256.key'),
     publicKey: path.resolve(__dirname, './jwtRS256.key.pub'),
+    authorizationToAll: true,
     permissionsMap: {
-      Query: {},
-      UsersQuery: {},
-      Account: {},
       User: {
         createdAt: {
-          allow: ['developer'],
+          grant: ['developer'],
         },
       },
-      Mutation: {},
-      AccountsMutation: {
-        createToken: {
-          disallow: ['authorized'],
-        },
-      },
-      TokenBag: {},
-      AccountsQuery: {},
-      MyAccount: {},
     },
   });
 

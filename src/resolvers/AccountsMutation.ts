@@ -1,4 +1,4 @@
-import type { Resolvers, TokenRegistrationResponse } from '@via-profit-services/accounts';
+import type { Resolvers } from '@via-profit-services/accounts';
 import { ServerError } from '@via-profit-services/core';
 
 
@@ -92,49 +92,49 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
   //     throw new ServerError(`Failed to delete account with id ${id}`, { id });
   //   }
   // },
-  createToken: async (_parent, args, context): Promise<TokenRegistrationResponse> => {
-    const { login, password } = args;
-    const { logger, services, emitter } = context;
-    const account = await services.accounts.getAccountByCredentials(login, password);
+  // createToken: async (_parent, args, context): Promise<TokenRegistrationResponse> => {
+  //   const { login, password } = args;
+  //   const { logger, services, emitter } = context;
+  //   const account = await services.accounts.getAccountByCredentials(login, password);
 
-    if (!account) {
-      logger.auth.debug(
-        `Authorization attempt with login «${login}» failed. Invalid login or password`,
-      );
+  //   if (!account) {
+  //     logger.auth.debug(
+  //       `Authorization attempt with login «${login}» failed. Invalid login or password`,
+  //     );
 
-      return {
-        name: 'UnauthorizedError',
-        msg: 'Invalid login or password',
-        __typename: 'TokenRegistrationError',
-      };
-    }
+  //     return {
+  //       name: 'UnauthorizedError',
+  //       msg: 'Invalid login or password',
+  //       __typename: 'TokenRegistrationError',
+  //     };
+  //   }
 
-    if (account.status === 'forbidden') {
-      logger.auth.debug(
-        `Authorization attempt with login «${login}» failed. Account locked`,
-      );
+  //   if (account.status === 'forbidden') {
+  //     logger.auth.debug(
+  //       `Authorization attempt with login «${login}» failed. Account locked`,
+  //     );
 
-      return {
-        name: 'UnauthorizedError',
-        msg: 'Account locked',
-        __typename: 'TokenRegistrationError',
-      };
-    }
+  //     return {
+  //       name: 'UnauthorizedError',
+  //       msg: 'Account locked',
+  //       __typename: 'TokenRegistrationError',
+  //     };
+  //   }
 
-    logger.auth.debug(`Authorization attempt with login «${login}» success`);
+  //   logger.auth.debug(`Authorization attempt with login «${login}» success`);
 
-    try {
-      const tokenBag = await services.accounts.registerTokens({ uuid: account.id });
-      emitter.emit('authentification-success', tokenBag);
+  //   try {
+  //     const tokenBag = await services.permissions.registerTokens({ uuid: account.id });
+  //     emitter.emit('authentification-success', tokenBag);
 
-      return {
-        ...tokenBag,
-        __typename: 'TokenBag',
-      }
-    } catch (err) {
-      throw new ServerError('Failed to register tokens', { err });
-    }
-  },
+  //     return {
+  //       ...tokenBag,
+  //       __typename: 'TokenBag',
+  //     }
+  //   } catch (err) {
+  //     throw new ServerError('Failed to register tokens', { err });
+  //   }
+  // },
 };
 
 export default accountsMutationResolver;

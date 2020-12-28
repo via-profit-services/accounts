@@ -1,8 +1,10 @@
+/* eslint-disable import/max-dependencies */
 import type { Resolvers } from '@via-profit-services/accounts';
 
 import Account from './Account';
 import AccountsMutation from './AccountsMutation';
 import AccountsQuery from './AccountsQuery';
+import AuthentificationMutation from './AuthentificationMutation';
 import Mutation from './Mutation';
 import MyAccount from './MyAccount';
 import Query from './Query';
@@ -16,6 +18,7 @@ const resolvers: Resolvers = {
   AccountsQuery,
   Mutation,
   MyAccount,
+  AuthentificationMutation,
   Query,
   User,
   UsersQuery,

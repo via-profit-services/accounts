@@ -9,13 +9,14 @@ import {
   DEFAULT_SIGNATURE_ISSUER,
 } from './constants';
 import contextMiddleware from './context-middleware';
+import UnauthorizedError from './UnauthorizedError';
 import validationRuleMiddleware from './validation-rule-middleware';
 
-const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (config) => {
+const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuration) => {
   const {
-    privateKey, publicKey, algorithm, issuer, permissionsMap,
+    privateKey, publicKey, algorithm, issuer,
     refreshTokenExpiresIn, accessTokenExpiresIn,
-  } = config;
+  } = configuration;
 
 
   const jwt: JwtConfig = {
@@ -37,10 +38,11 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (config) => {
   const pool: ReturnType<Middleware> = {
     context: null,
     validationRule: null,
+    extensions: null,
   };
 
-  const timers: { blacList: NodeJS.Timeout } = {
-    blacList: null,
+  const timers: { blacklist: NodeJS.Timeout } = {
+    blacklist: null,
   };
 
   const middleware: Middleware = async (props) => {
@@ -67,26 +69,35 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (config) => {
     });
 
     const { services } = pool.context;
+    const { authentification } = services;
 
-    pool.context.token = services.accounts.getDefaultTokenPayload();
+    pool.context.token = authentification.getDefaultTokenPayload();
+    pool.extensions = {
+      tokenPayload: pool.context.token,
+    };
+
 
     // setup it once
     // setup timer to clear expired tokens
-    if (!timers.blacList) {
-      timers.blacList = setInterval(() => {
-        services.accounts.clearExpiredTokens();
+    if (!timers.blacklist) {
+      timers.blacklist = setInterval(() => {
+        authentification.clearExpiredTokens();
       }, jwt.accessTokenExpiresIn * 1000);
     }
-
     // try to parse token
-    const bearerToken = services.accounts.extractTokenFromRequest(request);
+    const bearerToken = authentification.extractTokenFromRequest(request);
+
     if (bearerToken) {
 
-      const bearerTokenPayload = await services.accounts.verifyToken(bearerToken);
+      try {
+        const tokenPayload = await authentification.verifyToken(bearerToken);
 
-      if (bearerTokenPayload) {
-        pool.context.emitter.emit('got-access-token', bearerTokenPayload);
-        pool.context.token = bearerTokenPayload;
+        pool.context.emitter.emit('got-access-token', tokenPayload);
+        pool.context.token = tokenPayload;
+        pool.extensions.tokenPayload = tokenPayload;
+
+      } catch (err) {
+        throw new UnauthorizedError(err.message);
       }
     }
 
@@ -94,7 +105,7 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (config) => {
     pool.validationRule = validationRuleMiddleware({
       context: pool.context,
       config: props.config,
-      permissionsMap,
+      configuration,
     });
 
 

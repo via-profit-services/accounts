@@ -1,6 +1,6 @@
 /* eslint-disable import/max-dependencies */
 import type {
-  Account, AccountsServiceProps, AccountInputInfo,
+  Account, AccountsServiceProps, AccountInputInfo, AccountsService as AccountsServiceInterface,
   AccountTableModelOutput, AccountStatus, User,
 } from '@via-profit-services/accounts';
 import '@via-profit-services/redis';
@@ -60,7 +60,7 @@ interface UsersTableModelResult {
 }
 
 
-class AccountsService {
+class AccountsService implements AccountsServiceInterface {
   props: AccountsServiceProps;
 
   public constructor(props: AccountsServiceProps) {
@@ -151,12 +151,13 @@ class AccountsService {
 
   public async updateAccount(id: string, accountData: Partial<AccountInputInfo>) {
     const { knex, timezone, services } = this.props.context;
+    const { authentification } = services;
     const data = this.prepareDataToInsert({
       ...accountData,
       updatedAt: moment.tz(timezone).format(),
     });
     if (data.password) {
-      data.password = services.permissions.cryptUserPassword(data.password);
+      data.password = authentification.cryptUserPassword(data.password);
     }
     await knex<AccountInputInfo>('accounts')
       .update(data)
@@ -166,12 +167,13 @@ class AccountsService {
 
   public async createAccount(accountData: Partial<AccountInputInfo>) {
     const { knex, timezone, services } = this.props.context;
+    const { authentification } = services;
     const createdAt = moment.tz(timezone).format();
 
     const data = this.prepareDataToInsert({
       ...accountData,
       id: accountData.id ? accountData.id : uuidv4(),
-      password: services.permissions.cryptUserPassword(accountData.password),
+      password: authentification.cryptUserPassword(accountData.password),
       createdAt,
       updatedAt: createdAt,
     });

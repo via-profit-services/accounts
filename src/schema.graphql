@@ -5,6 +5,49 @@ extend type Query {
 
 extend type Mutation {
   accounts: AccountsMutation!
+  authentification: AuthentificationMutation!
+}
+
+
+type TokenRegistrationError implements Error {
+  name: String!
+  msg: String!
+}
+
+union TokenRegistrationResponse = TokenBag | TokenRegistrationError
+
+type TokenBag {
+  accessToken: AccessToken
+  refreshToken: RefreshToken
+}
+
+type AccessToken {
+  token: String!
+  payload: AccessTokenPayload!
+}
+
+type RefreshToken {
+  token: String!
+  payload: RefreshTokenPayload!
+}
+
+type AccessTokenPayload {
+  type: TokenType!
+  id: ID!
+  uuid: ID!
+  roles: [String!]!
+  exp: Int!
+  iss: String!
+}
+
+type RefreshTokenPayload {
+  type: TokenType!
+  id: ID!
+  uuid: ID!
+  roles: [String!]!
+  exp: Int!
+  iss: String!
+  associated: AccessToken!
 }
 
 interface Profile {
@@ -175,8 +218,11 @@ type AccountListConnection implements Connection {
 }
 
 type AccountsMutation {
-  createToken(login: String!, password: String!): TokenRegistrationResponse!
   update(id: ID!, input: AccountInput!): Account!
+}
+
+type AuthentificationMutation {
+  createToken(login: String!, password: String!): TokenRegistrationResponse!
 }
 
 input AccountInput {
@@ -190,46 +236,6 @@ input AccountInput {
   deleted: Boolean
 }
 
-type TokenRegistrationError implements Error {
-  name: String!
-  msg: String!
-}
-
-union TokenRegistrationResponse = TokenBag | TokenRegistrationError
-
-type TokenBag {
-  accessToken: AccessToken
-  refreshToken: RefreshToken
-}
-
-type AccessToken {
-  token: String!
-  payload: AccessTokenPayload!
-}
-
-type RefreshToken {
-  token: String!
-  payload: RefreshTokenPayload!
-}
-
-type AccessTokenPayload {
-  type: TokenType!
-  id: ID!
-  uuid: ID!
-  roles: [String!]!
-  exp: Int!
-  iss: String!
-}
-
-type RefreshTokenPayload {
-  type: TokenType!
-  id: ID!
-  uuid: ID!
-  roles: [String!]!
-  exp: Int!
-  iss: String!
-  associated: AccessToken!
-}
 
 """
 User edge bundle

@@ -1,5 +1,5 @@
 declare module '@via-profit-services/accounts' {
-  import { Algorithm } from 'jsonwebtoken';
+  import { Algorithm, JsonWebTokenError } from 'jsonwebtoken';
   import { InputFilter, Middleware, Context, ErrorHandler, OutputFilter, ListResponse, Phone, MiddlewareProps } from '@via-profit-services/core';
   import { IncomingMessage } from 'http';
   import { GraphQLFieldResolver, ValidationRule } from 'graphql';
@@ -14,7 +14,8 @@ declare module '@via-profit-services/accounts' {
    */
   export interface Configuration {
 
-    permissionsMap: unknown;
+    // TODO: Types for it
+    permissionsMap: PermissionsMap;
     /**
      * Signature algorithm. Could be one of these values :
      * - HS256:    HMAC using SHA-256 hash algorithm (default)
@@ -31,6 +32,10 @@ declare module '@via-profit-services/accounts' {
      * \
      * Default: `RS256`
      */
+    authorizationToAll?: boolean;
+    grantToAll?: string[];
+    restrictToAll?: string[];
+
     algorithm?: Algorithm;
 
     /**
@@ -215,37 +220,35 @@ declare module '@via-profit-services/accounts' {
 
   export type ValidatioRuleMiddleware = (props: {
     context: Context;
+    configuration: Configuration;
     config: MiddlewareProps['config'];
-    permissionsMap: unknown;
   }) => ValidationRule;
 
 
   export type PermissionRole = string;
   export type PermissionRoles = PermissionRole[];
   export type PermissionResolverComposed = {
-    allow: PermissionRoles;
-    disallow: PermissionRoles;
+    grant: PermissionRoles;
+    restrict: PermissionRoles;
   }
-  export type PermissionResolverAllowOnly = {
-    allow: PermissionRoles;
+  export type PermissionResolverGrantOnly = {
+    grant: PermissionRoles;
   }
 
-  export type PermissionResolverDisallowOnly = {
-    disallow: PermissionRoles;
+  export type PermissionResolverRestrictOnly = {
+    restrict: PermissionRoles;
   }
 
   export type PermissionResolvers =
   | PermissionResolverComposed
-  | PermissionResolverAllowOnly
-  | PermissionResolverDisallowOnly;
+  | PermissionResolverGrantOnly
+  | PermissionResolverRestrictOnly;
 
 
   export type PermissionResolversWithFields = Record<any, PermissionResolvers>;
   export type PermissionResolver = PermissionResolvers | PermissionResolversWithFields;
 
-  export type ResolversKeys = keyof Resolvers;
-
-  export type PermissionsMap = Record<ResolversKeys, PermissionResolver>;
+  export type PermissionsMap = Record<string, PermissionResolver>;
 
   export type ResolvePermissions = {
     resolver: PermissionResolverComposed;
@@ -259,6 +262,13 @@ declare module '@via-profit-services/accounts' {
     };
     Mutation: {
       accounts: GraphQLFieldResolver<unknown, Context>;
+      authentification: GraphQLFieldResolver<unknown, Context>;
+    };
+    AuthentificationMutation: {
+      createToken: GraphQLFieldResolver<unknown, Context, {
+        login: string;
+        password: string;
+      }>;
     };
     AccountsQuery: {
       list: GraphQLFieldResolver<unknown, Context, InputFilter>;
@@ -273,7 +283,6 @@ declare module '@via-profit-services/accounts' {
     };
     AccountsMutation: {
       update:  GraphQLFieldResolver<unknown, Context, UpdateArgs>;
-      createToken:  GraphQLFieldResolver<unknown, Context, GetTokenArgs>;
     };
     Account: AccountResolver;
     MyAccount: MyAccountResolver;
@@ -347,13 +356,16 @@ declare module '@via-profit-services/accounts' {
     context: Context;
   }
 
+  /**
+   * Authentification service constructor props
+   */
+  export interface AuthentificationServiceProps {
+    context: Context;
+  }
 
-  class PermissionsService {
-    props: PermissionsServiceProps;
-    constructor(props: PermissionsServiceProps);
-
-    resolvePermissions (props: ResolvePermissions): boolean;
-    composePermissionResolver (resolver: PermissionResolver): PermissionResolverComposed;
+  class AuthentificationService {
+    props: AuthentificationServiceProps;
+    constructor(props: AuthentificationServiceProps);
 
     /**
      * Just crypt password
@@ -377,8 +389,20 @@ declare module '@via-profit-services/accounts' {
     }): Promise<TokenPackage>;
     getDefaultTokenPayload(): AccessTokenPayload;
     extractTokenFromRequest(request: IncomingMessage): string | false;
-    verifyToken(token: string): Promise<AccessTokenPayload | false>;
+    verifyToken(token: string): Promise<AccessTokenPayload | never>;
     clearExpiredTokens(): void;
+
+  }
+
+
+  class PermissionsService {
+    props: PermissionsServiceProps;
+    constructor(props: PermissionsServiceProps);
+
+    resolvePermissions (props: ResolvePermissions): boolean;
+    composePermissionResolver (resolver: PermissionResolver): PermissionResolverComposed;
+    getDefaultPermissionsMap(): PermissionsMap;
+
   }
 
   /**
@@ -445,7 +469,7 @@ declare module '@via-profit-services/core' {
   import DataLoader from 'dataloader';
   import {
     JwtConfig, AccessTokenPayload, Account, User, UsersService,
-    AccountsService, TokenPackage, PermissionsService,
+    AccountsService, TokenPackage, PermissionsService, AuthentificationService,
   } from '@via-profit-services/accounts';
 
   interface Context {
@@ -493,6 +517,11 @@ declare module '@via-profit-services/core' {
      * Users service
      */
     users: UsersService;
+
+    /**
+     * Authentification service
+     */
+    authentification: AuthentificationService;
   }
   
 

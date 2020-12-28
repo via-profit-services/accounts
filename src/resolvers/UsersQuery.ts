@@ -9,7 +9,7 @@ export const UsersQueryResolver: Resolvers['UsersQuery'] = {
 
     try {
       filter.where.push(['deleted', '=', false]);
-      const usersConnection = await services.accounts.getUsers(filter);
+      const usersConnection = await services.users.getUsers(filter);
       const connection = buildCursorConnection(usersConnection, 'users');
 
       // fill the cache
