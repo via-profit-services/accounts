@@ -1,18 +1,12 @@
 declare module '@via-profit-services/accounts' {
   import { Algorithm } from 'jsonwebtoken';
-  import { InputFilter, Middleware, Context, ErrorHandler, OutputFilter, ListResponse, Phone } from '@via-profit-services/core';
+  import { InputFilter, Middleware, Context, ErrorHandler, OutputFilter, ListResponse, Phone, MiddlewareProps } from '@via-profit-services/core';
   import { IncomingMessage } from 'http';
-  import { GraphQLFieldResolver } from 'graphql';
-  import { EventEmitter } from 'events';
+  import { GraphQLFieldResolver, ValidationRule } from 'graphql';
 
   export type AccountStatus = 'allowed' | 'forbidden';
   export type TokenType = 'access' | 'refresh';
   export type AccountRole = string;
-
-  export class AccountsEmitter extends EventEmitter {
-    on(event: 'authentification', callback: (tokenPackage: TokenPackage) => void): this;
-    on(event: 'got-access-token', callback: (tokenPayload: AccessTokenPayload) => void): this;
-  }
 
   /**
    * JWT configuration.
@@ -218,12 +212,78 @@ declare module '@via-profit-services/accounts' {
 
   export type AccountsMiddlewareFactory = (config: Configuration) => Promise<Middleware>;
 
-  /**
-   * Accounts service constructor props
-   */
-  export interface AccountsServiceProps {
+
+  export type ValidatioRuleMiddleware = (props: {
     context: Context;
+    config: MiddlewareProps['config'];
+    permissionsMap: unknown;
+  }) => ValidationRule;
+
+
+  export type PermissionRole = string;
+  export type PermissionRoles = PermissionRole[];
+  export type PermissionResolverComposed = {
+    allow: PermissionRoles;
+    disallow: PermissionRoles;
   }
+  export type PermissionResolverAllowOnly = {
+    allow: PermissionRoles;
+  }
+
+  export type PermissionResolverDisallowOnly = {
+    disallow: PermissionRoles;
+  }
+
+  export type PermissionResolvers =
+  | PermissionResolverComposed
+  | PermissionResolverAllowOnly
+  | PermissionResolverDisallowOnly;
+
+
+  export type PermissionResolversWithFields = Record<any, PermissionResolvers>;
+  export type PermissionResolver = PermissionResolvers | PermissionResolversWithFields;
+
+  export type ResolversKeys = keyof Resolvers;
+
+  export type PermissionsMap = Record<ResolversKeys, PermissionResolver>;
+
+  export type ResolvePermissions = {
+    resolver: PermissionResolverComposed;
+    roles: string[];
+  }
+
+  export type Resolvers = {
+    Query: {
+      accounts: GraphQLFieldResolver<unknown, Context>;
+      users: GraphQLFieldResolver<unknown, Context>;
+    };
+    Mutation: {
+      accounts: GraphQLFieldResolver<unknown, Context>;
+    };
+    AccountsQuery: {
+      list: GraphQLFieldResolver<unknown, Context, InputFilter>;
+      statusesList: GraphQLFieldResolver<unknown, Context>;
+      me: GraphQLFieldResolver<unknown, Context>;
+      account: GraphQLFieldResolver<{id: string}, Context>;
+      checkLoginExists: GraphQLFieldResolver<CheckLoginExistsArgs, Context>;
+    };
+    UsersQuery: {
+      list: GraphQLFieldResolver<unknown, Context, InputFilter>;
+      user: GraphQLFieldResolver<unknown, Context, { id: string }>;
+    };
+    AccountsMutation: {
+      update:  GraphQLFieldResolver<unknown, Context, UpdateArgs>;
+      createToken:  GraphQLFieldResolver<unknown, Context, GetTokenArgs>;
+    };
+    Account: AccountResolver;
+    MyAccount: MyAccountResolver;
+    User: UserResolver;
+    TokenBag: {
+      accessToken: GraphQLFieldResolver<TokenRegistrationResponseSuccess, Context>;
+      refreshToken: GraphQLFieldResolver<TokenRegistrationResponseSuccess, Context>;
+    };
+  }
+
 
   interface AccountParent {
     id: string;
@@ -263,49 +323,42 @@ declare module '@via-profit-services/accounts' {
     deleted: GraphQLFieldResolver<UserParent, Context>;
   }
 
-  export type Resolvers = {
-    Query: {
-      accounts: GraphQLFieldResolver<unknown, Context>;
-      users: GraphQLFieldResolver<unknown, Context>;
-    };
-    Mutation: {
-      accounts: GraphQLFieldResolver<unknown, Context>;
-    };
-    AccountsQuery: {
-      list: GraphQLFieldResolver<unknown, Context, InputFilter>;
-      statusesList: GraphQLFieldResolver<unknown, Context>;
-      me: GraphQLFieldResolver<unknown, Context>;
-      account: GraphQLFieldResolver<{id: string}, Context>;
-      checkLoginExists: GraphQLFieldResolver<CheckLoginExistsArgs, Context>;
-    };
-    UsersQuery: {
-      list: GraphQLFieldResolver<unknown, Context, InputFilter>;
-      user: GraphQLFieldResolver<unknown, Context, { id: string }>;
-    };
-    AccountsMutation: {
-      update:  GraphQLFieldResolver<unknown, Context, UpdateArgs>;
-      createToken:  GraphQLFieldResolver<unknown, Context, GetTokenArgs>;
-    };
-    Account: AccountResolver;
-    MyAccount: MyAccountResolver;
-    User: UserResolver;
-    TokenBag: {
-      accessToken: GraphQLFieldResolver<TokenRegistrationResponseSuccess, Context>;
-      refreshToken: GraphQLFieldResolver<TokenRegistrationResponseSuccess, Context>;
-    };
+
+  
+
+  /**
+   * Permissions service constructor props
+   */
+  export interface PermissionsServiceProps {
+    context: Context;
   }
 
   /**
-   * Accounts service
+   * Accounts service constructor props
    */
-  class AccountsService {
-    props: AccountsServiceProps;
-    constructor(props: AccountsServiceProps);
+  export interface AccountsServiceProps {
+    context: Context;
+  }
+
+  /**
+   * Users service constructor props
+   */
+  export interface UsersServiceProps {
+    context: Context;
+  }
+
+
+  class PermissionsService {
+    props: PermissionsServiceProps;
+    constructor(props: PermissionsServiceProps);
+
+    resolvePermissions (props: ResolvePermissions): boolean;
+    composePermissionResolver (resolver: PermissionResolver): PermissionResolverComposed;
+
     /**
      * Just crypt password
      */
-    static cryptUserPassword(password: string): string;
-    static getAccountStatusesList(): string[];
+    cryptUserPassword(password: string): string;
     /**
      * Generate token pair (access + refresh)
      */
@@ -323,6 +376,19 @@ declare module '@via-profit-services/accounts' {
         uuid: string;
     }): Promise<TokenPackage>;
     getDefaultTokenPayload(): AccessTokenPayload;
+    extractTokenFromRequest(request: IncomingMessage): string | false;
+    verifyToken(token: string): Promise<AccessTokenPayload | false>;
+    clearExpiredTokens(): void;
+  }
+
+  /**
+   * Accounts service
+   */
+  class AccountsService {
+    props: AccountsServiceProps;
+    constructor(props: AccountsServiceProps);
+    
+    getAccountStatusesList(): string[];
     getDefaultAccountData(): AccountInputInfo;
     prepareDataToInsert(accountInputData: Partial<AccountInputInfo>): Partial<AccountInputInfo>;
     getAccounts(filter: Partial<OutputFilter>): Promise<ListResponse<Account>>;
@@ -334,12 +400,18 @@ declare module '@via-profit-services/accounts' {
     deleteAccount(id: string): Promise<void>;
     checkLoginExists(login: string, skipId?: string): Promise<boolean>;
     getAccountByCredentials(login: string, password: string): Promise<Account | false>;
-    extractTokenFromRequest(request: IncomingMessage): string | false;
-    verifyToken(token: string): Promise<AccessTokenPayload | false>;
+  }
+
+  /**
+   * Users service
+   */
+  class UsersService {
+    props: UsersServiceProps;
+    constructor(props: UsersServiceProps);
+    
     getUsers(filter: Partial<OutputFilter>): Promise<ListResponse<User>>;
     getUsersByIds(ids: string[]): Promise<User[]>;
     getUser(id: string): Promise<User | false>;
-    clearExpiredTokens(): void;
   }
 
 
@@ -371,7 +443,10 @@ declare module '@via-profit-services/accounts' {
 
 declare module '@via-profit-services/core' {
   import DataLoader from 'dataloader';
-import { JwtConfig, AccessTokenPayload, Account, User, AccountsService, AccountsEmitter } from '@via-profit-services/accounts';
+  import {
+    JwtConfig, AccessTokenPayload, Account, User, UsersService,
+    AccountsService, TokenPackage, PermissionsService,
+  } from '@via-profit-services/accounts';
 
   interface Context {
     /**
@@ -382,10 +457,13 @@ import { JwtConfig, AccessTokenPayload, Account, User, AccountsService, Accounts
     token: AccessTokenPayload;
   }
 
-  interface EmitterCollection {
-    accounts: AccountsEmitter;
-  }
 
+  interface CoreEmitter {
+    on(event: 'got-access-token', callback: (tokenBag: AccessTokenPayload) => void): this;
+    on(event: 'authentification-success', callback: (tokenBag: TokenPackage) => void): this;
+    once(event: 'got-access-token', callback: (tokenBag: AccessTokenPayload) => void): this;
+    once(event: 'authentification-success', callback: (tokenBag: TokenPackage) => void): this;
+  }
   
   interface DataLoaderCollection {
     /**
@@ -405,6 +483,16 @@ import { JwtConfig, AccessTokenPayload, Account, User, AccountsService, Accounts
      * Accounts service
      */
     accounts: AccountsService;
+
+    /**
+     * Permissions service
+     */
+    permissions: PermissionsService;
+
+    /**
+     * Users service
+     */
+    users: UsersService;
   }
   
 

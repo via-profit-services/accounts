@@ -125,7 +125,7 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
 
     try {
       const tokenBag = await services.accounts.registerTokens({ uuid: account.id });
-      emitter.accounts.emit('authentification', tokenBag);
+      emitter.emit('authentification-success', tokenBag);
 
       return {
         ...tokenBag,

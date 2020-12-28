@@ -9,7 +9,7 @@ export async function up(knex: Knex): Promise<any> {
     password: '$2a$10$W2AIgtHMlwKtZB65S7scVuWHVxomH0KxTc47EJ0xXuJgCSvBFRnw.',
     status: 'allowed',
     type: 'stuff',
-    roles: knex.raw(`'${JSON.stringify(['admin', 'developer'])}'::jsonb`),
+    roles: knex.raw(`'${JSON.stringify(['developer'])}'::jsonb`),
     comment: 'Development account. Please delete this account when development is complete',
   });
 }

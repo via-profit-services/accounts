@@ -1,7 +1,7 @@
 {
     "name": "@via-profit-services/accounts",
     "support": "https://via-profit.ru",
-    "version": "0.1.16-rc.9",
+    "version": "0.1.16-rc.13",
     "description": "Via Profit Accounts Schema",
     "main": "dist/index.js",
     "engines": {
@@ -28,7 +28,7 @@
         "migrate:latest": "yarn knex migrate:latest --knexfile ./.knex/knexfile.js",
         "migrate:up": "yarn knex migrate:up --knexfile ./.knex/knexfile.js",
         "migrate:down": "yarn knex migrate:down --knexfile ./.knex/knexfile.js",
-        "migrate:make": "yarn knex migrate:make --knexfile ./.knex/knexfile.js",
+        "migrate:make": "yarn knex migrate:make --migrations-directory ./src/database/migrations -x ts",
         "postversion": "git push --tags",
         "release:patch": "yarn version --patch",
         "release:minor": "yarn version --minor",
@@ -68,7 +68,7 @@
         "@types/webpack-node-externals": "^2.5.0",
         "@typescript-eslint/eslint-plugin": "^4.9.1",
         "@typescript-eslint/parser": "^4.9.1",
-        "@via-profit-services/core": "file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.47.tgz",
+        "@via-profit-services/core": "file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.48.tgz",
         "@via-profit-services/eslint-config": "^0.1.11",
         "@via-profit-services/knex": "file://home/dhs/Projects/@via-profit-services/knex/package-0.1.0-rc.13.tgz",
         "@via-profit-services/redis": "file://home/dhs/Projects/@via-profit-services/redis/package-0.1.0-rc.3.tgz",

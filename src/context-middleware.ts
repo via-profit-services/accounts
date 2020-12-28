@@ -1,11 +1,12 @@
 import type { JwtConfig } from '@via-profit-services/accounts';
 import { MiddlewareProps, Context, collateForDataloader } from '@via-profit-services/core';
 import DataLoader from 'dataloader';
-import { EventEmitter } from 'events';
 
 
-import AccountsService from './AccountsService';
 import authLogger from './auth-logger';
+import AccountsService from './services/AccountsService';
+import PermissionsService from './services/PermissionsService';
+import UsersService from './services/UsersService';
 
 
 interface Props {
@@ -19,19 +20,20 @@ const contextMiddleware = (props: Props): Context => {
   const { context, config, jwt } = props;
   const { logDir } = config;
 
-  class AccountsEmitter extends EventEmitter {}
-
-  // accounts event emitter
-  context.emitter.accounts = new AccountsEmitter();
-
   // JsonWebToken settings
   context.jwt = jwt;
 
   // Accounts Service
   context.services.accounts = new AccountsService({ context });
 
+  // Permissions Service
+  context.services.permissions = new PermissionsService({ context });
+
+  // Users Service
+  context.services.users = new UsersService({ context });
+
   // Default token state
-  context.token = context.services.accounts.getDefaultTokenPayload();
+  context.token = context.services.permissions.getDefaultTokenPayload();
 
   // Authorization Logger
   context.logger.auth = authLogger({ logDir });
@@ -45,7 +47,7 @@ const contextMiddleware = (props: Props): Context => {
 
   // Users Dataloader
   context.dataloader.users = new DataLoader(async (ids: string[]) => {
-    const nodes = await context.services.accounts.getUsersByIds(ids);
+    const nodes = await context.services.users.getUsersByIds(ids);
 
     return collateForDataloader(ids, nodes);
   });
