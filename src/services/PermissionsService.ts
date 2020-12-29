@@ -12,7 +12,7 @@ import Knex from 'knex';
 import moment from 'moment-timezone';
 import { v4 as uuidv4 } from 'uuid';
 
-import { DEFAULT_PERMISSIONS_MAP_ID } from '../constants';
+import { DEFAULT_PERMISSIONS_MAP_ID, DEFAULT_PERMISSIONS_MAP } from '../constants';
 
 type PermissionsMapTable = {
   readonly id: string;
@@ -201,29 +201,7 @@ class PermissionsService implements PermissionsServiceInterface {
   }
 
   public getDefaultPermissionsMapContent () {
-    return {
-      AuthentificationMutation: {
-        grant: ['*'],
-      },
-      TokenBag: {
-        grant: ['*'],
-      },
-      TokenRegistrationError: {
-        grant: ['*'],
-      },
-      AccessToken: {
-        grant: ['*'],
-      },
-      RefreshToken: {
-        grant: ['*'],
-      },
-      AccessTokenPayload: {
-        grant: ['*'],
-      },
-      RefreshTokenPayload: {
-        grant: ['*'],
-      },
-    };
+    return DEFAULT_PERMISSIONS_MAP;
   }
 }
 

@@ -8,8 +8,7 @@ module.exports =
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.DEFAULT_PERMISSIONS_MAP_ID = exports.RECOVERY_PERMISSIONS_MAP_ID = exports.REDIS_TOKENS_BLACKLIST = exports.TOKEN_BEARER = exports.TOKEN_BEARER_KEY = exports.ACCESS_TOKEN_EMPTY_ISSUER = exports.ACCESS_TOKEN_EMPTY_UUID = exports.ACCESS_TOKEN_EMPTY_ID = exports.LOG_FILENAME_AUTH = exports.DEFAULT_SIGNATURE_ISSUER = exports.DEFAULT_SIGNATURE_ALGORITHM = exports.DEFAULT_REFRESH_TOKEN_EXPIRED = exports.DEFAULT_ACCESS_TOKEN_EXPIRED = exports.ROLES_LIST = void 0;
-exports.ROLES_LIST = ['authorized', 'admin', 'driver', 'operator'];
+exports.DEFAULT_PERMISSIONS_MAP = exports.DEFAULT_PERMISSIONS_MAP_ID = exports.RECOVERY_PERMISSIONS_MAP_ID = exports.REDIS_TOKENS_BLACKLIST = exports.TOKEN_BEARER = exports.TOKEN_BEARER_KEY = exports.ACCESS_TOKEN_EMPTY_ISSUER = exports.ACCESS_TOKEN_EMPTY_UUID = exports.ACCESS_TOKEN_EMPTY_ID = exports.LOG_FILENAME_AUTH = exports.DEFAULT_SIGNATURE_ISSUER = exports.DEFAULT_SIGNATURE_ALGORITHM = exports.DEFAULT_REFRESH_TOKEN_EXPIRED = exports.DEFAULT_ACCESS_TOKEN_EXPIRED = void 0;
 exports.DEFAULT_ACCESS_TOKEN_EXPIRED = 1800;
 exports.DEFAULT_REFRESH_TOKEN_EXPIRED = 2.592e6;
 exports.DEFAULT_SIGNATURE_ALGORITHM = 'RS256';
@@ -23,6 +22,29 @@ exports.TOKEN_BEARER = 'Bearer';
 exports.REDIS_TOKENS_BLACKLIST = 'tokensBlackList';
 exports.RECOVERY_PERMISSIONS_MAP_ID = 'ff11ef55-d26b-46ba-8c9c-3f93b899f09e';
 exports.DEFAULT_PERMISSIONS_MAP_ID = '63833b93-b253-414c-a3fc-ca5211430222';
+exports.DEFAULT_PERMISSIONS_MAP = {
+    AuthentificationMutation: {
+        grant: ['*'],
+    },
+    TokenBag: {
+        grant: ['*'],
+    },
+    TokenRegistrationError: {
+        grant: ['*'],
+    },
+    AccessToken: {
+        grant: ['*'],
+    },
+    RefreshToken: {
+        grant: ['*'],
+    },
+    AccessTokenPayload: {
+        grant: ['*'],
+    },
+    RefreshTokenPayload: {
+        grant: ['*'],
+    },
+};
 
 
 /***/ }),
@@ -43,26 +65,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.down = exports.up = void 0;
 const constants_1 = __webpack_require__(289);
-const recoveryPermissionsMap = {
-    AuthentificationMutation: {
-        grant: ['*'],
-    },
-    TokenBag: {
-        grant: ['*'],
-    },
-    AccessToken: {
-        grant: ['*'],
-    },
-    RefreshToken: {
-        grant: ['*'],
-    },
-    AccessTokenPayload: {
-        grant: ['*'],
-    },
-    RefreshTokenPayload: {
-        grant: ['*'],
-    },
-};
 function up(knex) {
     return __awaiter(this, void 0, void 0, function* () {
         return knex.raw(`
@@ -127,8 +129,8 @@ function up(knex) {
     insert into "permissionsMap"
       ("id", "map", "description")
     values
-      ('${constants_1.RECOVERY_PERMISSIONS_MAP_ID}', '${JSON.stringify(recoveryPermissionsMap)}', 'Recovery map. Do not change this map, so that you can always return the map in case of incorrect editing'),
-      ('${constants_1.DEFAULT_PERMISSIONS_MAP_ID}', '${JSON.stringify(recoveryPermissionsMap)}', 'Standard map');
+      ('${constants_1.RECOVERY_PERMISSIONS_MAP_ID}', '${JSON.stringify(constants_1.DEFAULT_PERMISSIONS_MAP)}', 'Recovery map. Do not change this map, so that you can always return the map in case of incorrect editing'),
+      ('${constants_1.DEFAULT_PERMISSIONS_MAP_ID}', '${JSON.stringify(constants_1.DEFAULT_PERMISSIONS_MAP)}', 'Standard map');
   `);
     });
 }

@@ -500,6 +500,7 @@ declare module '@via-profit-services/accounts' {
   export const REDIS_TOKENS_BLACKLIST: string;
   export const RECOVERY_PERMISSIONS_MAP_ID: string;
   export const DEFAULT_PERMISSIONS_MAP_ID: string;
+  export const DEFAULT_PERMISSIONS_MAP: Record<string, unknown>;
 
   export const resolvers: Resolvers;
   export const typeDefs: string;

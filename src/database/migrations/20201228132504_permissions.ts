@@ -1,27 +1,7 @@
 import type Knex from 'knex';
 
-import { DEFAULT_PERMISSIONS_MAP_ID, RECOVERY_PERMISSIONS_MAP_ID } from '../../constants';
+import { DEFAULT_PERMISSIONS_MAP_ID, RECOVERY_PERMISSIONS_MAP_ID, DEFAULT_PERMISSIONS_MAP } from '../../constants';
 
-const recoveryPermissionsMap = {
-  AuthentificationMutation: {
-    grant: ['*'],
-  },
-  TokenBag: {
-    grant: ['*'],
-  },
-  AccessToken: {
-    grant: ['*'],
-  },
-  RefreshToken: {
-    grant: ['*'],
-  },
-  AccessTokenPayload: {
-    grant: ['*'],
-  },
-  RefreshTokenPayload: {
-    grant: ['*'],
-  },
-};
 
 export async function up(knex: Knex): Promise<void> {
   return knex.raw(`
@@ -86,8 +66,8 @@ export async function up(knex: Knex): Promise<void> {
     insert into "permissionsMap"
       ("id", "map", "description")
     values
-      ('${RECOVERY_PERMISSIONS_MAP_ID}', '${JSON.stringify(recoveryPermissionsMap)}', 'Recovery map. Do not change this map, so that you can always return the map in case of incorrect editing'),
-      ('${DEFAULT_PERMISSIONS_MAP_ID}', '${JSON.stringify(recoveryPermissionsMap)}', 'Standard map');
+      ('${RECOVERY_PERMISSIONS_MAP_ID}', '${JSON.stringify(DEFAULT_PERMISSIONS_MAP)}', 'Recovery map. Do not change this map, so that you can always return the map in case of incorrect editing'),
+      ('${DEFAULT_PERMISSIONS_MAP_ID}', '${JSON.stringify(DEFAULT_PERMISSIONS_MAP)}', 'Standard map');
   `);
 
 }
