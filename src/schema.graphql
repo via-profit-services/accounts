@@ -1,6 +1,7 @@
 extend type Query {
   accounts: AccountsQuery!
   users: UsersQuery!
+  authentification: AuthentificationQuery!
 
   """
   Service endpoint
@@ -12,6 +13,13 @@ extend type Mutation {
   accounts: AccountsMutation!
   authentification: AuthentificationMutation!
   permissions: PermissionsMutation!
+}
+
+type AuthentificationQuery {
+  """
+  Returns payload of your «Access» token
+  """
+  tokenPayload: AccessTokenPayload!
 }
 
 type PermissionsQuery {
@@ -249,7 +257,15 @@ type AccountsMutation {
 }
 
 type AuthentificationMutation {
-  createToken(login: String!, password: String!): TokenRegistrationResponse!
+  """
+  Pass your login and password to get «Access» and «Refresh» tokens pair
+  """
+  create(login: String!, password: String!): TokenRegistrationResponse!
+
+  """
+  Revoke Tokens by token ID or/and account ID
+  """
+  revoke(tokenID: ID accountID: ID): Boolean!
 }
 
 input AccountInput {

@@ -2,7 +2,7 @@ import { Resolvers } from '@via-profit-services/accounts';
 import { ServerError } from '@via-profit-services/core';
 
 const authentificationMutation: Resolvers['AuthentificationMutation'] = {
-  createToken: async (_parent, args, context) => {
+  create: async (_parent, args, context) => {
     const { login, password } = args;
     const { logger, services, emitter } = context;
     const { authentification } = services;
@@ -46,6 +46,33 @@ const authentificationMutation: Resolvers['AuthentificationMutation'] = {
     } catch (err) {
       throw new ServerError('Failed to register tokens', { err });
     }
+  },
+
+  /**
+   * Revoke Access token
+   */
+  revoke: async (parent, args, context) => {
+    const { services } = context;
+    const { accountID, tokenID } = args;
+    const { authentification } = services;
+
+    if (accountID) {
+      try {
+        await authentification.revokeAccountTokens(accountID);
+      } catch (err) {
+        throw new ServerError('Failed to revoke account tokens', { err });
+      }
+    }
+
+    if (tokenID) {
+      try {
+        await authentification.revokeToken(tokenID);
+      } catch (err) {
+         throw new ServerError('Failed to revoke token', { err });
+      }
+    }
+
+    return true;
   },
 };
 

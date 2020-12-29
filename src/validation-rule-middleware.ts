@@ -98,7 +98,7 @@ const validationRuleMiddleware: ValidatioRuleMiddleware = (props) => {
       resolvers.forEach((resolver) => {
 
         const validationResult = services.permissions.resolvePermissions({ resolver, roles });
-        console.log({ typeName, resolver, roles, validationResult });
+        // console.log({ typeName, resolver, roles, validationResult });
         if (!validationResult) {
           const errMessage = `Permission denied for key «${typeName}». Make sure that you have permissions for this field`;
 

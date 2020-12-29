@@ -5,6 +5,7 @@ import Account from './Account';
 import AccountsMutation from './AccountsMutation';
 import AccountsQuery from './AccountsQuery';
 import AuthentificationMutation from './AuthentificationMutation';
+import AuthentificationQuery from './AuthentificationQuery';
 import Mutation from './Mutation';
 import MyAccount from './MyAccount';
 import PermissionsMap from './PermissionsMap';
@@ -21,6 +22,7 @@ const resolvers: Resolvers = {
   AccountsQuery,
   Mutation,
   MyAccount,
+  AuthentificationQuery,
   AuthentificationMutation,
   Query,
   User,

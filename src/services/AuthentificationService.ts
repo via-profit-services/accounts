@@ -226,6 +226,49 @@ class AuthentificationService implements AuthentificationServiceInterface {
 
     return payload;
   }
+
+
+  public async revokeAccountTokens(account: string): Promise<string[]> {
+    const { knex } = this.props.context;
+
+    const allTokens = await knex('tokens')
+      .select(['id'])
+      .where({ account })
+      .where('expiredAt', '>=', knex.raw('now()'));
+
+    const ids = allTokens.map((token: { id: string }) => token.id);
+
+    if (ids.length) {
+      await this.revokeToken(ids);
+    }
+
+    return ids;
+  }
+
+  public async revokeToken(accessTokenIdOrIds: string | string[]) {
+    const { context } = this.props;
+    const { logger, knex, redis } = context;
+
+    const ids = Array.isArray(accessTokenIdOrIds) ? accessTokenIdOrIds : [accessTokenIdOrIds];
+
+    redis.sadd(REDIS_TOKENS_BLACKLIST, ids);
+    logger.auth.info('New tokens has been added in BlackList', { tokenIds: ids });
+
+    const tokensList = await knex('tokens')
+      .select(['tokens.account', 'tokens.id as access', 'refreshTokens.id as refresh'])
+      .leftJoin('accounts', 'accounts.id', 'tokens.account')
+      .leftJoin('tokens as refreshTokens', 'refreshTokens.associated', 'tokens.id')
+      .whereIn('tokens.id', ids);
+
+    tokensList.forEach((data: {
+      account: string;
+      access: string;
+      refresh: string;
+    }) => {
+      logger.auth.info(`Revoke Access Token ${data.access} for account ${data.account}`, { data });
+      logger.auth.info(`Revoke Refresh Token ${data.refresh} for account ${data.account}`, { data });
+    });
+  }
 }
 
 export default AuthentificationService;

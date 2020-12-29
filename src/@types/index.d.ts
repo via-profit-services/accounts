@@ -266,6 +266,7 @@ declare module '@via-profit-services/accounts' {
     Query: {
       accounts: GraphQLFieldResolver<unknown, Context>;
       users: GraphQLFieldResolver<unknown, Context>;
+      authentification: GraphQLFieldResolver<unknown, Context>;
       permissions: GraphQLFieldResolver<unknown, Context>;
     };
     Mutation: {
@@ -274,10 +275,17 @@ declare module '@via-profit-services/accounts' {
       permissions: GraphQLFieldResolver<unknown, Context>;
     };
     AuthentificationMutation: {
-      createToken: GraphQLFieldResolver<unknown, Context, {
+      create: GraphQLFieldResolver<unknown, Context, {
         login: string;
         password: string;
       }>;
+      revoke: GraphQLFieldResolver<unknown, Context, {
+        tokenID?: string;
+        accountID?: string;
+      }>;
+    };
+    AuthentificationQuery: {
+      tokenPayload: GraphQLFieldResolver<unknown, Context>;
     };
     AccountsQuery: {
       list: GraphQLFieldResolver<unknown, Context, InputFilter>;
@@ -306,12 +314,14 @@ declare module '@via-profit-services/accounts' {
     Account: AccountResolver;
     MyAccount: MyAccountResolver;
     User: UserResolver;
-    TokenBag: Record<
-      | 'accessToken'
-      | 'refreshToken',
-      GraphQLFieldResolver<TokenRegistrationResponseSuccess, Context>>;
+    TokenBag: TokenBagResolver;
   }
 
+
+  export type TokenBagResolver = Record<
+    | 'accessToken'
+    | 'refreshToken',
+    GraphQLFieldResolver<TokenRegistrationResponseSuccess, Context>>;
 
   export type PermissionsMapResolver = Record<
   | 'id'
@@ -404,14 +414,17 @@ declare module '@via-profit-services/accounts' {
     /**
      * Generate new tokens pair and register it
      */
-    registerTokens(data: {
-        uuid: string;
-    }): Promise<TokenPackage>;
+    registerTokens(data: { uuid: string }): Promise<TokenPackage>;
     getDefaultTokenPayload(): AccessTokenPayload;
     extractTokenFromRequest(request: IncomingMessage): string | false;
     verifyToken(token: string): Promise<AccessTokenPayload | never>;
     clearExpiredTokens(): void;
+    revokeToken(accessTokenIdOrIds: string | string[]): Promise<void>;
 
+    /**
+     * Revoke all tokens by Account ID
+     */
+    revokeAccountTokens(account: string): Promise<string[]>;
   }
 
 

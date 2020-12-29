@@ -208,6 +208,9 @@ class PermissionsService implements PermissionsServiceInterface {
       TokenBag: {
         grant: ['*'],
       },
+      TokenRegistrationError: {
+        grant: ['*'],
+      },
       AccessToken: {
         grant: ['*'],
       },
