@@ -1,4 +1,4 @@
-import type { JwtConfig } from '@via-profit-services/accounts';
+import type { JwtConfig, Configuration } from '@via-profit-services/accounts';
 import { MiddlewareProps, Context, collateForDataloader } from '@via-profit-services/core';
 import DataLoader from 'dataloader';
 
@@ -12,12 +12,14 @@ import UsersService from './services/UsersService';
 interface Props {
   jwt: JwtConfig;
   context: Context;
+  configuration: Configuration;
   config: MiddlewareProps['config'];
 }
 
 const contextMiddleware = (props: Props): Context => {
 
-  const { context, config, jwt } = props;
+  const { context, config, jwt, configuration } = props;
+  const { activeMapID } = configuration;
   const { logDir } = config;
 
   // JsonWebToken settings
@@ -27,7 +29,7 @@ const contextMiddleware = (props: Props): Context => {
   context.services.accounts = new AccountsService({ context });
 
   // Permissions Service
-  context.services.permissions = new PermissionsService({ context });
+  context.services.permissions = new PermissionsService({ context, activeMapID });
 
   // Users Service
   context.services.users = new UsersService({ context });
@@ -51,6 +53,13 @@ const contextMiddleware = (props: Props): Context => {
   // Users Dataloader
   context.dataloader.users = new DataLoader(async (ids: string[]) => {
     const nodes = await context.services.users.getUsersByIds(ids);
+
+    return collateForDataloader(ids, nodes);
+  });
+
+  // Permissions map Dataloader
+  context.dataloader.permissions = new DataLoader(async (ids: string[]) => {
+    const nodes = await context.services.permissions.getPermissionMapsByIds(ids);
 
     return collateForDataloader(ids, nodes);
   });

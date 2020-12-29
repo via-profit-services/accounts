@@ -117,10 +117,10 @@
     "peerDependencies": {
         "@via-profit-services/core": "*",
         "@via-profit-services/knex": "*",
+        "@via-profit-services/redis": "*",
         "graphql": "*",
         "moment": "*",
         "moment-timezone": "*",
-        "pg": "*",
         "uuid": "*",
         "winston": "*",
         "winston-daily-rotate-file": "*"

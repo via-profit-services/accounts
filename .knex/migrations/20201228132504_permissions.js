@@ -3,8 +3,32 @@ module.exports =
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 289:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DEFAULT_PERMISSIONS_MAP_ID = exports.RECOVERY_PERMISSIONS_MAP_ID = exports.REDIS_TOKENS_BLACKLIST = exports.TOKEN_BEARER = exports.TOKEN_BEARER_KEY = exports.ACCESS_TOKEN_EMPTY_ISSUER = exports.ACCESS_TOKEN_EMPTY_UUID = exports.ACCESS_TOKEN_EMPTY_ID = exports.LOG_FILENAME_AUTH = exports.DEFAULT_SIGNATURE_ISSUER = exports.DEFAULT_SIGNATURE_ALGORITHM = exports.DEFAULT_REFRESH_TOKEN_EXPIRED = exports.DEFAULT_ACCESS_TOKEN_EXPIRED = exports.ROLES_LIST = void 0;
+exports.ROLES_LIST = ['authorized', 'admin', 'driver', 'operator'];
+exports.DEFAULT_ACCESS_TOKEN_EXPIRED = 1800;
+exports.DEFAULT_REFRESH_TOKEN_EXPIRED = 2.592e6;
+exports.DEFAULT_SIGNATURE_ALGORITHM = 'RS256';
+exports.DEFAULT_SIGNATURE_ISSUER = 'via-profit-services';
+exports.LOG_FILENAME_AUTH = 'auth-%DATE%.log';
+exports.ACCESS_TOKEN_EMPTY_ID = 'NOT_ASSIGNED';
+exports.ACCESS_TOKEN_EMPTY_UUID = 'NOT_ASSIGNED';
+exports.ACCESS_TOKEN_EMPTY_ISSUER = 'NOT_ASSIGNED';
+exports.TOKEN_BEARER_KEY = 'Authorization';
+exports.TOKEN_BEARER = 'Bearer';
+exports.REDIS_TOKENS_BLACKLIST = 'tokensBlackList';
+exports.RECOVERY_PERMISSIONS_MAP_ID = 'ff11ef55-d26b-46ba-8c9c-3f93b899f09e';
+exports.DEFAULT_PERMISSIONS_MAP_ID = '63833b93-b253-414c-a3fc-ca5211430222';
+
+
+/***/ }),
+
 /***/ 503:
-/***/ (function(__unused_webpack_module, exports) {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -18,6 +42,27 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.down = exports.up = void 0;
+const constants_1 = __webpack_require__(289);
+const recoveryPermissionsMap = {
+    AuthentificationMutation: {
+        grant: ['*'],
+    },
+    TokenBag: {
+        grant: ['*'],
+    },
+    AccessToken: {
+        grant: ['*'],
+    },
+    RefreshToken: {
+        grant: ['*'],
+    },
+    AccessTokenPayload: {
+        grant: ['*'],
+    },
+    RefreshTokenPayload: {
+        grant: ['*'],
+    },
+};
 function up(knex) {
     return __awaiter(this, void 0, void 0, function* () {
         return knex.raw(`
@@ -43,26 +88,47 @@ function up(knex) {
       CONSTRAINT permissions_un UNIQUE (role, privilege)
     );
 
+    DROP TABLE IF EXISTS "permissionsMap" CASCADE;
+    CREATE TABLE "permissionsMap" (
+      "id" uuid NOT NULL,
+      "createdAt" timestamptz NOT NULL DEFAULT now(),
+      "updatedAt" timestamptz NOT NULL DEFAULT now(),
+      "map" jsonb default '{}',
+      "description" text,
+      CONSTRAINT "permissionsMap_pk" PRIMARY KEY (id)
+    );
+
     ALTER TABLE permissions ADD CONSTRAINT permissions_privilege_fk FOREIGN KEY (privilege) REFERENCES privileges(name) ON DELETE CASCADE;
     ALTER TABLE permissions ADD CONSTRAINT permissions_role_fk FOREIGN KEY (role) REFERENCES roles(name) ON DELETE CASCADE;
   
-  
+    -- insert default roles set
     insert into roles
       ("name", "description")
     values 
       ('viewer', 'Used as viewer/reader. Accounts have this role can make request only to display data, not mutate.'),
       ('developer', 'Accounts have this role can make all requests without limits.'),
+      ('administrator', 'Accounts have this role can make all requests without limits.'),
       ('authorized', 'Accounts have this role can make request only with valid authorization credentials.');
 
+    -- insert Unlimited access privilege
     insert into privileges
       ("name", "description")
     values
       ('*', 'Unlimited access');
 
+    -- insert permission
     insert into permissions
       ("role", "privilege")
     values
-      ('developer', '*');
+      ('developer', '*'),
+      ('administrator', '*');
+
+    -- insert permissions map
+    insert into "permissionsMap"
+      ("id", "map", "description")
+    values
+      ('${constants_1.RECOVERY_PERMISSIONS_MAP_ID}', '${JSON.stringify(recoveryPermissionsMap)}', 'Recovery map. Do not change this map, so that you can always return the map in case of incorrect editing'),
+      ('${constants_1.DEFAULT_PERMISSIONS_MAP_ID}', '${JSON.stringify(recoveryPermissionsMap)}', 'Standard map');
   `);
     });
 }
@@ -73,6 +139,7 @@ function down(knex) {
     DROP TABLE IF EXISTS "permissions" CASCADE;
     DROP TABLE IF EXISTS "privileges" CASCADE;
     DROP TABLE IF EXISTS "roles" CASCADE;
+    DROP TABLE IF EXISTS "permissionsMap" CASCADE;
   `);
     });
 }

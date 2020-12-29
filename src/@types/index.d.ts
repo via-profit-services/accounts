@@ -1,6 +1,6 @@
 declare module '@via-profit-services/accounts' {
   import { Algorithm, JsonWebTokenError } from 'jsonwebtoken';
-  import { InputFilter, Middleware, Context, ErrorHandler, OutputFilter, ListResponse, Phone, MiddlewareProps } from '@via-profit-services/core';
+  import { InputFilter, Middleware, Context, ErrorHandler, OutputFilter, ListResponse, Phone, MiddlewareProps, MaybePromise } from '@via-profit-services/core';
   import { IncomingMessage } from 'http';
   import { GraphQLFieldResolver, ValidationRule } from 'graphql';
 
@@ -14,8 +14,7 @@ declare module '@via-profit-services/accounts' {
    */
   export interface Configuration {
 
-    // TODO: Types for it
-    permissionsMap: PermissionsMap;
+    activeMapID?: string;
     /**
      * Signature algorithm. Could be one of these values :
      * - HS256:    HMAC using SHA-256 hash algorithm (default)
@@ -222,6 +221,7 @@ declare module '@via-profit-services/accounts' {
     context: Context;
     configuration: Configuration;
     config: MiddlewareProps['config'];
+    permissionsMap: PermissionsMap;
   }) => ValidationRule;
 
 
@@ -248,7 +248,14 @@ declare module '@via-profit-services/accounts' {
   export type PermissionResolversWithFields = Record<any, PermissionResolvers>;
   export type PermissionResolver = PermissionResolvers | PermissionResolversWithFields;
 
-  export type PermissionsMap = Record<string, PermissionResolver>;
+  export type PermissionsMap = {
+    id: string;
+    map: Record<string, PermissionResolver>;
+    description: string;
+    createdAt: Date;
+    updatedAt: Date;
+  };
+
 
   export type ResolvePermissions = {
     resolver: PermissionResolverComposed;
@@ -259,10 +266,12 @@ declare module '@via-profit-services/accounts' {
     Query: {
       accounts: GraphQLFieldResolver<unknown, Context>;
       users: GraphQLFieldResolver<unknown, Context>;
+      permissions: GraphQLFieldResolver<unknown, Context>;
     };
     Mutation: {
       accounts: GraphQLFieldResolver<unknown, Context>;
       authentification: GraphQLFieldResolver<unknown, Context>;
+      permissions: GraphQLFieldResolver<unknown, Context>;
     };
     AuthentificationMutation: {
       createToken: GraphQLFieldResolver<unknown, Context, {
@@ -281,56 +290,66 @@ declare module '@via-profit-services/accounts' {
       list: GraphQLFieldResolver<unknown, Context, InputFilter>;
       user: GraphQLFieldResolver<unknown, Context, { id: string }>;
     };
+    PermissionsQuery: {
+      permissionsMap: GraphQLFieldResolver<unknown, Context, InputFilter>;
+    };
+    PermissionsMutation: {
+      updatePermissionsMap: GraphQLFieldResolver<unknown, Context, {
+        id: string;
+        input: Partial<PermissionsMap>;
+      }>;
+    };
     AccountsMutation: {
       update:  GraphQLFieldResolver<unknown, Context, UpdateArgs>;
     };
+    PermissionsMap: PermissionsMapResolver;
     Account: AccountResolver;
     MyAccount: MyAccountResolver;
     User: UserResolver;
-    TokenBag: {
-      accessToken: GraphQLFieldResolver<TokenRegistrationResponseSuccess, Context>;
-      refreshToken: GraphQLFieldResolver<TokenRegistrationResponseSuccess, Context>;
-    };
+    TokenBag: Record<
+      | 'accessToken'
+      | 'refreshToken',
+      GraphQLFieldResolver<TokenRegistrationResponseSuccess, Context>>;
   }
 
 
-  interface AccountParent {
-    id: string;
-  }
+  export type PermissionsMapResolver = Record<
+  | 'id'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'map'
+  | 'description',
+  GraphQLFieldResolver<{ id: string }, Context>>;
 
-  interface UserParent {
-    id: string;
-  }
+  export type AccountResolver = Record<
+  | 'id'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'status'
+  | 'login'
+  | 'password'
+  | 'roles'
+  | 'deleted',
+  GraphQLFieldResolver<{  id: string }, Context>>
 
-  export type AccountResolver = {
-    id: GraphQLFieldResolver<AccountParent, Context>;
-    createdAt: GraphQLFieldResolver<AccountParent, Context>;
-    updatedAt: GraphQLFieldResolver<AccountParent, Context>;
-    status: GraphQLFieldResolver<AccountParent, Context>;
-    login: GraphQLFieldResolver<AccountParent, Context>;
-    password: GraphQLFieldResolver<AccountParent, Context>;
-    roles: GraphQLFieldResolver<AccountParent, Context>;
-    deleted: GraphQLFieldResolver<AccountParent, Context>;
-  }
+  export type MyAccountResolver = Record<
+  | 'id'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'status'
+  | 'login'
+  | 'password'
+  | 'roles',
+  GraphQLFieldResolver<{  id: string }, Context>>;
 
-  export type MyAccountResolver = {
-    id: GraphQLFieldResolver<unknown, Context>;
-    createdAt: GraphQLFieldResolver<unknown, Context>;
-    updatedAt: GraphQLFieldResolver<unknown, Context>;
-    status: GraphQLFieldResolver<unknown, Context>;
-    login: GraphQLFieldResolver<unknown, Context>;
-    password: GraphQLFieldResolver<unknown, Context>;
-    roles: GraphQLFieldResolver<unknown, Context>;
-  }
-
-  export type UserResolver = {
-    id: GraphQLFieldResolver<UserParent, Context>;
-    createdAt: GraphQLFieldResolver<UserParent, Context>;
-    updatedAt: GraphQLFieldResolver<UserParent, Context>;
-    name: GraphQLFieldResolver<UserParent, Context>;
-    phones: GraphQLFieldResolver<UserParent, Context>;
-    deleted: GraphQLFieldResolver<UserParent, Context>;
-  }
+  export type UserResolver = Record<
+  | 'id'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'name'
+  | 'phones'
+  | 'deleted',
+  GraphQLFieldResolver<{  id: string }, Context>>;
 
 
   
@@ -340,6 +359,7 @@ declare module '@via-profit-services/accounts' {
    */
   export interface PermissionsServiceProps {
     context: Context;
+    activeMapID?: string;
   }
 
   /**
@@ -401,8 +421,16 @@ declare module '@via-profit-services/accounts' {
 
     resolvePermissions (props: ResolvePermissions): boolean;
     composePermissionResolver (resolver: PermissionResolver): PermissionResolverComposed;
-    getDefaultPermissionsMap(): PermissionsMap;
+    getActiveMapID(): MaybePromise<string>;
+    setActiveMapID(id: string): void;
 
+    getDefaultPermissionsMapContent(): Record<string, unknown>;
+    getPermissionMaps(filter: Partial<OutputFilter>): Promise<ListResponse<PermissionsMap>>;
+    getPermissionMapsByIds(ids: string[]): Promise<PermissionsMap[]>;
+    getPermissionMap(id: string): Promise<PermissionsMap | false>;
+
+    updatePermissionsMap(id: string, map: Record<string, unknown>): Promise<void>;
+    createPermissionsMap(permissionsMap: Partial<PermissionsMap>): Promise<string>;
   }
 
   /**
@@ -446,7 +474,6 @@ declare module '@via-profit-services/accounts' {
     constructor(message: string, metaData?: any);
   }
 
-  export const ROLES_LIST: string[];
   export const DEFAULT_ACCESS_TOKEN_EXPIRED: number;
   export const DEFAULT_REFRESH_TOKEN_EXPIRED: number;
   export const DEFAULT_SIGNATURE_ALGORITHM: 'RS256';
@@ -455,9 +482,11 @@ declare module '@via-profit-services/accounts' {
   export const ACCESS_TOKEN_EMPTY_ID: string;
   export const ACCESS_TOKEN_EMPTY_UUID: string;
   export const ACCESS_TOKEN_EMPTY_ISSUER: string;
-  export const TOKEN_BEARER_KEY: string;
-  export const TOKEN_BEARER: string;
+  export const TOKEN_BEARER_KEY: 'Authorization';
+  export const TOKEN_BEARER: 'Bearer';
   export const REDIS_TOKENS_BLACKLIST: string;
+  export const RECOVERY_PERMISSIONS_MAP_ID: string;
+  export const DEFAULT_PERMISSIONS_MAP_ID: string;
 
   export const resolvers: Resolvers;
   export const typeDefs: string;
@@ -468,7 +497,7 @@ declare module '@via-profit-services/accounts' {
 declare module '@via-profit-services/core' {
   import DataLoader from 'dataloader';
   import {
-    JwtConfig, AccessTokenPayload, Account, User, UsersService,
+    JwtConfig, AccessTokenPayload, Account, User, UsersService, PermissionsMap,
     AccountsService, TokenPackage, PermissionsService, AuthentificationService,
   } from '@via-profit-services/accounts';
 
@@ -499,6 +528,11 @@ declare module '@via-profit-services/core' {
      * Users dataloader
      */
     users: DataLoader<string, Node<User>>;
+
+    /**
+     * Users dataloader
+     */
+    permissions: DataLoader<string, Node<PermissionsMap>>;
   }
 
   interface ServicesCollection {

@@ -1,6 +1,5 @@
 import type {
   ValidatioRuleMiddleware,
-  PermissionsMap,
   PermissionResolverComposed,
 } from '@via-profit-services/accounts';
 import {
@@ -14,15 +13,12 @@ import UnauthorizedError from './UnauthorizedError';
 
 const validationRuleMiddleware: ValidatioRuleMiddleware = (props) => {
 
-  const { context, configuration } = props;
-  const { grantToAll, restrictToAll, authorizationToAll, permissionsMap } = configuration;
+  const { context, configuration, permissionsMap } = props;
+  const { grantToAll, restrictToAll, authorizationToAll } = configuration;
   const { token, services } = context;
   const { roles } = token;
-  const composedPermissionsMap = {
-    ...services.permissions.getDefaultPermissionsMap(),
-    ...permissionsMap,
-  };
   let isIntrospection = false;
+
 
   return (validationContext) => ({
 
@@ -33,6 +29,7 @@ const validationRuleMiddleware: ValidatioRuleMiddleware = (props) => {
       if (!type) {
         return undefined;
       }
+
 
       // introspection detect
       if (['__Schema!', '__Type'].includes(type.toString())) {
@@ -61,7 +58,7 @@ const validationRuleMiddleware: ValidatioRuleMiddleware = (props) => {
         return undefined;
       }
 
-      const persmissionsResolver = (composedPermissionsMap as PermissionsMap)[typeName] || {
+      const persmissionsResolver = permissionsMap.map[typeName] || {
         grant: [],
         restrict: [],
       };

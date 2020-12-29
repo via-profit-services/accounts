@@ -18,6 +18,7 @@ const redisConfig: redis.InitialProps = {
   host: 'localhost',
   port: 6379,
   password: '',
+  db: 5,
 };
 const server = http.createServer(app);
 (async () => {
@@ -37,13 +38,6 @@ const server = http.createServer(app);
     privateKey: path.resolve(__dirname, './jwtRS256.key'),
     publicKey: path.resolve(__dirname, './jwtRS256.key.pub'),
     authorizationToAll: true,
-    permissionsMap: {
-      User: {
-        createdAt: {
-          grant: ['developer'],
-        },
-      },
-    },
   });
 
   const schema = makeExecutableSchema({

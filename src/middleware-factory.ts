@@ -66,10 +66,11 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuratio
       jwt,
       config: props.config,
       context: context,
+      configuration,
     });
 
-    const { services } = pool.context;
-    const { authentification } = services;
+    const { services, dataloader } = pool.context;
+    const { authentification, permissions } = services;
 
     pool.context.token = authentification.getDefaultTokenPayload();
     pool.extensions = {
@@ -101,10 +102,13 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuratio
       }
     }
 
+    const activeMapId = await permissions.getActiveMapID();
+    const permissionsMap = await dataloader.permissions.load(activeMapId);
 
     pool.validationRule = validationRuleMiddleware({
       context: pool.context,
       config: props.config,
+      permissionsMap,
       configuration,
     });
 

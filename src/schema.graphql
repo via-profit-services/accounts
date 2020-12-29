@@ -1,13 +1,40 @@
 extend type Query {
   accounts: AccountsQuery!
   users: UsersQuery!
+
+  """
+  Service endpoint
+  """
+  permissions: PermissionsQuery!
 }
 
 extend type Mutation {
   accounts: AccountsMutation!
   authentification: AuthentificationMutation!
+  permissions: PermissionsMutation!
 }
 
+type PermissionsQuery {
+  permissionsMap: PermissionsMap!
+}
+
+type PermissionsMutation {
+  updatePermissionsMap(id: ID! input: PermissionsMapInput): PermissionsMap!
+}
+
+input PermissionsMapInput {
+  id: ID
+  description: String
+  map: JSON!
+}
+
+type PermissionsMap implements Node {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  description: String!
+  map: JSONObject!
+}
 
 type TokenRegistrationError implements Error {
   name: String!
