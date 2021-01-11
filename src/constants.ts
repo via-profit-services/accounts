@@ -12,25 +12,49 @@ export const REDIS_TOKENS_BLACKLIST = 'tokensBlackList';
 export const RECOVERY_PERMISSIONS_MAP_ID = 'ff11ef55-d26b-46ba-8c9c-3f93b899f09e';
 export const DEFAULT_PERMISSIONS_MAP_ID = '63833b93-b253-414c-a3fc-ca5211430222';
 export const DEFAULT_PERMISSIONS_MAP = {
-  AuthentificationMutation: {
-    grant: ['*'],
-  },
   TokenBag: {
-    grant: ['*'],
-  },
-  TokenRegistrationError: {
-    grant: ['*'],
+    grant: [
+      '*',
+    ],
   },
   AccessToken: {
-    grant: ['*'],
+    grant: [
+      '*',
+    ],
   },
   RefreshToken: {
-    grant: ['*'],
+    grant: [
+      '*',
+    ],
   },
   AccessTokenPayload: {
-    grant: ['*'],
+    grant: [
+      '*',
+    ],
   },
   RefreshTokenPayload: {
-    grant: ['*'],
+    grant: [
+      '*',
+    ],
+  },
+  TokenRegistrationError: {
+    grant: [
+      '*',
+    ],
+  },
+  TokenVerificationError: {
+    grant: [
+      '*',
+    ],
+  },
+  AuthentificationMutation: {
+    grant: [
+      '*',
+    ],
+  },
+  AuthentificationQuery: {
+    grant: [
+      '*',
+    ],
   },
 };

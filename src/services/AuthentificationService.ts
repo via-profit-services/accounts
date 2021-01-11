@@ -3,6 +3,7 @@ import type {
   AccessTokenPayload,
   TokenPackage,
   AuthentificationService as AuthentificationServiceInterface,
+  RefreshTokenPayload,
 } from '@via-profit-services/accounts';
 import { ServerError } from '@via-profit-services/core';
 import bcryptjs from 'bcryptjs';
@@ -207,26 +208,33 @@ class AuthentificationService implements AuthentificationServiceInterface {
     return false;
   }
 
-  public async verifyToken(token: string): Promise<AccessTokenPayload | never> {
+  public async verifyToken(token: string): Promise<
+  | AccessTokenPayload
+  | RefreshTokenPayload
+  | never> {
     const { context } = this.props;
-    const { redis, logger, jwt } = context;
+    const { jwt } = context;
     const { privateKey, algorithm } = jwt;
 
     const payload = jsonwebtoken.verify(String(token), privateKey, {
       algorithms: [algorithm],
-    }) as AccessTokenPayload;
-
-
-    const revokeStatus = await redis.sismember(REDIS_TOKENS_BLACKLIST, payload.id);
-    if (revokeStatus) {
-      logger.auth.debug('Token verification. Token was revoked', { payload });
-
-      throw new UnauthorizedError('Token was revoked');
-    }
+    }) as AccessTokenPayload | RefreshTokenPayload;
 
     return payload;
   }
 
+
+  public isAccessTokenPayload(
+    payload: AccessTokenPayload | RefreshTokenPayload,
+  ): payload is AccessTokenPayload {
+    return payload.type === 'access';
+  }
+
+  public isRefreshTokenPayload(
+    payload: AccessTokenPayload | RefreshTokenPayload,
+  ): payload is RefreshTokenPayload {
+    return payload.type === 'refresh';
+  }
 
   public async revokeAccountTokens(account: string): Promise<string[]> {
     const { knex } = this.props.context;

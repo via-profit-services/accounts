@@ -1009,6 +1009,7 @@ __metadata:
     "@via-profit-services/eslint-config": ^0.1.11
     "@via-profit-services/knex": "file://home/dhs/Projects/@via-profit-services/knex/package-0.1.0-rc.16.tgz"
     "@via-profit-services/redis": "file://home/dhs/Projects/@via-profit-services/redis/package-0.1.0-rc.3.tgz"
+    "@via-profit-services/sms": "file://home/dhs/Projects/@via-profit-services/sms/package-0.1.0-rc.1.tgz"
     bcryptjs: ^2.4.3
     cross-env: ^6.0.3
     dataloader: ^2.0.0
@@ -1056,6 +1057,8 @@ __metadata:
   peerDependencies:
     "@via-profit-services/core": "*"
     "@via-profit-services/knex": "*"
+    "@via-profit-services/redis": "*"
+    "@via-profit-services/sms": "*"
     graphql: "*"
     moment: "*"
     moment-timezone: "*"
@@ -1115,6 +1118,16 @@ __metadata:
     "@via-profit-services/core": "*"
     ioredis: "*"
   checksum: 17eae73d412a0a0368b80197eba2f598b131ff95344e5cf1b52257ea574992da6ada429eee25868f56c387ded2c984acde5d5f97d9782a401b0efdf01d73e0e8
+  languageName: node
+  linkType: hard
+
+"@via-profit-services/sms@file://home/dhs/Projects/@via-profit-services/sms/package-0.1.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
+  version: 0.1.0-rc.1
+  resolution: "@via-profit-services/sms@file://home/dhs/Projects/@via-profit-services/sms/package-0.1.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
+  peerDependencies:
+    "@via-profit-services/core": "*"
+    uuid: "*"
+  checksum: 4fea01f09e458af9ee86532833701bea7807f430a7d4c2ad9c4471d941dd16d63ccc3c1a8e07cbc2f4dda1cfaaefc50dfb21dc1e386b03b6845d24f33e68ceb9
   languageName: node
   linkType: hard
 

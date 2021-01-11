@@ -1,4 +1,4 @@
-import type { AccountsMiddlewareFactory, JwtConfig } from '@via-profit-services/accounts';
+import type { AccountsMiddlewareFactory, JwtConfig, AccessTokenPayload, RefreshTokenPayload } from '@via-profit-services/accounts';
 import { Middleware, ServerError } from '@via-profit-services/core';
 import fs from 'fs';
 
@@ -7,6 +7,7 @@ import {
   DEFAULT_REFRESH_TOKEN_EXPIRED,
   DEFAULT_SIGNATURE_ALGORITHM,
   DEFAULT_SIGNATURE_ISSUER,
+  REDIS_TOKENS_BLACKLIST,
 } from './constants';
 import contextMiddleware from './context-middleware';
 import UnauthorizedError from './UnauthorizedError';
@@ -69,7 +70,7 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuratio
       configuration,
     });
 
-    const { services, dataloader } = pool.context;
+    const { services, dataloader, redis } = pool.context;
     const { authentification, permissions } = services;
 
     pool.context.token = authentification.getDefaultTokenPayload();
@@ -89,17 +90,29 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuratio
     const bearerToken = authentification.extractTokenFromRequest(request);
 
     if (bearerToken) {
+      let tokenPayload: AccessTokenPayload | RefreshTokenPayload;
 
       try {
-        const tokenPayload = await authentification.verifyToken(bearerToken);
-
-        pool.context.emitter.emit('got-access-token', tokenPayload);
-        pool.context.token = tokenPayload;
-        pool.extensions.tokenPayload = tokenPayload;
+        tokenPayload = await authentification.verifyToken(bearerToken);
 
       } catch (err) {
         throw new UnauthorizedError(err.message);
       }
+
+      if (authentification.isRefreshTokenPayload(tokenPayload)) {
+        throw new UnauthorizedError(
+          'This is token are «Refresh» token type. You should provide «Access» token type',
+        );
+      }
+
+      const revokeStatus = await redis.sismember(REDIS_TOKENS_BLACKLIST, tokenPayload.id);
+      if (revokeStatus) {
+        throw new UnauthorizedError('Token was revoked');
+      }
+
+      pool.context.emitter.emit('got-access-token', tokenPayload);
+      pool.context.token = tokenPayload;
+      pool.extensions.tokenPayload = tokenPayload;
     }
 
     const activeMapId = await permissions.getActiveMapID();

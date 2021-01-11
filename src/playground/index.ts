@@ -69,7 +69,6 @@ const server = http.createServer(app);
 
 
     console.log(`GraphQL Server started at http://localhost:${PORT}/graphql`);
-    console.log(`Subscriptions server started at ws://localhost:${PORT}/graphql`);
   })
 
 })();

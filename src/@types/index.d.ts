@@ -283,9 +283,15 @@ declare module '@via-profit-services/accounts' {
         tokenID?: string;
         accountID?: string;
       }>;
+      refresh: GraphQLFieldResolver<unknown, Context, {
+        refreshToken: string;
+      }>;
     };
     AuthentificationQuery: {
       tokenPayload: GraphQLFieldResolver<unknown, Context>;
+      verifyToken: GraphQLFieldResolver<unknown, Context, {
+        token: string;
+      }>;
     };
     AccountsQuery: {
       list: GraphQLFieldResolver<unknown, Context, InputFilter>;
@@ -417,8 +423,10 @@ declare module '@via-profit-services/accounts' {
     registerTokens(data: { uuid: string }): Promise<TokenPackage>;
     getDefaultTokenPayload(): AccessTokenPayload;
     extractTokenFromRequest(request: IncomingMessage): string | false;
-    verifyToken(token: string): Promise<AccessTokenPayload | never>;
+    verifyToken(token: string): Promise<AccessTokenPayload | RefreshTokenPayload | never>;
     clearExpiredTokens(): void;
+    isAccessTokenPayload(payload: AccessTokenPayload | RefreshTokenPayload): payload is AccessTokenPayload;
+    isRefreshTokenPayload(payload: AccessTokenPayload | RefreshTokenPayload): payload is RefreshTokenPayload;
     revokeToken(accessTokenIdOrIds: string | string[]): Promise<void>;
 
     /**
@@ -527,9 +535,11 @@ declare module '@via-profit-services/core' {
 
   interface CoreEmitter {
     on(event: 'got-access-token', callback: (tokenBag: AccessTokenPayload) => void): this;
+    on(event: 'refresh-token-success', callback: (tokenBag: AccessTokenPayload) => void): this;
     on(event: 'authentification-success', callback: (tokenBag: TokenPackage) => void): this;
     once(event: 'got-access-token', callback: (tokenBag: AccessTokenPayload) => void): this;
     once(event: 'authentification-success', callback: (tokenBag: TokenPackage) => void): this;
+    once(event: 'refresh-token-success', callback: (tokenBag: TokenPackage) => void): this;
   }
   
   interface DataLoaderCollection {

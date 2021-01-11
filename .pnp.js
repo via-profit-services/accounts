@@ -59,6 +59,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@via-profit-services/eslint-config", "npm:0.1.11"],
             ["@via-profit-services/knex", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#file://home/dhs/Projects/@via-profit-services/knex/package-0.1.0-rc.16.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."],
             ["@via-profit-services/redis", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#file://home/dhs/Projects/@via-profit-services/redis/package-0.1.0-rc.3.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."],
+            ["@via-profit-services/sms", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#file://home/dhs/Projects/@via-profit-services/sms/package-0.1.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."],
             ["bcryptjs", "npm:2.4.3"],
             ["cross-env", "npm:6.0.3"],
             ["dataloader", "npm:2.0.0"],
@@ -1324,6 +1325,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@via-profit-services/eslint-config", "npm:0.1.11"],
             ["@via-profit-services/knex", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#file://home/dhs/Projects/@via-profit-services/knex/package-0.1.0-rc.16.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."],
             ["@via-profit-services/redis", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#file://home/dhs/Projects/@via-profit-services/redis/package-0.1.0-rc.3.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."],
+            ["@via-profit-services/sms", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#file://home/dhs/Projects/@via-profit-services/sms/package-0.1.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."],
             ["bcryptjs", "npm:2.4.3"],
             ["cross-env", "npm:6.0.3"],
             ["dataloader", "npm:2.0.0"],
@@ -1483,6 +1485,32 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             "@types/via-profit-services__core",
             "@via-profit-services/core",
             "ioredis"
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["@via-profit-services/sms", [
+        ["file://home/dhs/Projects/@via-profit-services/sms/package-0.1.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.", {
+          "packageLocation": "./.yarn/cache/@via-profit-services-sms-file-491d9bcedc-4fea01f09e.zip/node_modules/@via-profit-services/sms/",
+          "packageDependencies": [
+            ["@via-profit-services/sms", "file://home/dhs/Projects/@via-profit-services/sms/package-0.1.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."]
+          ],
+          "linkType": "SOFT",
+        }],
+        ["virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#file://home/dhs/Projects/@via-profit-services/sms/package-0.1.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.", {
+          "packageLocation": "./.yarn/$$virtual/@via-profit-services-sms-virtual-44af40e601/0/cache/@via-profit-services-sms-file-491d9bcedc-4fea01f09e.zip/node_modules/@via-profit-services/sms/",
+          "packageDependencies": [
+            ["@via-profit-services/sms", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#file://home/dhs/Projects/@via-profit-services/sms/package-0.1.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."],
+            ["@types/uuid", "npm:8.3.0"],
+            ["@types/via-profit-services__core", null],
+            ["@via-profit-services/core", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.50.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."],
+            ["uuid", "npm:8.3.1"]
+          ],
+          "packagePeers": [
+            "@types/uuid",
+            "@types/via-profit-services__core",
+            "@via-profit-services/core",
+            "uuid"
           ],
           "linkType": "HARD",
         }]

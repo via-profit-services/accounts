@@ -72,6 +72,7 @@
         "@via-profit-services/eslint-config": "^0.1.11",
         "@via-profit-services/knex": "file://home/dhs/Projects/@via-profit-services/knex/package-0.1.0-rc.16.tgz",
         "@via-profit-services/redis": "file://home/dhs/Projects/@via-profit-services/redis/package-0.1.0-rc.3.tgz",
+        "@via-profit-services/sms": "file://home/dhs/Projects/@via-profit-services/sms/package-0.1.0-rc.1.tgz",
         "cross-env": "^6.0.3",
         "dataloader": "^2.0.0",
         "dotenv": "^8.2.0",
@@ -118,6 +119,8 @@
     "peerDependencies": {
         "@via-profit-services/core": "*",
         "@via-profit-services/knex": "*",
+        "@via-profit-services/redis": "*",
+        "@via-profit-services/sms": "*",
         "graphql": "*",
         "moment": "*",
         "moment-timezone": "*",

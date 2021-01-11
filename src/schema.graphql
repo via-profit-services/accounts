@@ -20,6 +20,11 @@ type AuthentificationQuery {
   Returns payload of your «Access» token
   """
   tokenPayload: AccessTokenPayload!
+
+  """
+  Verify your token
+  """
+  verifyToken(token: String!): TokenVerificationResponse!
 }
 
 type PermissionsQuery {
@@ -49,7 +54,14 @@ type TokenRegistrationError implements Error {
   msg: String!
 }
 
+
+type TokenVerificationError implements Error {
+  name: String!
+  msg: String!
+}
+
 union TokenRegistrationResponse = TokenBag | TokenRegistrationError
+union TokenVerificationResponse = AccessTokenPayload | RefreshTokenPayload | TokenVerificationError
 
 type TokenBag {
   accessToken: AccessToken
@@ -266,6 +278,10 @@ type AuthentificationMutation {
   Revoke Tokens by token ID or/and account ID
   """
   revoke(tokenID: ID accountID: ID): Boolean!
+  """
+  Pass your «Refresh» token to exchange it to new «Access» and «Refresh» tokens pair
+  """
+  refresh(refreshToken: String!): TokenRegistrationResponse!
 }
 
 input AccountInput {
