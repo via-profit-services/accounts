@@ -193,27 +193,11 @@ declare module '@via-profit-services/accounts' {
     deleted?: boolean;
   };
 
-  interface UpdateArgs {
-    id: string;
-    input: AccountInputInfo;
-  }
-
-  interface CreateArgs {
-    input: AccountInputInfo;
-  }
-
-  interface CheckLoginExistsArgs {
-    login: string;
-    skipId?: string;
-  }
 
 
-  interface GetTokenArgs {
-    login: string;
-    password: string;
-  }
+  export type PrivilegesMap = Record<string, string[]>;
 
-
+  
   export type AccountsMiddlewareFactory = (config: Configuration) => Promise<Middleware>;
 
 
@@ -259,7 +243,7 @@ declare module '@via-profit-services/accounts' {
 
   export type ResolvePermissions = {
     resolver: PermissionResolverComposed;
-    roles: string[];
+    privileges: string[];
   }
 
   export type Resolvers = {
@@ -298,7 +282,10 @@ declare module '@via-profit-services/accounts' {
       statusesList: GraphQLFieldResolver<unknown, Context>;
       me: GraphQLFieldResolver<unknown, Context>;
       account: GraphQLFieldResolver<{id: string}, Context>;
-      checkLoginExists: GraphQLFieldResolver<CheckLoginExistsArgs, Context>;
+      checkLoginExists: GraphQLFieldResolver<{
+        login: string;
+        skipId?: string;
+      }, Context>;
     };
     UsersQuery: {
       list: GraphQLFieldResolver<unknown, Context, InputFilter>;
@@ -314,7 +301,18 @@ declare module '@via-profit-services/accounts' {
       }>;
     };
     AccountsMutation: {
-      update:  GraphQLFieldResolver<unknown, Context, UpdateArgs>;
+      update:  GraphQLFieldResolver<unknown, Context, {
+        id: string;
+        input: Partial<AccountInputInfo>;
+      }>;
+      create:  GraphQLFieldResolver<unknown, Context, {
+        input: {
+          id?: string;
+          login: string;
+          password: string;
+          roles: string[];
+        };
+      }>;
     };
     PermissionsMap: PermissionsMapResolver;
     Account: AccountResolver;
@@ -450,6 +448,12 @@ declare module '@via-profit-services/accounts' {
     getPermissionMapsByIds(ids: string[]): Promise<PermissionsMap[]>;
     getPermissionMap(id: string): Promise<PermissionsMap | false>;
 
+    getPrivilegesMap(): Promise<PrivilegesMap>;
+    /**
+     * Return privileges list by roles
+     */
+    composePrivileges(roles: string[]): string[];
+
     updatePermissionsMap(id: string, map: Record<string, unknown>): Promise<void>;
     createPermissionsMap(permissionsMap: Partial<PermissionsMap>): Promise<string>;
   }
@@ -520,7 +524,7 @@ declare module '@via-profit-services/core' {
   import DataLoader from 'dataloader';
   import {
     JwtConfig, AccessTokenPayload, Account, User, UsersService, PermissionsMap,
-    AccountsService, TokenPackage, PermissionsService, AuthentificationService,
+    AccountsService, TokenPackage, PermissionsService, AuthentificationService, PrivilegesMap,
   } from '@via-profit-services/accounts';
 
   interface Context {
@@ -530,6 +534,7 @@ declare module '@via-profit-services/core' {
      */
     jwt: JwtConfig;
     token: AccessTokenPayload;
+    privileges: PrivilegesMap;
   }
 
 
@@ -554,9 +559,14 @@ declare module '@via-profit-services/core' {
     users: DataLoader<string, Node<User>>;
 
     /**
-     * Users dataloader
+     * Permissions map dataloader
      */
-    permissions: DataLoader<string, Node<PermissionsMap>>;
+    permissionMaps: DataLoader<string, Node<PermissionsMap>>;
+
+    /**
+     * Permissions dataloader
+     */
+    // permissions: DataLoader<string, Permission>;
   }
 
   interface ServicesCollection {

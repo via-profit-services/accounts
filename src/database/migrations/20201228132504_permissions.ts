@@ -46,8 +46,7 @@ export async function up(knex: Knex): Promise<void> {
     values 
       ('viewer', 'Used as viewer/reader. Accounts have this role can make request only to display data, not mutate.'),
       ('developer', 'Accounts have this role can make all requests without limits.'),
-      ('administrator', 'Accounts have this role can make all requests without limits.'),
-      ('authorized', 'Accounts have this role can make request only with valid authorization credentials.');
+      ('administrator', 'Accounts have this role can make all requests without limits.');
 
     -- insert Unlimited access privilege
     insert into privileges

@@ -57,4 +57,20 @@ export const DEFAULT_PERMISSIONS_MAP = {
       '*',
     ],
   },
+  UsersQuery: {
+    grant: [
+      'viewer', 'administrator',
+    ],
+  },
+  User: {
+    id: ['viewer'],
+    account: ['viewer'],
+    phones: ['viewer'],
+    deleted: ['administrator'],
+    createdAt: ['administrator'],
+    updatedAt: ['administrator'],
+  },
+  Account: {
+    grant: ['administrator'],
+  },
 };

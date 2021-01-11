@@ -63,7 +63,7 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuratio
     }
 
     // define static context at once
-    pool.context = pool.context ?? contextMiddleware({
+    pool.context = pool.context ?? await contextMiddleware({
       jwt,
       config: props.config,
       context: context,
@@ -73,6 +73,7 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuratio
     const { services, dataloader, redis } = pool.context;
     const { authentification, permissions } = services;
 
+    // extract token
     pool.context.token = authentification.getDefaultTokenPayload();
     pool.extensions = {
       tokenPayload: pool.context.token,
@@ -116,7 +117,7 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuratio
     }
 
     const activeMapId = await permissions.getActiveMapID();
-    const permissionsMap = await dataloader.permissions.load(activeMapId);
+    const permissionsMap = await dataloader.permissionMaps.load(activeMapId);
 
     pool.validationRule = validationRuleMiddleware({
       context: pool.context,

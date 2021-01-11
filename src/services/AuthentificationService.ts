@@ -150,7 +150,7 @@ class AuthentificationService implements AuthentificationServiceInterface {
 
     const tokens = this.generateTokens({
       uuid: account.id,
-      roles: ['authorized'].concat(account.roles),
+      roles: account.roles,
     });
 
     try {

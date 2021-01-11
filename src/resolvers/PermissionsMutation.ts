@@ -8,7 +8,7 @@ const permissionsMutation: Resolvers['PermissionsMutation'] = {
 
     try {
       await services.permissions.updatePermissionsMap(id, input);
-      dataloader.permissions.clear(id);
+      dataloader.permissionsMap.clear(id);
 
       return { id };
 

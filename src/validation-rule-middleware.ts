@@ -9,16 +9,21 @@ import {
   isNonNullType,
 } from 'graphql';
 
+import { ACCESS_TOKEN_EMPTY_ID } from './constants';
 import UnauthorizedError from './UnauthorizedError';
 
 const validationRuleMiddleware: ValidatioRuleMiddleware = (props) => {
-
-  const { context, configuration, permissionsMap } = props;
+  const { context, configuration, permissionsMap, config } = props;
   const { grantToAll, restrictToAll, authorizationToAll } = configuration;
   const { token, services } = context;
-  const { roles } = token;
-  let isIntrospection = false;
+  const { debug } = config;
+  const privileges = services.permissions.composePrivileges(token.roles);
 
+  if (token.id !== ACCESS_TOKEN_EMPTY_ID) {
+    privileges.push('authorized');
+  }
+
+  let isIntrospection = false;
 
   return (validationContext) => ({
 
@@ -82,7 +87,7 @@ const validationRuleMiddleware: ValidatioRuleMiddleware = (props) => {
       if (!['Query', 'Mutation', 'Subscription'].includes(typeName)) {
 
         if (authorizationToAll) {
-          resolvers[0].grant.push('authorized');
+          resolvers[0].grant.push('authorized'); // add privilege (not role)
         }
 
         if (grantToAll) {
@@ -96,11 +101,13 @@ const validationRuleMiddleware: ValidatioRuleMiddleware = (props) => {
 
       // validate
       resolvers.forEach((resolver) => {
-
-        const validationResult = services.permissions.resolvePermissions({ resolver, roles });
+        const validationResult = services.permissions.resolvePermissions({
+          privileges,
+          resolver,
+        });
         // console.log({ typeName, resolver, roles, validationResult });
         if (!validationResult) {
-          const errMessage = `Permission denied for key «${typeName}». Make sure that you have permissions for this field`;
+          const errMessage = `Permission denied for key «${typeName}». Make sure that you have permissions for this field${debug ? `. Your privileges: ${privileges.join(';')}` : '.'}`;
 
           validationContext.reportError(
             new GraphQLError(

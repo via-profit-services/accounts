@@ -5,6 +5,7 @@ import type {
   PermissionResolver,
   ResolvePermissions,
   PermissionsMap,
+  PrivilegesMap,
 } from '@via-profit-services/accounts';
 import { OutputFilter, ListResponse, ServerError } from '@via-profit-services/core';
 import { convertOrderByToKnex, convertSearchToKnex, convertWhereToKnex, extractTotalCountPropOfNode, convertJsonToKnex } from '@via-profit-services/knex';
@@ -89,8 +90,21 @@ class PermissionsService implements PermissionsServiceInterface {
     return composedResolver;
   }
 
+  public composePrivileges(roles: string[]): string[] {
+    const { context } = this.props;
+    const { privileges } = context;
+
+    const privilegesList = roles.reduce<string[]>((prev, role) => {
+      const list = privileges[role] || [];
+
+      return prev.concat(list);
+    }, []);
+
+    return privilegesList;
+  }
+
   public resolvePermissions (props: ResolvePermissions): boolean {
-    const { resolver, roles } = props;
+    const { resolver, privileges } = props;
     const { restrict, grant } = resolver;
 
     // resolve permissions or return true if array are empty
@@ -100,24 +114,53 @@ class PermissionsService implements PermissionsServiceInterface {
         return true;
       }
 
-      return roles.includes(negative);
+      return privileges.includes(negative);
 
     }).includes(true);
 
     // resolve permissions or return true if array are empty
     const needToGrant = !grant.length ? true : grant.map((positive) => {
 
-      if (positive === '*') {
+      if (privileges.includes('*') || positive === '*') {
         return true;
       }
 
-      return roles.includes(positive);
+      return privileges.includes(positive);
 
     }).includes(true);
 
     const result = !needToRestrict && needToGrant;
 
+    if (!result) {
+      console.log({
+        privMap: this.props.context.privileges,
+        needToRestrict,
+        needToGrant,
+        resolver,
+        privileges,
+      })
+    }
+
     return result;
+  }
+
+  public async getPrivilegesMap(): Promise<PrivilegesMap> {
+    const { context } = this.props;
+    const { knex } = context;
+
+    const response: PrivilegesMap = {};
+    const res = await knex
+      .select('*')
+      .from<any, {role: string; privilege: string;}[]>('permissions');
+
+    if (res.length) {
+      res.forEach(({ role, privilege }) => {
+        response[role] = response[role] || [];
+        response[role].push(privilege);
+      })
+    }
+
+    return response;
   }
 
 

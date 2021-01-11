@@ -265,7 +265,8 @@ type AccountListConnection implements Connection {
 }
 
 type AccountsMutation {
-  update(id: ID!, input: AccountInput!): Account!
+  create(input: AccountInputCreate!): Account!
+  update(id: ID!, input: AccountInputUpdate!): Account!
 }
 
 type AuthentificationMutation {
@@ -284,7 +285,7 @@ type AuthentificationMutation {
   refresh(refreshToken: String!): TokenRegistrationResponse!
 }
 
-input AccountInput {
+input AccountInputUpdate {
   id: String
   login: String
   password: String
@@ -293,6 +294,13 @@ input AccountInput {
   updatedAt: DateTime
   roles: [String!]
   deleted: Boolean
+}
+
+input AccountInputCreate {
+  id: String
+  login: String!
+  password: String!
+  roles: [String!]!
 }
 
 

@@ -28,25 +28,21 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
 
     return { id };
   },
-  // create: async (parent, args: CreateArgs, context) => {
-  //   const { input } = args;
-  //   const accountsService = new AccountsService({ context });
+  create: async (_parent, args, context) => {
+    const { input } = args;
+    const { services, logger } = context;
 
-  //   // check account exists by login
-  //   const account = await accountsService.getAccountByLogin(input.login);
-  //   if (account) {
-  //     throw new BadRequestError(`Account with login ${input.login} already exists`, { input });
-  //   }
+    try {
+      const id = await services.accounts.createAccount(input);
+      logger.auth.debug(`New account was created with id «${id}»`);
 
-  //   // create account
-  //   try {
-  //     const id = await accountsService.createAccount(input);
+      return { id };
 
-  //     return { id };
-  //   } catch (err) {
-  //     throw new ServerError('Failed to create account', { input });
-  //   }
-  // },
+    } catch (err) {
+      throw new ServerError('Failed to create account', { input });
+    }
+
+  },
   // delete: async (parent, args: { id: string }, context) => {
   //   const { id } = args;
   //   const { logger, pubsub, token } = context;

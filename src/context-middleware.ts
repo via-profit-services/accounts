@@ -16,7 +16,7 @@ interface Props {
   config: MiddlewareProps['config'];
 }
 
-const contextMiddleware = (props: Props): Context => {
+const contextMiddleware = async (props: Props): Promise<Context> => {
 
   const { context, config, jwt, configuration } = props;
   const { activeMapID } = configuration;
@@ -58,11 +58,15 @@ const contextMiddleware = (props: Props): Context => {
   });
 
   // Permissions map Dataloader
-  context.dataloader.permissions = new DataLoader(async (ids: string[]) => {
+  context.dataloader.permissionMaps = new DataLoader(async (ids: string[]) => {
     const nodes = await context.services.permissions.getPermissionMapsByIds(ids);
 
     return collateForDataloader(ids, nodes);
   });
+
+
+  // Load privileges map
+  context.privileges = await context.services.permissions.getPrivilegesMap();
 
   return context;
 }

@@ -16,7 +16,7 @@ const permissionsMap = new Proxy<PermissionsMapResolver>({
       const { id } = parent;
 
       try {
-        const permissionsMap = await dataloader.permissions.load(id);
+        const permissionsMap = await dataloader.permissionMaps.load(id);
 
         return permissionsMap[property];
       } catch ( err ) {

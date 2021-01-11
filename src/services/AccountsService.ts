@@ -165,7 +165,7 @@ class AccountsService implements AccountsServiceInterface {
       .returning('id');
   }
 
-  public async createAccount(accountData: Partial<AccountInputInfo>) {
+  public async createAccount(accountData: Required<AccountInputInfo>) {
     const { knex, timezone, services } = this.props.context;
     const { authentification } = services;
     const createdAt = moment.tz(timezone).format();
