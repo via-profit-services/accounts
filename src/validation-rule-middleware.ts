@@ -9,7 +9,7 @@ import {
   isNonNullType,
 } from 'graphql';
 
-import { ACCESS_TOKEN_EMPTY_ID } from './constants';
+import { ACCESS_TOKEN_EMPTY_ID, AUTHORIZED_PRIVILEGE } from './constants';
 import UnauthorizedError from './UnauthorizedError';
 
 const validationRuleMiddleware: ValidatioRuleMiddleware = (props) => {
@@ -19,8 +19,9 @@ const validationRuleMiddleware: ValidatioRuleMiddleware = (props) => {
   const { debug } = config;
   const privileges = services.permissions.composePrivileges(token.roles);
 
+  // add «authorized» privilege if user already authorized
   if (token.id !== ACCESS_TOKEN_EMPTY_ID) {
-    privileges.push('authorized');
+    privileges.push(AUTHORIZED_PRIVILEGE);
   }
 
   let isIntrospection = false;
@@ -87,7 +88,7 @@ const validationRuleMiddleware: ValidatioRuleMiddleware = (props) => {
       if (!['Query', 'Mutation', 'Subscription'].includes(typeName)) {
 
         if (authorizationToAll) {
-          resolvers[0].grant.push('authorized'); // add privilege (not role)
+          resolvers[0].grant.push(AUTHORIZED_PRIVILEGE); // add privilege (not role)
         }
 
         if (grantToAll) {
