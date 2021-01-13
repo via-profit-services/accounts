@@ -35,7 +35,7 @@ class PermissionsService implements PermissionsServiceInterface {
   public resolvePermissions (props: ResolvePermissionsProps): boolean {
     const {
       permissionsMap, privileges, fieldName, typeName,
-      authorizationToAll, grantToAll, restrictToAll,
+      requireAuthorization, defaultPermissions,
     } = props;
     const { map } = permissionsMap;
     const pathWithoutField = `${typeName}.*`;
@@ -50,10 +50,10 @@ class PermissionsService implements PermissionsServiceInterface {
         ...map[pathWithField]?.grant || [],
 
         // append «authorized» permission
-        ...authorizationToAll ? [AUTHORIZED_PRIVILEGE] : [],
+        ...requireAuthorization ? [AUTHORIZED_PRIVILEGE] : [],
 
         // append any permissions
-        ...grantToAll || [],
+        ...defaultPermissions?.grant || [],
       ],
       restrict: [
         // append permission without field (e.g.: «MyType.*)
@@ -63,7 +63,7 @@ class PermissionsService implements PermissionsServiceInterface {
         ...map[pathWithField]?.restrict || [],
 
         // append any permissions
-        ...restrictToAll || [],
+        ...defaultPermissions?.restrict || [],
       ],
     };
 

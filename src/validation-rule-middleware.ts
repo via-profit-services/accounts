@@ -1,17 +1,11 @@
-import type {
-  ValidatioRuleMiddleware,
-} from '@via-profit-services/accounts';
-import {
-  GraphQLError,
-  BREAK,
-} from 'graphql';
+import type { ValidatioRuleMiddleware } from '@via-profit-services/accounts';
+import { GraphQLError, BREAK } from 'graphql';
 
 import { ACCESS_TOKEN_EMPTY_ID, AUTHORIZED_PRIVILEGE } from './constants';
-import UnauthorizedError from './UnauthorizedError';
 
 const validationRuleMiddleware: ValidatioRuleMiddleware = async (props) => {
   const { context, configuration, config } = props;
-  const { grantToAll, restrictToAll, authorizationToAll } = configuration;
+  const { defaultPermissions, requireAuthorization } = configuration;
   const { token, services, dataloader, logger } = context;
   const { debug } = config;
 
@@ -65,23 +59,16 @@ const validationRuleMiddleware: ValidatioRuleMiddleware = async (props) => {
               privileges,
               typeName,
               fieldName,
-              grantToAll,
-              restrictToAll,
-              authorizationToAll,
+              defaultPermissions,
+              requireAuthorization,
             });
 
             if (!validationResult) {
               const errMessage = `Permission denied for key «${typeName}.${fieldName}». Make sure that you have permissions for this field${debug ? `. Your privileges: ${privileges.join('; ')}` : '.'}`;
+
               logger.auth.info(errMessage);
               validationContext.reportError(
-                new GraphQLError(
-                  errMessage,
-                  undefined,
-                  undefined,
-                  undefined,
-                  undefined,
-                  new UnauthorizedError(errMessage),
-                ),
+                new GraphQLError(errMessage),
               );
 
               return BREAK;

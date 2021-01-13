@@ -13,6 +13,11 @@ declare module '@via-profit-services/accounts' {
    */
   export interface Configuration {
 
+    requireAuthorization?: boolean;
+    defaultPermissions?: {
+      grant?: string[];
+      restrict?: string[];
+    };
     /**
      * Signature algorithm. Could be one of these values :
      * - HS256:    HMAC using SHA-256 hash algorithm (default)
@@ -29,10 +34,6 @@ declare module '@via-profit-services/accounts' {
      * \
      * Default: `RS256`
      */
-    authorizationToAll?: boolean;
-    grantToAll?: string[];
-    restrictToAll?: string[];
-
     algorithm?: Algorithm;
 
     /**
@@ -443,9 +444,11 @@ declare module '@via-profit-services/accounts' {
     typeName: string;
     fieldName: string;
     privileges: string[];
-    grantToAll?: string[];
-    restrictToAll?: string[];
-    authorizationToAll?: boolean;
+    requireAuthorization?: boolean;
+    defaultPermissions?: {
+      grant?: string[];
+      restrict?: string[];
+    };
   };
 
   class PermissionsService {
