@@ -1,5 +1,5 @@
-import type { AccountResolver } from '@via-profit-services/accounts';
-import { ServerError } from '@via-profit-services/core';
+import type { AccountResolver, Account } from '@via-profit-services/accounts';
+import { ServerError, BadRequestError } from '@via-profit-services/core';
 
 
 const accountResolver = new Proxy<AccountResolver>({
@@ -11,21 +11,30 @@ const accountResolver = new Proxy<AccountResolver>({
   password: () => ({}),
   roles: () => ({}),
   deleted: () => ({}),
+  recoveryPhones: () => ({}),
 }, {
   get: (_target, prop: keyof AccountResolver) => {
     const resolver: AccountResolver[keyof AccountResolver] = async (parent, _args, context) => {
       const { id } = parent;
       const { dataloader } = context;
 
-      try {
-        const account = await dataloader.accounts.load(id);
+      let account: Account;
 
-        return account[prop];
+      try {
+        account = await dataloader.accounts.load(id);
       } catch ( err ) {
         throw new ServerError(
-          `Failed to load account with id «${id}»`, { id },
+          `Failed to load account with id «${id}»`, { err },
         )
       }
+
+      if (!account) {
+        throw new BadRequestError(
+          `Account with id «${id}» not found`, { id },
+        )
+      }
+
+      return account[prop];
     };
 
     return resolver;

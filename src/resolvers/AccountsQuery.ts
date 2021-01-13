@@ -24,7 +24,7 @@ export const accountsQueryResolver: Resolvers['AccountsQuery'] = {
   },
   statusesList: (): AccountStatus[] => ['allowed', 'forbidden'],
   me: () => ({}),
-  account: (parent) => parent,
+  account: (_parent, args) => args,
   checkLoginExists: async (_parent, args, context): Promise<boolean> => {
     const { login, skipId } = args;
     const { services } = context;

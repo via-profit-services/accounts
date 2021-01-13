@@ -17,6 +17,10 @@ const userResolver = new Proxy<UserResolver>({
       try {
         const user = await dataloader.users.load(id);
 
+        if (prop === 'phones' && !user[prop].length) {
+          return null;
+        }
+
         return user[prop];
       } catch ( err ) {
         throw new ServerError(

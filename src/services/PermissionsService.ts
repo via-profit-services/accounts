@@ -1,37 +1,29 @@
 import type {
   PermissionsService as PermissionsServiceInterface,
   PermissionsServiceProps,
-  PermissionResolverComposed,
-  PermissionResolver,
-  ResolvePermissions,
-  PermissionsMap,
+  ResolvePermissionsProps,
   PrivilegesMap,
+  PermissionsMap,
+  PermissionsMapResolver,
 } from '@via-profit-services/accounts';
-import { OutputFilter, ListResponse, ServerError } from '@via-profit-services/core';
-import { convertOrderByToKnex, convertSearchToKnex, convertWhereToKnex, extractTotalCountPropOfNode, convertJsonToKnex } from '@via-profit-services/knex';
-import Knex from 'knex';
-import moment from 'moment-timezone';
-import { v4 as uuidv4 } from 'uuid';
 
-import { DEFAULT_PERMISSIONS_MAP_ID, DEFAULT_PERMISSIONS_MAP } from '../constants';
+import { AUTHORIZED_PRIVILEGE } from '../constants';
 
-type PermissionsMapTable = {
-  readonly id: string;
-  readonly map: string | Knex.Raw;
-  readonly description: string;
-  readonly createdAt: string;
-  readonly updatedAt: string;
+type PermissionsTableModel = {
+  readonly typeName: string;
+  readonly fieldName: string;
+  readonly type: 'grant' | 'restrict';
+  readonly privilege: string;
 }
 
-type PermissionsMapTableResult = {
-  readonly id: string;
-  readonly map: Record<string, PermissionResolver>;
-  readonly description: string;
-  readonly createdAt: Date;
-  readonly updatedAt: Date;
-  readonly totalCount: number;
+type PermissionsTableModelResult = PermissionsTableModel;
+
+type PrivilegesTableModel = {
+  readonly role: string;
+  readonly privilege: string;
 }
 
+type PrivilegesTableModelResult = PrivilegesTableModel;
 
 class PermissionsService implements PermissionsServiceInterface {
   props: PermissionsServiceProps;
@@ -40,71 +32,42 @@ class PermissionsService implements PermissionsServiceInterface {
     this.props = props;
   }
 
-  public setActiveMapID (id: string) {
-    this.props.activeMapID = id;
-  }
+  public resolvePermissions (props: ResolvePermissionsProps): boolean {
+    const {
+      permissionsMap, privileges, fieldName, typeName,
+      authorizationToAll, grantToAll, restrictToAll,
+    } = props;
+    const { map } = permissionsMap;
+    const pathWithoutField = `${typeName}.*`;
+    const pathWithField = `${typeName}.${fieldName}`;
+    const resolver: PermissionsMapResolver = {
+      grant: [
 
-  public async getActiveMapID () {
-    const { activeMapID } = this.props;
-    if (activeMapID) {
-      return activeMapID;
-    }
+        // append permission without field (e.g.: «MyType.*)
+        ...map[pathWithoutField]?.grant || [],
 
-    const { nodes } = await this.getPermissionMaps({
-      where: [['id', '=', DEFAULT_PERMISSIONS_MAP_ID]],
-      limit: 1,
-     });
+        // append permission with field (e.g.: «MyType.field»)
+        ...map[pathWithField]?.grant || [],
 
-    if (nodes) {
-      const { id } = nodes[0];
-      this.setActiveMapID(id);
+        // append «authorized» permission
+        ...authorizationToAll ? [AUTHORIZED_PRIVILEGE] : [],
 
-      return id;
-    }
+        // append any permissions
+        ...grantToAll || [],
+      ],
+      restrict: [
+        // append permission without field (e.g.: «MyType.*)
+        ...map[pathWithoutField]?.restrict || [],
 
-    throw new ServerError('Failed to get active map ID');
-  }
+        // append permission with field (e.g.: «MyType.field»)
+        ...map[pathWithField]?.restrict || [],
 
-  public composePermissionResolver (resolver: PermissionResolver): PermissionResolverComposed {
-    const composedResolver: PermissionResolverComposed = {
-      grant: [],
-      restrict: [],
-    }
+        // append any permissions
+        ...restrictToAll || [],
+      ],
+    };
 
-    if ('grant' in resolver && Array.isArray(resolver.grant)) {
-      composedResolver.grant = resolver.grant;
-    }
 
-    if ('grant' in resolver && typeof resolver.grant === 'string') {
-      composedResolver.grant = [resolver.grant];
-    }
-
-    if ('restrict' in resolver && Array.isArray(resolver.restrict)) {
-      composedResolver.restrict = resolver.restrict;
-    }
-
-    if ('restrict' in resolver && typeof resolver.restrict === 'string') {
-      composedResolver.restrict = [resolver.restrict];
-    }
-
-    return composedResolver;
-  }
-
-  public composePrivileges(roles: string[]): string[] {
-    const { context } = this.props;
-    const { privileges } = context;
-
-    const privilegesList = roles.reduce<string[]>((prev, role) => {
-      const list = privileges[role] || [];
-
-      return prev.concat(list);
-    }, []);
-
-    return privilegesList;
-  }
-
-  public resolvePermissions (props: ResolvePermissions): boolean {
-    const { resolver, privileges } = props;
     const { restrict, grant } = resolver;
 
     // resolve permissions or return true if array are empty
@@ -127,124 +90,64 @@ class PermissionsService implements PermissionsServiceInterface {
 
       return privileges.includes(positive);
 
-    }).includes(true);
+    }).every((elem) => elem);
 
     const result = !needToRestrict && needToGrant;
 
-    if (!result) {
-      console.log({
-        privMap: this.props.context.privileges,
-        needToRestrict,
-        needToGrant,
-        resolver,
-        privileges,
+    return result;
+  }
+
+  public async getPermissionsMap(): Promise<PermissionsMap> {
+    const { context } = this.props;
+    const { knex } = context;
+
+    const permissionsMap: PermissionsMap = {
+      id: 'common',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      map: {},
+    };
+    const res = await knex
+      .select('*')
+      .from<PermissionsTableModel, PermissionsTableModelResult[]>('permissions');
+
+    if (res.length) {
+      res.forEach(({ typeName, fieldName, type, privilege }) => {
+        const field = `${typeName}.${fieldName}`;
+        permissionsMap.map[field] = permissionsMap.map[field] || {
+          grant: [],
+          restrict: [],
+        };
+
+        permissionsMap.map[field][type].push(privilege);
       })
     }
 
-    return result;
+    return permissionsMap;
   }
 
   public async getPrivilegesMap(): Promise<PrivilegesMap> {
     const { context } = this.props;
     const { knex } = context;
 
-    const response: PrivilegesMap = {};
+    const privilegesMap: PrivilegesMap = {
+      id: 'common',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      map: {},
+    };
     const res = await knex
       .select('*')
-      .from<any, {role: string; privilege: string;}[]>('permissions');
+      .from<PrivilegesTableModel, PrivilegesTableModelResult[]>('roles2privileges');
 
     if (res.length) {
       res.forEach(({ role, privilege }) => {
-        response[role] = response[role] || [];
-        response[role].push(privilege);
+        privilegesMap.map[role] = privilegesMap.map[role] || [];
+        privilegesMap.map[role].push(privilege);
       })
     }
 
-    return response;
-  }
-
-
-  public async getPermissionMaps(
-    filter: Partial<OutputFilter>): Promise<ListResponse<PermissionsMap>> {
-    const { context } = this.props;
-    const { knex } = context;
-    const { limit, offset, orderBy, where, search } = filter;
-
-    const result = await knex
-      .select([
-        'permissionsMap.*',
-        knex.raw('count(*) over() as "totalCount"'),
-      ])
-      .from<PermissionsMapTable, PermissionsMapTableResult[]>('permissionsMap')
-      .orderBy(convertOrderByToKnex(orderBy))
-      .where((builder) => convertWhereToKnex(builder, where))
-      .where((builder) => convertSearchToKnex(builder, search))
-      .limit(limit || 1)
-      .offset(offset || 0)
-      .then((nodes) => ({
-        ...extractTotalCountPropOfNode(nodes),
-          offset,
-          limit,
-          orderBy,
-          where,
-        }))
-
-    return result;
-  }
-
-  public async getPermissionMapsByIds(ids: string[]): Promise<PermissionsMap[]> {
-    const { nodes } = await this.getPermissionMaps({
-      where: [['id', 'in', ids]],
-      offset: 0,
-      limit: ids.length,
-    });
-
-    return nodes;
-  }
-
-  public async getPermissionMap(id: string): Promise<PermissionsMap | false> {
-    const nodes = await this.getPermissionMapsByIds([id]);
-
-    return nodes.length ? nodes[0] : false;
-  }
-
-  public async updatePermissionsMap(
-    id: string,
-    permissionsMap: Partial<PermissionsMap>,
-  ): Promise<void> {
-    const { knex, timezone } = this.props.context;
-
-    const data: Partial<PermissionsMapTable> = {
-      ...permissionsMap,
-      updatedAt: moment.tz(timezone).format(), // force set updatedAt
-      createdAt: undefined, // force remove createdAt
-      map: permissionsMap.map ? convertJsonToKnex(knex, permissionsMap.map) : undefined,
-    };
-
-    await knex<PermissionsMapTable>('permissionsMap')
-      .update(data)
-      .where('id', id)
-      .returning('id');
-  }
-
-  public async createPermissionsMap(permissionsMap: Partial<PermissionsMap>): Promise<string> {
-    const { knex, timezone } = this.props.context;
-    const createdAt = moment.tz(timezone).format();
-
-    const result = await knex<PermissionsMapTable>('permissionsMap')
-      .insert({
-        id: permissionsMap.id || uuidv4(),
-        description: permissionsMap.description || '',
-        createdAt,
-        updatedAt: createdAt,
-      })
-      .returning('id');
-
-    return result[0];
-  }
-
-  public getDefaultPermissionsMapContent () {
-    return DEFAULT_PERMISSIONS_MAP;
+    return privilegesMap;
   }
 }
 

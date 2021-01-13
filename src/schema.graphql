@@ -2,17 +2,11 @@ extend type Query {
   accounts: AccountsQuery!
   users: UsersQuery!
   authentification: AuthentificationQuery!
-
-  """
-  Service endpoint
-  """
-  permissions: PermissionsQuery!
 }
 
 extend type Mutation {
   accounts: AccountsMutation!
   authentification: AuthentificationMutation!
-  permissions: PermissionsMutation!
 }
 
 type AuthentificationQuery {
@@ -27,27 +21,12 @@ type AuthentificationQuery {
   verifyToken(token: String!): TokenVerificationResponse!
 }
 
-type PermissionsQuery {
-  permissionsMap: PermissionsMap!
+enum AccountRole {
+  developer
+  administrator
+  viewer
 }
 
-type PermissionsMutation {
-  updatePermissionsMap(id: ID! input: PermissionsMapInput): PermissionsMap!
-}
-
-input PermissionsMapInput {
-  id: ID
-  description: String
-  map: JSON!
-}
-
-type PermissionsMap implements Node {
-  id: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  description: String!
-  map: JSONObject!
-}
 
 type TokenRegistrationError implements Error {
   name: String!
@@ -82,7 +61,7 @@ type AccessTokenPayload {
   type: TokenType!
   id: ID!
   uuid: ID!
-  roles: [String!]!
+  roles: [AccountRole!]!
   exp: Int!
   iss: String!
 }
@@ -91,7 +70,7 @@ type RefreshTokenPayload {
   type: TokenType!
   id: ID!
   uuid: ID!
-  roles: [String!]!
+  roles: [AccountRole!]!
   exp: Int!
   iss: String!
   associated: AccessToken!
@@ -112,7 +91,8 @@ type Account implements Node {
   status: AccountStatus!
   createdAt: DateTime!
   updatedAt: DateTime!
-  roles: [String!]!
+  roles: [AccountRole!]!
+  recoveryPhones: [Phone!]!
   deleted: Boolean!
 }
 
@@ -123,7 +103,8 @@ type MyAccount implements Node {
   status: AccountStatus!
   createdAt: DateTime!
   updatedAt: DateTime!
-  roles: [String!]!
+  roles: [AccountRole!]!
+  recoveryPhones: [Phone!]!
 }
 
 type User implements Node & Profile {
@@ -184,11 +165,6 @@ type AccountsQuery {
   Returns account if exists
   """
   account(id: ID!): Account
-
-  """
-  Display list of all posible roles
-  """
-  rolesList: [String!]!
 
   """
   Check if passed login exists
@@ -278,7 +254,7 @@ type AuthentificationMutation {
   """
   Revoke Tokens by token ID or/and account ID
   """
-  revoke(tokenID: ID accountID: ID): Boolean!
+  revoke(tokenID: ID accountID: ID): Void!
   """
   Pass your «Refresh» token to exchange it to new «Access» and «Refresh» tokens pair
   """
@@ -292,7 +268,8 @@ input AccountInputUpdate {
   status: AccountStatus
   createdAt: DateTime
   updatedAt: DateTime
-  roles: [String!]
+  roles: [AccountRole!]
+  recoveryPhones: [PhoneInput!]
   deleted: Boolean
 }
 
@@ -300,7 +277,8 @@ input AccountInputCreate {
   id: String
   login: String!
   password: String!
-  roles: [String!]!
+  roles: [AccountRole!]!
+  recoveryPhones: [PhoneInput!]!
 }
 
 

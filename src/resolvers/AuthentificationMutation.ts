@@ -80,7 +80,7 @@ const authentificationMutation: Resolvers['AuthentificationMutation'] = {
       }
     }
 
-    return true;
+    return null;
   },
   refresh: async (parent, args, context) => {
     const { refreshToken } = args;

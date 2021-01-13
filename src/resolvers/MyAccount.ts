@@ -1,9 +1,9 @@
-import type { MyAccountResolver } from '@via-profit-services/accounts';
-import { ServerError } from '@via-profit-services/core';
+import type { MyAccountResolver, MyAccount } from '@via-profit-services/accounts';
+import { ServerError, BadRequestError } from '@via-profit-services/core';
 
 import { ACCESS_TOKEN_EMPTY_UUID } from '../constants';
 
-const MyAccount = new Proxy<MyAccountResolver>({
+const myAccountResolver = new Proxy<MyAccountResolver>({
   id: () => ({}),
   createdAt: () => ({}),
   updatedAt: () => ({}),
@@ -11,6 +11,7 @@ const MyAccount = new Proxy<MyAccountResolver>({
   login: () => ({}),
   password: () => ({}),
   roles: () => ({}),
+  recoveryPhones: () => ({}),
 }, {
   get: (_target, prop: keyof MyAccountResolver) => {
     const resolver: MyAccountResolver[keyof MyAccountResolver] = async (parent, _args, context) => {
@@ -24,20 +25,27 @@ const MyAccount = new Proxy<MyAccountResolver>({
         );
       }
 
-
+      let account: MyAccount;
       try {
-        const account = await dataloader.accounts.load(token.uuid);
+        account = await dataloader.accounts.load(token.uuid);
 
-        return account[prop];
       } catch ( err ) {
         throw new ServerError(
-          `Failed to load account with id «${token.uuid}»`, { id: token.uuid },
+          `Failed to load account with id «${token.uuid}»`, { err },
+        );
+      }
+
+      if (!account) {
+        throw new BadRequestError(
+          `Account with id «${token.uuid}» not found`, { id: token.uuid },
         )
       }
+
+      return account[prop];
     };
 
     return resolver;
   },
 });
 
-export default MyAccount;
+export default myAccountResolver;

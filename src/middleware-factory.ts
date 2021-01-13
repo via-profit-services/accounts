@@ -70,8 +70,8 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuratio
       configuration,
     });
 
-    const { services, dataloader, redis } = pool.context;
-    const { authentification, permissions } = services;
+    const { services, redis } = pool.context;
+    const { authentification } = services;
 
     // extract token
     pool.context.token = authentification.getDefaultTokenPayload();
@@ -116,16 +116,11 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuratio
       pool.extensions.tokenPayload = tokenPayload;
     }
 
-    const activeMapId = await permissions.getActiveMapID();
-    const permissionsMap = await dataloader.permissionMaps.load(activeMapId);
-
-    pool.validationRule = validationRuleMiddleware({
+    pool.validationRule = await validationRuleMiddleware({
       context: pool.context,
       config: props.config,
-      permissionsMap,
       configuration,
     });
-
 
     return pool;
   }

@@ -38,6 +38,7 @@ const server = http.createServer(app);
     privateKey: path.resolve(__dirname, './jwtRS256.key'),
     publicKey: path.resolve(__dirname, './jwtRS256.key.pub'),
     authorizationToAll: true,
+    accessTokenExpiresIn: 60 * 60 * 24,
   });
 
   const schema = makeExecutableSchema({

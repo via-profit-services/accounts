@@ -1,23 +1,30 @@
 import type {
   ValidatioRuleMiddleware,
-  PermissionResolverComposed,
 } from '@via-profit-services/accounts';
 import {
   GraphQLError,
   BREAK,
-  isObjectType,
-  isNonNullType,
 } from 'graphql';
 
 import { ACCESS_TOKEN_EMPTY_ID, AUTHORIZED_PRIVILEGE } from './constants';
 import UnauthorizedError from './UnauthorizedError';
 
-const validationRuleMiddleware: ValidatioRuleMiddleware = (props) => {
-  const { context, configuration, permissionsMap, config } = props;
+const validationRuleMiddleware: ValidatioRuleMiddleware = async (props) => {
+  const { context, configuration, config } = props;
   const { grantToAll, restrictToAll, authorizationToAll } = configuration;
-  const { token, services } = context;
+  const { token, services, dataloader, logger } = context;
   const { debug } = config;
-  const privileges = services.permissions.composePrivileges(token.roles);
+
+
+  const privilegesMap = await dataloader.privilegesMaps.load('common');
+  const permissionsMap = await dataloader.permissionsMap.load('common');
+
+  // compose privileges list by privilegesMap
+  const privileges = token.roles.reduce<string[]>((prev, role) => {
+    const list = privilegesMap.map[role] || [];
+
+    return prev.concat(list);
+  }, []);
 
   // add «authorized» privilege if user already authorized
   if (token.id !== ACCESS_TOKEN_EMPTY_ID) {
@@ -27,8 +34,7 @@ const validationRuleMiddleware: ValidatioRuleMiddleware = (props) => {
   let isIntrospection = false;
 
   return (validationContext) => ({
-
-    enter: () => {
+    enter: (node) => {
       const type = validationContext.getType();
 
       // skip if is not a GraphQL type
@@ -47,85 +53,44 @@ const validationRuleMiddleware: ValidatioRuleMiddleware = (props) => {
         return undefined;
       }
 
-      let typeName: string;
+      const typeName = type.toString().replace(/[![\]]/gmi, '');
 
-      // if is NonNull (e.g. foo: SomeType!) then real type will be pased in ofType property
-      if (isNonNullType(type) && isObjectType(type.ofType)) {
-        typeName = type.ofType.name;
-      }
 
-      // if is simple type
-      if (isObjectType(type)) {
-        typeName = type.name;
-      }
+      if (node && node.kind === 'SelectionSet') {
+        node.selections.forEach((selectionNode) => {
+          if (selectionNode.kind === 'Field') {
+            const fieldName = selectionNode.name.value;
+            const validationResult = services.permissions.resolvePermissions({
+              permissionsMap,
+              privileges,
+              typeName,
+              fieldName,
+              grantToAll,
+              restrictToAll,
+              authorizationToAll,
+            });
 
-      // typeName maybe undefined
-      if (typeof typeName !== 'string') {
-        return undefined;
-      }
+            if (!validationResult) {
+              const errMessage = `Permission denied for key «${typeName}.${fieldName}». Make sure that you have permissions for this field${debug ? `. Your privileges: ${privileges.join('; ')}` : '.'}`;
+              logger.auth.info(errMessage);
+              validationContext.reportError(
+                new GraphQLError(
+                  errMessage,
+                  undefined,
+                  undefined,
+                  undefined,
+                  undefined,
+                  new UnauthorizedError(errMessage),
+                ),
+              );
 
-      const persmissionsResolver = permissionsMap.map[typeName] || {
-        grant: [],
-        restrict: [],
-      };
-      const resolvers: PermissionResolverComposed[] = [];
+              return BREAK;
+            }
+          }
 
-      // if permission resolver does not have fields
-      if ('grant' in persmissionsResolver || 'restrict' in persmissionsResolver) {
-        resolvers.push(services.permissions.composePermissionResolver(persmissionsResolver));
-      } else {
-        // if permission resolver has fields
-        Object.entries(persmissionsResolver).forEach(([_field, fieldResolver]) => {
-          resolvers.push(services.permissions.composePermissionResolver(fieldResolver));
+          return undefined;
         });
       }
-
-      // append default resolvers
-      if (!resolvers.length) {
-        resolvers.push({ grant: [], restrict: [] });
-      }
-
-      if (!['Query', 'Mutation', 'Subscription'].includes(typeName)) {
-
-        if (authorizationToAll) {
-          resolvers[0].grant.push(AUTHORIZED_PRIVILEGE); // add privilege (not role)
-        }
-
-        if (grantToAll) {
-          resolvers[0].grant = resolvers[0].grant.concat(grantToAll);
-        }
-
-        if (restrictToAll) {
-          resolvers[0].restrict = resolvers[0].restrict.concat(restrictToAll);
-        }
-      }
-
-      // validate
-      resolvers.forEach((resolver) => {
-        const validationResult = services.permissions.resolvePermissions({
-          privileges,
-          resolver,
-        });
-        // console.log({ typeName, resolver, roles, validationResult });
-        if (!validationResult) {
-          const errMessage = `Permission denied for key «${typeName}». Make sure that you have permissions for this field${debug ? `. Your privileges: ${privileges.join(';')}` : '.'}`;
-
-          validationContext.reportError(
-            new GraphQLError(
-              errMessage,
-              undefined,
-              undefined,
-              undefined,
-              undefined,
-              new UnauthorizedError(errMessage),
-            ),
-          );
-
-          return BREAK;
-        }
-
-        return true;
-      });
 
       return undefined;
     },

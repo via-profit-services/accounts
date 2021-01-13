@@ -26,6 +26,7 @@
         "test": "jest",
         "lint": "eslint --ext .ts ./src/ --fix .",
         "migrate:latest": "yarn knex migrate:latest --knexfile ./.knex/knexfile.js",
+        "migrate:rollback": "yarn knex migrate:rollback --knexfile ./.knex/knexfile.js",
         "migrate:up": "yarn knex migrate:up --knexfile ./.knex/knexfile.js",
         "migrate:down": "yarn knex migrate:down --knexfile ./.knex/knexfile.js",
         "migrate:make": "yarn knex migrate:make --migrations-directory ./src/database/migrations -x ts",

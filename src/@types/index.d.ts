@@ -6,15 +6,13 @@ declare module '@via-profit-services/accounts' {
 
   export type AccountStatus = 'allowed' | 'forbidden';
   export type TokenType = 'access' | 'refresh';
-  export type AccountRole = string;
-
+  export type AccountRole = 'developer' | 'administrator' | 'viewer';
   /**
    * JWT configuration.
    * @see [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken)
    */
   export interface Configuration {
 
-    activeMapID?: string;
     /**
      * Signature algorithm. Could be one of these values :
      * - HS256:    HMAC using SHA-256 hash algorithm (default)
@@ -48,7 +46,7 @@ declare module '@via-profit-services/accounts' {
      * Unix time that determines the moment when the Access Token becomes invalid\
      * (the access token lifetime in seconds)\
      * \
-     * Default: `1800`
+     * Default: `1800` (30 minutes)
      */
     accessTokenExpiresIn?: number;
 
@@ -167,6 +165,55 @@ declare module '@via-profit-services/accounts' {
     deleted: boolean;
   }
 
+  export interface AccountsTableModel {
+    readonly id: string;
+    readonly login: string;
+    readonly createdAt: string;
+    readonly updatedAt: string;
+    readonly password: string;
+    readonly roles: string;
+    readonly status: string;
+    readonly deleted: boolean;
+    readonly recoveryPhones: string;
+    readonly totalCount: number;
+  }
+
+  export interface AccountsTableModelResult {
+    readonly id: string;
+    readonly login: string;
+    readonly password: string;
+    readonly roles: AccountRole[];
+    readonly createdAt: Date;
+    readonly updatedAt: Date;
+    readonly totalCount: number;
+    readonly status: AccountStatus;
+    readonly recoveryPhones: Phone[];
+    readonly deleted: boolean;
+  }
+
+  export interface UsersTableModel {
+    readonly id: string;
+    readonly name: string;
+    readonly account: string;
+    readonly createdAt: string;
+    readonly updatedAt: string;
+    readonly phones: string;
+    readonly deleted: boolean;
+    readonly totalCount: number;
+  }
+
+  export interface UsersTableModelResult {
+    readonly id: string;
+    readonly name: string;
+    readonly account: string | null;
+    readonly createdAt: Date;
+    readonly updatedAt: Date;
+    readonly phones: Phone[];
+    readonly deleted: boolean;
+    readonly totalCount: number;
+  }
+
+
   export interface Account {
     id: string;
     login: string;
@@ -175,28 +222,30 @@ declare module '@via-profit-services/accounts' {
     roles: AccountRole[];
     createdAt: Date;
     updatedAt: Date;
+    recoveryPhones: Phone[];
     deleted: boolean;
   }
 
   export type MyAccount = Omit<Account, 'deleted'>;
 
-  export type AccountTableModelOutput = Omit<Account, 'roles'> & {
-    roles: string[];
-    totalCount: number;
-  }
-
-  export type AccountInputInfo = Omit<Account, 'id' | 'createdAt' | 'updatedAt' | 'deleted' | 'roles'> & {
-    id?: string;
-    createdAt: string | Date;
-    updatedAt: string | Date;
-    roles: string[] | string;
-    deleted?: boolean;
+  export type PrivilegesMap = {
+    id: 'common';
+    createdAt: Date;
+    updatedAt: Date;
+    map: Record<string, string[]>;
   };
 
+  export type PermissionsMap = {
+    id: 'common';
+    createdAt: Date;
+    updatedAt: Date;
+    map: Record<string, PermissionsMapResolver>;
+  };
 
-
-  export type PrivilegesMap = Record<string, string[]>;
-
+  export type PermissionsMapResolver = {
+    grant: string[];
+    restrict: string[];
+  };
   
   export type AccountsMiddlewareFactory = (config: Configuration) => Promise<Middleware>;
 
@@ -205,58 +254,19 @@ declare module '@via-profit-services/accounts' {
     context: Context;
     configuration: Configuration;
     config: MiddlewareProps['config'];
-    permissionsMap: PermissionsMap;
-  }) => ValidationRule;
+  }) => MaybePromise<ValidationRule>;
 
 
-  export type PermissionRole = string;
-  export type PermissionRoles = PermissionRole[];
-  export type PermissionResolverComposed = {
-    grant: PermissionRoles;
-    restrict: PermissionRoles;
-  }
-  export type PermissionResolverGrantOnly = {
-    grant: PermissionRoles;
-  }
-
-  export type PermissionResolverRestrictOnly = {
-    restrict: PermissionRoles;
-  }
-
-  export type PermissionResolvers =
-  | PermissionResolverComposed
-  | PermissionResolverGrantOnly
-  | PermissionResolverRestrictOnly;
-
-
-  export type PermissionResolversWithFields = Record<any, PermissionResolvers>;
-  export type PermissionResolver = PermissionResolvers | PermissionResolversWithFields;
-
-  export type PermissionsMap = {
-    id: string;
-    map: Record<string, PermissionResolver>;
-    description: string;
-    createdAt: Date;
-    updatedAt: Date;
-  };
-
-
-  export type ResolvePermissions = {
-    resolver: PermissionResolverComposed;
-    privileges: string[];
-  }
 
   export type Resolvers = {
     Query: {
       accounts: GraphQLFieldResolver<unknown, Context>;
       users: GraphQLFieldResolver<unknown, Context>;
       authentification: GraphQLFieldResolver<unknown, Context>;
-      permissions: GraphQLFieldResolver<unknown, Context>;
     };
     Mutation: {
       accounts: GraphQLFieldResolver<unknown, Context>;
       authentification: GraphQLFieldResolver<unknown, Context>;
-      permissions: GraphQLFieldResolver<unknown, Context>;
     };
     AuthentificationMutation: {
       create: GraphQLFieldResolver<unknown, Context, {
@@ -281,7 +291,9 @@ declare module '@via-profit-services/accounts' {
       list: GraphQLFieldResolver<unknown, Context, InputFilter>;
       statusesList: GraphQLFieldResolver<unknown, Context>;
       me: GraphQLFieldResolver<unknown, Context>;
-      account: GraphQLFieldResolver<{id: string}, Context>;
+      account: GraphQLFieldResolver<unknown, Context, {
+        id: string;
+      }>;
       checkLoginExists: GraphQLFieldResolver<{
         login: string;
         skipId?: string;
@@ -291,30 +303,28 @@ declare module '@via-profit-services/accounts' {
       list: GraphQLFieldResolver<unknown, Context, InputFilter>;
       user: GraphQLFieldResolver<unknown, Context, { id: string }>;
     };
-    PermissionsQuery: {
-      permissionsMap: GraphQLFieldResolver<unknown, Context, InputFilter>;
-    };
-    PermissionsMutation: {
-      updatePermissionsMap: GraphQLFieldResolver<unknown, Context, {
-        id: string;
-        input: Partial<PermissionsMap>;
-      }>;
-    };
     AccountsMutation: {
       update:  GraphQLFieldResolver<unknown, Context, {
         id: string;
-        input: Partial<AccountInputInfo>;
+        input: {
+          id?: string;
+          login?: string;
+          password?: string;
+          status?: AccountStatus;
+          roles?: AccountRole[];
+          recoveryPhones?: Phone[];
+        };
       }>;
       create:  GraphQLFieldResolver<unknown, Context, {
         input: {
           id?: string;
           login: string;
           password: string;
-          roles: string[];
+          roles: AccountRole[];
+          recoveryPhones: Phone[];
         };
       }>;
     };
-    PermissionsMap: PermissionsMapResolver;
     Account: AccountResolver;
     MyAccount: MyAccountResolver;
     User: UserResolver;
@@ -327,14 +337,6 @@ declare module '@via-profit-services/accounts' {
     | 'refreshToken',
     GraphQLFieldResolver<TokenRegistrationResponseSuccess, Context>>;
 
-  export type PermissionsMapResolver = Record<
-  | 'id'
-  | 'createdAt'
-  | 'updatedAt'
-  | 'map'
-  | 'description',
-  GraphQLFieldResolver<{ id: string }, Context>>;
-
   export type AccountResolver = Record<
   | 'id'
   | 'createdAt'
@@ -343,8 +345,10 @@ declare module '@via-profit-services/accounts' {
   | 'login'
   | 'password'
   | 'roles'
-  | 'deleted',
+  | 'deleted'
+  | 'recoveryPhones',
   GraphQLFieldResolver<{  id: string }, Context>>
+
 
   export type MyAccountResolver = Record<
   | 'id'
@@ -353,7 +357,8 @@ declare module '@via-profit-services/accounts' {
   | 'status'
   | 'login'
   | 'password'
-  | 'roles',
+  | 'roles'
+  | 'recoveryPhones',
   GraphQLFieldResolver<{  id: string }, Context>>;
 
   export type UserResolver = Record<
@@ -373,7 +378,6 @@ declare module '@via-profit-services/accounts' {
    */
   export interface PermissionsServiceProps {
     context: Context;
-    activeMapID?: string;
   }
 
   /**
@@ -410,7 +414,7 @@ declare module '@via-profit-services/accounts' {
      */
     generateTokens(payload: {
         uuid: string;
-        roles: string[];
+        roles: AccountRole[];
     }, exp?: {
         access: number;
         refresh: number;
@@ -434,28 +438,23 @@ declare module '@via-profit-services/accounts' {
   }
 
 
+  export type ResolvePermissionsProps = {
+    permissionsMap: PermissionsMap;
+    typeName: string;
+    fieldName: string;
+    privileges: string[];
+    grantToAll?: string[];
+    restrictToAll?: string[];
+    authorizationToAll?: boolean;
+  };
+
   class PermissionsService {
     props: PermissionsServiceProps;
     constructor(props: PermissionsServiceProps);
 
-    resolvePermissions (props: ResolvePermissions): boolean;
-    composePermissionResolver (resolver: PermissionResolver): PermissionResolverComposed;
-    getActiveMapID(): MaybePromise<string>;
-    setActiveMapID(id: string): void;
-
-    getDefaultPermissionsMapContent(): Record<string, unknown>;
-    getPermissionMaps(filter: Partial<OutputFilter>): Promise<ListResponse<PermissionsMap>>;
-    getPermissionMapsByIds(ids: string[]): Promise<PermissionsMap[]>;
-    getPermissionMap(id: string): Promise<PermissionsMap | false>;
-
     getPrivilegesMap(): Promise<PrivilegesMap>;
-    /**
-     * Return privileges list by roles
-     */
-    composePrivileges(roles: string[]): string[];
-
-    updatePermissionsMap(id: string, map: Record<string, unknown>): Promise<void>;
-    createPermissionsMap(permissionsMap: Partial<PermissionsMap>): Promise<string>;
+    getPermissionsMap(): Promise<PermissionsMap>;
+    resolvePermissions(props: ResolvePermissionsProps): boolean;
   }
 
   /**
@@ -466,14 +465,14 @@ declare module '@via-profit-services/accounts' {
     constructor(props: AccountsServiceProps);
     
     getAccountStatusesList(): string[];
-    getDefaultAccountData(): AccountInputInfo;
-    prepareDataToInsert(accountInputData: Partial<AccountInputInfo>): Partial<AccountInputInfo>;
+    getDefaultAccountData(): Account;
+    prepareDataToInsert(accountInputData: Partial<Account>): Partial<AccountsTableModel>;
     getAccounts(filter: Partial<OutputFilter>): Promise<ListResponse<Account>>;
     getAccountsByIds(ids: string[]): Promise<Account[]>;
     getAccount(id: string): Promise<Account | false>;
     getAccountByLogin(login: string): Promise<Account | false>;
-    updateAccount(id: string, accountData: Partial<AccountInputInfo>): Promise<void>;
-    createAccount(accountData: Partial<AccountInputInfo>): Promise<string>;
+    updateAccount(id: string, accountData: Partial<Account>): Promise<void>;
+    createAccount(accountData: Partial<Account>): Promise<string>;
     deleteAccount(id: string): Promise<void>;
     checkLoginExists(login: string, skipId?: string): Promise<boolean>;
     getAccountByCredentials(login: string, password: string): Promise<Account | false>;
@@ -510,9 +509,6 @@ declare module '@via-profit-services/accounts' {
   export const TOKEN_BEARER_KEY: 'Authorization';
   export const TOKEN_BEARER: 'Bearer';
   export const REDIS_TOKENS_BLACKLIST: string;
-  export const RECOVERY_PERMISSIONS_MAP_ID: string;
-  export const DEFAULT_PERMISSIONS_MAP_ID: string;
-  export const DEFAULT_PERMISSIONS_MAP: Record<string, unknown>;
 
   export const resolvers: Resolvers;
   export const typeDefs: string;
@@ -523,8 +519,9 @@ declare module '@via-profit-services/accounts' {
 declare module '@via-profit-services/core' {
   import DataLoader from 'dataloader';
   import {
-    JwtConfig, AccessTokenPayload, Account, User, UsersService, PermissionsMap,
-    AccountsService, TokenPackage, PermissionsService, AuthentificationService, PrivilegesMap,
+    JwtConfig, AccessTokenPayload, Account, User, UsersService,
+    AccountsService, TokenPackage, PermissionsService, AuthentificationService,
+    PrivilegesMap, PermissionsMap,
   } from '@via-profit-services/accounts';
 
   interface Context {
@@ -533,8 +530,10 @@ declare module '@via-profit-services/core' {
      * @see [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken)
      */
     jwt: JwtConfig;
+    /**
+     * Access token payload
+     */
     token: AccessTokenPayload;
-    privileges: PrivilegesMap;
   }
 
 
@@ -559,14 +558,14 @@ declare module '@via-profit-services/core' {
     users: DataLoader<string, Node<User>>;
 
     /**
-     * Permissions map dataloader
+     * Privileges map dataloader
      */
-    permissionMaps: DataLoader<string, Node<PermissionsMap>>;
+    privilegesMaps: DataLoader<string, Node<PrivilegesMap>>;
 
     /**
-     * Permissions dataloader
+     * Permissions map dataloader
      */
-    // permissions: DataLoader<string, Permission>;
+    permissionsMap: DataLoader<string, Node<PermissionsMap>>;
   }
 
   interface ServicesCollection {

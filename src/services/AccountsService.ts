@@ -1,10 +1,11 @@
 /* eslint-disable import/max-dependencies */
 import type {
-  Account, AccountsServiceProps, AccountInputInfo, AccountsService as AccountsServiceInterface,
-  AccountTableModelOutput, AccountStatus, User,
+  Account, AccountsServiceProps, AccountsService as AccountsServiceInterface,
+  User, AccountsTableModel, AccountsTableModelResult, UsersTableModel,
+  UsersTableModelResult,
 } from '@via-profit-services/accounts';
 import '@via-profit-services/redis';
-import { OutputFilter, ListResponse, Phone } from '@via-profit-services/core';
+import { OutputFilter, ListResponse } from '@via-profit-services/core';
 import {
   convertWhereToKnex, convertOrderByToKnex,
   convertSearchToKnex, extractTotalCountPropOfNode,
@@ -12,52 +13,6 @@ import {
 import bcryptjs from 'bcryptjs';
 import moment from 'moment-timezone';
 import { v4 as uuidv4 } from 'uuid';
-
-interface AccountsTableModel {
-  readonly id: string;
-  readonly login: string;
-  readonly createdAt: string;
-  readonly updatedAt: string;
-  readonly password: string;
-  readonly roles: string;
-  readonly status: string;
-  readonly deleted: boolean;
-  readonly totalCount: number;
-}
-
-interface AccountsTableModelResult {
-  readonly id: string;
-  readonly login: string;
-  readonly password: string;
-  readonly roles: string[];
-  readonly createdAt: Date;
-  readonly updatedAt: Date;
-  readonly totalCount: number;
-  readonly status: AccountStatus;
-  readonly deleted: boolean;
-}
-
-interface UsersTableModel {
-  readonly id: string;
-  readonly name: string;
-  readonly account: string;
-  readonly createdAt: string;
-  readonly updatedAt: string;
-  readonly phones: string;
-  readonly deleted: boolean;
-  readonly totalCount: number;
-}
-
-interface UsersTableModelResult {
-  readonly id: string;
-  readonly name: string;
-  readonly account: string | null;
-  readonly createdAt: Date;
-  readonly updatedAt: Date;
-  readonly phones: Phone[];
-  readonly deleted: boolean;
-  readonly totalCount: number;
-}
 
 
 class AccountsService implements AccountsServiceInterface {
@@ -68,29 +23,31 @@ class AccountsService implements AccountsServiceInterface {
   }
 
 
-  public getDefaultAccountData(): AccountInputInfo {
+  public getDefaultAccountData(): Account {
     return {
       id: uuidv4(),
       login: uuidv4(),
       password: uuidv4(),
       status: 'allowed',
       roles: [],
-      createdAt: moment().format(),
-      updatedAt: moment().format(),
+      recoveryPhones: [],
+      createdAt: moment().toDate(),
+      updatedAt: moment().toDate(),
+      deleted: false,
     };
   }
 
-  public prepareDataToInsert(accountInputData: Partial<AccountInputInfo>) {
+  public prepareDataToInsert(input: Partial<Account>): Partial<AccountsTableModel> {
     const { context } = this.props;
     const { timezone } = context;
-    const accountData: Partial<AccountInputInfo> = {
-      ...accountInputData,
-      updatedAt: moment.tz(timezone).format(),
+    const accountData: Partial<AccountsTableModel> = {
+      ...input,
+      status: input.status ? String(input.status) : undefined,
+      roles: input.roles ? JSON.stringify(input.roles) : undefined,
+      recoveryPhones: input.recoveryPhones ? JSON.stringify(input.recoveryPhones) : undefined,
+      createdAt: input.createdAt ? moment.tz(input.createdAt, timezone).format() : undefined,
+      updatedAt: input.updatedAt ? moment.tz(input.updatedAt, timezone).format() : undefined,
     };
-
-    if (accountData.roles) {
-      accountData.roles = JSON.stringify(accountData.roles);
-    }
 
     return accountData;
   }
@@ -149,26 +106,27 @@ class AccountsService implements AccountsServiceInterface {
   }
 
 
-  public async updateAccount(id: string, accountData: Partial<AccountInputInfo>) {
+  public async updateAccount(id: string, accountData: Partial<Account>) {
     const { knex, timezone, services } = this.props.context;
     const { authentification } = services;
     const data = this.prepareDataToInsert({
       ...accountData,
-      updatedAt: moment.tz(timezone).format(),
+      updatedAt: moment.tz(timezone).toDate(),
+      password: accountData.password
+        ? authentification.cryptUserPassword(accountData.password)
+        : undefined,
     });
-    if (data.password) {
-      data.password = authentification.cryptUserPassword(data.password);
-    }
-    await knex<AccountInputInfo>('accounts')
+
+    await knex<AccountsTableModel>('accounts')
       .update(data)
       .where('id', id)
       .returning('id');
   }
 
-  public async createAccount(accountData: Required<AccountInputInfo>) {
+  public async createAccount(accountData: Partial<Account>) {
     const { knex, timezone, services } = this.props.context;
     const { authentification } = services;
-    const createdAt = moment.tz(timezone).format();
+    const createdAt = moment.tz(timezone).toDate();
 
     const data = this.prepareDataToInsert({
       ...accountData,
@@ -177,7 +135,7 @@ class AccountsService implements AccountsServiceInterface {
       createdAt,
       updatedAt: createdAt,
     });
-    const result = await knex<AccountInputInfo>('accounts').insert(data).returning('id');
+    const result = await knex<AccountsTableModel>('accounts').insert(data).returning('id');
 
     return result[0];
   }
@@ -195,7 +153,7 @@ class AccountsService implements AccountsServiceInterface {
     const { context } = this.props;
     const { knex } = context;
 
-    const request = knex<AccountTableModelOutput, AccountTableModelOutput[]>('accounts')
+    const request = knex<AccountsTableModel, AccountsTableModelResult[]>('accounts')
       .select('id')
       .where('login', '=', login);
 

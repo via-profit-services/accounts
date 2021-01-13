@@ -1,7 +1,5 @@
 import type Knex from 'knex';
 
-import { DEFAULT_PERMISSIONS_MAP_ID, RECOVERY_PERMISSIONS_MAP_ID, DEFAULT_PERMISSIONS_MAP } from '../../constants';
-
 
 export async function up(knex: Knex): Promise<void> {
   return knex.raw(`
@@ -20,26 +18,35 @@ export async function up(knex: Knex): Promise<void> {
       CONSTRAINT privileges_pk PRIMARY KEY (name)
     );
 
-    DROP TABLE IF EXISTS "permissions" CASCADE;
-    CREATE TABLE "permissions" (
+    DROP TABLE IF EXISTS "roles2privileges" CASCADE;
+    CREATE TABLE "roles2privileges" (
       "role" varchar(100) NOT NULL,
       "privilege" varchar(100) NOT NULL,
-      CONSTRAINT permissions_un UNIQUE (role, privilege)
+      CONSTRAINT "roles2privileges_un" UNIQUE (role, privilege)
     );
 
-    DROP TABLE IF EXISTS "permissionsMap" CASCADE;
-    CREATE TABLE "permissionsMap" (
-      "id" uuid NOT NULL,
-      "createdAt" timestamptz NOT NULL DEFAULT now(),
-      "updatedAt" timestamptz NOT NULL DEFAULT now(),
-      "map" jsonb default '{}',
-      "description" text,
-      CONSTRAINT "permissionsMap_pk" PRIMARY KEY (id)
-    );
-
-    ALTER TABLE permissions ADD CONSTRAINT permissions_privilege_fk FOREIGN KEY (privilege) REFERENCES privileges(name) ON DELETE CASCADE;
-    ALTER TABLE permissions ADD CONSTRAINT permissions_role_fk FOREIGN KEY (role) REFERENCES roles(name) ON DELETE CASCADE;
+    ALTER TABLE "roles2privileges" ADD CONSTRAINT "roles2privileges_privilege_fk" FOREIGN KEY (privilege) REFERENCES privileges(name) ON DELETE CASCADE;
+    ALTER TABLE "roles2privileges" ADD CONSTRAINT "roles2privileges_role_fk" FOREIGN KEY (role) REFERENCES roles(name) ON DELETE CASCADE;
   
+
+    DROP TYPE IF EXISTS "permissionsType";
+    CREATE TYPE "permissionsType" AS ENUM (
+      'grant',
+      'restrict'
+    );
+    
+    DROP TABLE IF EXISTS "permissions" CASCADE;
+    CREATE TABLE "permissions" (
+      "typeName" varchar(100) NOT NULL,
+      "fieldName" varchar(100) NOT NULL,
+      "type" "permissionsType" NOT NULL DEFAULT 'grant'::"permissionsType",
+      "privilege" varchar(100) NOT NULL,
+      CONSTRAINT permissions_un UNIQUE ("typeName","fieldName",privilege)
+    );
+
+    ALTER TABLE "permissions" ADD CONSTRAINT "permissions_privilege_fk" FOREIGN KEY (privilege) REFERENCES privileges(name) ON DELETE CASCADE;
+
+    
     -- insert default roles set
     insert into roles
       ("name", "description")
@@ -48,25 +55,42 @@ export async function up(knex: Knex): Promise<void> {
       ('developer', 'Accounts have this role can make all requests without limits.'),
       ('administrator', 'Accounts have this role can make all requests without limits.');
 
-    -- insert Unlimited access privilege
+    -- insert privileges
     insert into privileges
       ("name", "description")
     values
-      ('*', 'Unlimited access');
+      ('*', 'Unlimited access'),
+      ('user.read.phones', 'Read user phone number'),
+      ('account.read.login', 'Read user login'),
+      ('account.read.password', 'Read user password hash'),
+      ('account.read.recoveryPhones', 'Read account recovery phones');
 
-    -- insert permission
-    insert into permissions
+    -- insert roles2privileges
+    insert into "roles2privileges"
       ("role", "privilege")
     values
       ('developer', '*'),
-      ('administrator', '*');
+      ('administrator', '*'),
+      ('viewer', 'user.read.phones'),
+      ('viewer', 'account.read.login');
 
-    -- insert permissions map
-    insert into "permissionsMap"
-      ("id", "map", "description")
+    -- inser permissions
+    insert into "permissions"
+      ("typeName", "fieldName", "type", "privilege")
     values
-      ('${RECOVERY_PERMISSIONS_MAP_ID}', '${JSON.stringify(DEFAULT_PERMISSIONS_MAP)}', 'Recovery map. Do not change this map, so that you can always return the map in case of incorrect editing'),
-      ('${DEFAULT_PERMISSIONS_MAP_ID}', '${JSON.stringify(DEFAULT_PERMISSIONS_MAP)}', 'Standard map');
+    ('TokenBag', '*', 'grant', '*'),
+    ('AccessToken', '*', 'grant', '*'),
+    ('RefreshToken', '*', 'grant', '*'),
+    ('AccessTokenPayload', '*', 'grant', '*'),
+    ('RefreshTokenPayload', '*', 'grant', '*'),
+    ('TokenRegistrationError', '*', 'grant', '*'),
+    ('TokenVerificationError', '*', 'grant', '*'),
+    ('AuthentificationMutation', '*', 'grant', '*'),
+    ('AuthentificationQuery', '*', 'grant', '*'),
+    ('Account', 'login', 'grant', 'account.read.login'),
+    ('Account', 'password', 'grant', 'account.read.password'),
+    ('Account', 'recoveryPhones', 'grant', 'account.read.recoveryPhones'),
+    ('User', 'phones', 'grant', 'user.read.phones');
   `);
 
 }
@@ -76,9 +100,9 @@ export async function down(knex: Knex): Promise<void> {
 
   return knex.raw(`
     DROP TABLE IF EXISTS "permissions" CASCADE;
+    DROP TABLE IF EXISTS "roles2privileges" CASCADE;
     DROP TABLE IF EXISTS "privileges" CASCADE;
     DROP TABLE IF EXISTS "roles" CASCADE;
-    DROP TABLE IF EXISTS "permissionsMap" CASCADE;
   `);
 }
 

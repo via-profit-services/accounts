@@ -4,6 +4,7 @@ import type {
   TokenPackage,
   AuthentificationService as AuthentificationServiceInterface,
   RefreshTokenPayload,
+  AccountRole,
 } from '@via-profit-services/accounts';
 import { ServerError } from '@via-profit-services/core';
 import bcryptjs from 'bcryptjs';
@@ -79,7 +80,7 @@ class AuthentificationService implements AuthentificationServiceInterface {
   public generateTokens(
     payload: {
       uuid: string;
-      roles: string[];
+      roles: AccountRole[];
     },
     exp?: {
       access: number;
