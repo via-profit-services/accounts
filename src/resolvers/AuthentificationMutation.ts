@@ -1,6 +1,9 @@
-import type { AccessTokenPayload, RefreshTokenPayload, Resolvers } from '@via-profit-services/accounts';
+import type { AccessTokenPayload, RefreshTokenPayload, Resolvers, Account } from '@via-profit-services/accounts';
 import { ServerError, BadRequestError } from '@via-profit-services/core';
+import '@via-profit-services/sms';
+import { parsePhoneNumberFromString, CountryCode, PhoneNumber } from 'libphonenumber-js';
 
+import { RESET_PASSWORD_MESSAGE } from '../constants';
 import UnauthorizedError from '../UnauthorizedError';
 
 const authentificationMutation: Resolvers['AuthentificationMutation'] = {
@@ -114,6 +117,80 @@ const authentificationMutation: Resolvers['AuthentificationMutation'] = {
     } catch (err) {
       throw new ServerError('Failed to register tokens', { err });
     }
+  },
+  reset: async (_parent, args, context) => {
+    const { login } = args;
+    const { services, dataloader, logger } = context;
+
+    // check the login exists
+    let account: Account | false;
+    try {
+      account = await services.accounts.getAccountByLogin(login);
+    } catch (err) {
+      throw new ServerError('Failed to get account', { err });
+    }
+
+    if (!account) {
+      return {
+        name: 'AccountNotFound',
+        msg: 'Account not found',
+        __typename: 'ResetPasswordError',
+      }
+    }
+
+    // reset password
+    const min = 12222;
+    const max = 99999;
+    const password = Math.floor( min + Math.random() * (max + 1 - min)).toString();
+    const phones: PhoneNumber[] = account.recoveryPhones.map(({ number, country }) => {
+      const phone = parsePhoneNumberFromString(number, country as CountryCode);
+
+      return phone;
+    }).filter((phone) => phone !== undefined);
+
+    try {
+      await services.sms.send({
+        message: RESET_PASSWORD_MESSAGE.replace('{password}', password),
+        phones: phones.map((phone) => phone.formatInternational()),
+        emulate: process.env.NODE_ENV === 'development',
+      });
+    } catch (err) {
+      throw new ServerError('Failed to send SMS');
+    }
+
+    // update account password second
+    try {
+      await services.accounts.updateAccount(account.id, { password });
+    } catch (err) {
+      throw new ServerError('Failed to update account data');
+    }
+
+    dataloader.accounts.clear(account.id);
+    logger.auth.debug(`Reset password for account «${account.id}»`);
+
+    return {
+      msg: 'Password was reset successfully',
+      phones: phones.map((phone) => {
+        let counter = 4;
+        const formattedPhone = phone.formatNational();
+
+        return formattedPhone.split('').reverse().map((char, index) => {
+          if (index === formattedPhone.length - 1) {
+            return char;
+          }
+
+          if (counter > 0 && char.match(/[0-9]/)) {
+            counter -= 1;
+
+            return char;
+          }
+
+          return char.match(/[0-9]/) ? '*' : char;
+        }).reverse().join('');
+
+      }),
+      __typename: 'ResetPasswordSuccess',
+    };
   },
 };
 

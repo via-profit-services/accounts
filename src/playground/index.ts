@@ -3,6 +3,7 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 import { factory, resolvers, typeDefs } from '@via-profit-services/core';
 import * as knex from '@via-profit-services/knex';
 import * as redis from '@via-profit-services/redis';
+import * as sms from '@via-profit-services/sms';
 import dotenv from 'dotenv';
 import express from 'express';
 import http from 'http';
@@ -37,8 +38,13 @@ const server = http.createServer(app);
   const accountsMiddleware = await accounts.factory({
     privateKey: path.resolve(__dirname, './jwtRS256.key'),
     publicKey: path.resolve(__dirname, './jwtRS256.key.pub'),
-    requireAuthorization: true,
     accessTokenExpiresIn: 60 * 60 * 24,
+  });
+
+  const smsMiddleware = sms.factory({
+    provider: 'smsc.ru',
+    login: process.env.SMSC_LOGIN,
+    password: process.env.SMSC_PASSWORD,
   });
 
   const schema = makeExecutableSchema({
@@ -57,11 +63,11 @@ const server = http.createServer(app);
     server,
     schema,
     debug: true,
-    introspection: true,
     middleware: [
       knexMiddleware,
       redisMiddleware,
-      accountsMiddleware, // <-- After redis and knex
+      smsMiddleware,
+      accountsMiddleware, // <-- After redis and knex and sms
     ],
   });
 

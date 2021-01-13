@@ -1,6 +1,7 @@
-import type { AccountsMiddlewareFactory, JwtConfig, AccessTokenPayload, RefreshTokenPayload } from '@via-profit-services/accounts';
+import type { AccountsMiddlewareFactory, JwtConfig, AccessTokenPayload, RefreshTokenPayload, Configuration } from '@via-profit-services/accounts';
 import { Middleware, ServerError } from '@via-profit-services/core';
 import fs from 'fs';
+import '@via-profit-services/sms';
 
 import {
   DEFAULT_ACCESS_TOKEN_EXPIRED,
@@ -13,7 +14,14 @@ import contextMiddleware from './context-middleware';
 import UnauthorizedError from './UnauthorizedError';
 import validationRuleMiddleware from './validation-rule-middleware';
 
-const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuration) => {
+const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (props) => {
+
+  const configuration: Configuration = {
+    requireAuthorization: true, // default value
+    enableIntrospection: process.env.NODE_ENV === 'development', // default value
+    ...props,
+  }
+
   const {
     privateKey, publicKey, algorithm, issuer,
     refreshTokenExpiresIn, accessTokenExpiresIn,
@@ -59,6 +67,12 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuratio
     if (typeof context.redis === 'undefined') {
       throw new ServerError(
         '«@via-profit-services/redis is missing. If redis middleware is already connected, make sure that the connection order is correct: redis middleware must be connected before',
+      );
+    }
+
+    if (typeof context.services.sms === 'undefined') {
+      throw new ServerError(
+        '«@via-profit-services/sms is missing. If sms middleware is already connected, make sure that the connection order is correct: sms middleware must be connected before',
       );
     }
 

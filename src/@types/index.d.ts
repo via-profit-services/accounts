@@ -7,13 +7,24 @@ declare module '@via-profit-services/accounts' {
   export type AccountStatus = 'allowed' | 'forbidden';
   export type TokenType = 'access' | 'refresh';
   export type AccountRole = 'developer' | 'administrator' | 'viewer';
-  /**
-   * JWT configuration.
-   * @see [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken)
-   */
+
   export interface Configuration {
 
+    /**
+     * If `true` then all fields will be required authorization \
+     * Default: `true`
+     */
     requireAuthorization?: boolean;
+    
+    /**
+     * Introspection control \
+     * Default: `false` or `true` if is `development` mode
+     */
+    enableIntrospection?: boolean;
+
+    /**
+     * Default permissions map
+     */
     defaultPermissions?: {
       grant?: string[];
       restrict?: string[];
@@ -281,6 +292,9 @@ declare module '@via-profit-services/accounts' {
       refresh: GraphQLFieldResolver<unknown, Context, {
         refreshToken: string;
       }>;
+      reset: GraphQLFieldResolver<unknown, Context, {
+        login: string;
+      }>;
     };
     AuthentificationQuery: {
       tokenPayload: GraphQLFieldResolver<unknown, Context>;
@@ -444,6 +458,7 @@ declare module '@via-profit-services/accounts' {
     typeName: string;
     fieldName: string;
     privileges: string[];
+    enableIntrospection?: boolean;
     requireAuthorization?: boolean;
     defaultPermissions?: {
       grant?: string[];
@@ -512,6 +527,7 @@ declare module '@via-profit-services/accounts' {
   export const TOKEN_BEARER_KEY: 'Authorization';
   export const TOKEN_BEARER: 'Bearer';
   export const REDIS_TOKENS_BLACKLIST: string;
+  export const INTROSPECTION_FIELDS: string[];
 
   export const resolvers: Resolvers;
   export const typeDefs: string;

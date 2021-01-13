@@ -7,7 +7,7 @@ import type {
   PermissionsMapResolver,
 } from '@via-profit-services/accounts';
 
-import { AUTHORIZED_PRIVILEGE } from '../constants';
+import { AUTHORIZED_PRIVILEGE, INTROSPECTION_FIELDS } from '../constants';
 
 type PermissionsTableModel = {
   readonly typeName: string;
@@ -35,11 +35,13 @@ class PermissionsService implements PermissionsServiceInterface {
   public resolvePermissions (props: ResolvePermissionsProps): boolean {
     const {
       permissionsMap, privileges, fieldName, typeName,
-      requireAuthorization, defaultPermissions,
+      requireAuthorization, defaultPermissions, enableIntrospection,
     } = props;
     const { map } = permissionsMap;
     const pathWithoutField = `${typeName}.*`;
     const pathWithField = `${typeName}.${fieldName}`;
+
+    // compose resolver
     const resolver: PermissionsMapResolver = {
       grant: [
 
@@ -48,9 +50,6 @@ class PermissionsService implements PermissionsServiceInterface {
 
         // append permission with field (e.g.: «MyType.field»)
         ...map[pathWithField]?.grant || [],
-
-        // append «authorized» permission
-        ...requireAuthorization ? [AUTHORIZED_PRIVILEGE] : [],
 
         // append any permissions
         ...defaultPermissions?.grant || [],
@@ -67,6 +66,17 @@ class PermissionsService implements PermissionsServiceInterface {
       ],
     };
 
+    // append «authorized» permission
+    if (requireAuthorization && !resolver.grant.includes('*')) {
+      resolver.grant.push(AUTHORIZED_PRIVILEGE);
+    }
+
+    // introspection control
+    if (INTROSPECTION_FIELDS.includes(pathWithField)) {
+      resolver.grant = enableIntrospection ? ['*'] : [];
+      resolver.restrict = !enableIntrospection ? ['*'] : [];
+    }
+
 
     const { restrict, grant } = resolver;
 
@@ -82,7 +92,7 @@ class PermissionsService implements PermissionsServiceInterface {
     }).includes(true);
 
     // resolve permissions or return true if array are empty
-    const needToGrant = !grant.length ? true : grant.map((positive) => {
+    const needToGrant = !grant.length ? false : grant.map((positive) => {
 
       if (privileges.includes('*') || positive === '*') {
         return true;
@@ -93,6 +103,12 @@ class PermissionsService implements PermissionsServiceInterface {
     }).every((elem) => elem);
 
     const result = !needToRestrict && needToGrant;
+
+    // console.log({
+    //   privileges,
+    //   typeName: pathWithField,
+    //   resolver,
+    // })
 
     return result;
   }

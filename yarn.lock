@@ -1005,11 +1005,11 @@ __metadata:
     "@types/webpack-node-externals": ^2.5.0
     "@typescript-eslint/eslint-plugin": ^4.9.1
     "@typescript-eslint/parser": ^4.9.1
-    "@via-profit-services/core": "file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.51.tgz"
+    "@via-profit-services/core": "file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.52.tgz"
     "@via-profit-services/eslint-config": ^0.1.11
     "@via-profit-services/knex": "file://home/dhs/Projects/@via-profit-services/knex/package-0.1.0-rc.16.tgz"
     "@via-profit-services/redis": "file://home/dhs/Projects/@via-profit-services/redis/package-0.1.0-rc.3.tgz"
-    "@via-profit-services/sms": "file://home/dhs/Projects/@via-profit-services/sms/package-0.1.0-rc.1.tgz"
+    "@via-profit-services/sms": "file://home/dhs/Projects/@via-profit-services/sms/package-0.1.0-rc.5.tgz"
     bcryptjs: ^2.4.3
     cross-env: ^6.0.3
     dataloader: ^2.0.0
@@ -1033,6 +1033,7 @@ __metadata:
     jest-transform-graphql: ^2.1.0
     jsonwebtoken: ^8.5.1
     knex: ^0.21.12
+    libphonenumber-js: ^1.9.7
     moment: ^2.29.1
     moment-timezone: ^0.5.32
     nodemon: ^2.0.7
@@ -1060,6 +1061,7 @@ __metadata:
     "@via-profit-services/redis": "*"
     "@via-profit-services/sms": "*"
     graphql: "*"
+    libphonenumber-js: "*"
     moment: "*"
     moment-timezone: "*"
     uuid: "*"
@@ -1068,9 +1070,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.51.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
-  version: 0.31.6-rc.51
-  resolution: "@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.51.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
+"@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.52.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
+  version: 0.31.6-rc.52
+  resolution: "@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.52.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
   dependencies:
     bufferutil: ^4.0.2
     content-type: ^1.0.4
@@ -1089,7 +1091,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: 10bcefdcb76aac059b89e60be5012519e2eda3d808f1da5cf4deddcb65e680b0fa153d18ee60350435632e8142cf7ebad8e2c43bd1b585b20b740df669668ace
+  checksum: b7b3c235c2c744a73ac3bf11d9ce55ca7a04a5fe56bb41bbd6360bee212f3a30e5acfb720d5be8c40fb8e05b3823311cb16fc7b6c2092dedea162b1ebc67dfd6
   languageName: node
   linkType: hard
 
@@ -1121,13 +1123,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@via-profit-services/sms@file://home/dhs/Projects/@via-profit-services/sms/package-0.1.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
-  version: 0.1.0-rc.1
-  resolution: "@via-profit-services/sms@file://home/dhs/Projects/@via-profit-services/sms/package-0.1.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
+"@via-profit-services/sms@file://home/dhs/Projects/@via-profit-services/sms/package-0.1.0-rc.5.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
+  version: 0.1.0-rc.5
+  resolution: "@via-profit-services/sms@file://home/dhs/Projects/@via-profit-services/sms/package-0.1.0-rc.5.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
   peerDependencies:
     "@via-profit-services/core": "*"
     uuid: "*"
-  checksum: 4fea01f09e458af9ee86532833701bea7807f430a7d4c2ad9c4471d941dd16d63ccc3c1a8e07cbc2f4dda1cfaaefc50dfb21dc1e386b03b6845d24f33e68ceb9
+  checksum: 4357fe01e4c24361042661b02ba20de74e96abcb9a15e6b89e9022cf42fc3384a99939dea221ad2d0af6876332481e25dedecfa947fb7a7aa331edf407e7a56a
   languageName: node
   linkType: hard
 
@@ -6297,6 +6299,13 @@ fsevents@~2.1.2:
     prelude-ls: ~1.1.2
     type-check: ~0.3.2
   checksum: 775861da38dcb7e5f1de5bea2a1c7ffaede6e9e8632cfbac76be145ecb295370f46bb41307613c283d66f1fee5d8cc448ca3323c4a02d0fb1e913b2f78de2abb
+  languageName: node
+  linkType: hard
+
+"libphonenumber-js@npm:^1.9.7":
+  version: 1.9.7
+  resolution: "libphonenumber-js@npm:1.9.7"
+  checksum: 68b573fb4db1f134a27ff8fe98da848ebdac69d82f4ec8a1dcb6e7ca69c2d217f8785bfa2bd4630e0eee069c1b3ad671c66fca9bae8c22f0239d7d4e57c94a90
   languageName: node
   linkType: hard
 

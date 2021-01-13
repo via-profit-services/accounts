@@ -8,5 +8,8 @@ declare namespace NodeJS {
     DB_NAME: string;
     DB_USER: string;
     DB_PASSWORD: string;
+
+    SMSC_LOGIN: string;
+    SMSC_PASSWORD: string;
   }
 }

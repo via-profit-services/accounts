@@ -78,6 +78,8 @@ export async function up(knex: Knex): Promise<void> {
     insert into "permissions"
       ("typeName", "fieldName", "type", "privilege")
     values
+    ('Query', 'authentification', 'grant', '*'),
+    ('Mutation', 'authentification', 'grant', '*'),
     ('TokenBag', '*', 'grant', '*'),
     ('AccessToken', '*', 'grant', '*'),
     ('RefreshToken', '*', 'grant', '*'),
@@ -85,6 +87,8 @@ export async function up(knex: Knex): Promise<void> {
     ('RefreshTokenPayload', '*', 'grant', '*'),
     ('TokenRegistrationError', '*', 'grant', '*'),
     ('TokenVerificationError', '*', 'grant', '*'),
+    ('ResetPasswordError', '*', 'grant', '*'),
+    ('ResetPasswordSuccess', '*', 'grant', '*'),
     ('AuthentificationMutation', '*', 'grant', '*'),
     ('AuthentificationQuery', '*', 'grant', '*'),
     ('Account', 'login', 'grant', 'account.read.login'),

@@ -39,8 +39,20 @@ type TokenVerificationError implements Error {
   msg: String!
 }
 
+type ResetPasswordError implements Error {
+  name: String!
+  msg: String!
+}
+
+type ResetPasswordSuccess {
+  msg: String!
+  phones: [String!]!
+}
+
+
 union TokenRegistrationResponse = TokenBag | TokenRegistrationError
 union TokenVerificationResponse = AccessTokenPayload | RefreshTokenPayload | TokenVerificationError
+union ResetPasswordResponse = ResetPasswordSuccess | ResetPasswordError
 
 type TokenBag {
   accessToken: AccessToken
@@ -259,6 +271,11 @@ type AuthentificationMutation {
   Pass your «Refresh» token to exchange it to new «Access» and «Refresh» tokens pair
   """
   refresh(refreshToken: String!): TokenRegistrationResponse!
+
+  """
+  A new password will be generated and an SMS will be sent to the phone numbers that are specified as Recovery
+  """
+  reset(login: String!): ResetPasswordResponse!
 }
 
 input AccountInputUpdate {
