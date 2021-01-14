@@ -1005,11 +1005,11 @@ __metadata:
     "@types/webpack-node-externals": ^2.5.0
     "@typescript-eslint/eslint-plugin": ^4.9.1
     "@typescript-eslint/parser": ^4.9.1
-    "@via-profit-services/core": "file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.52.tgz"
+    "@via-profit-services/core": "file://home/dhs/Projects/@via-profit-services/core/package-1.0.0-rc.1.tgz"
     "@via-profit-services/eslint-config": ^0.1.11
-    "@via-profit-services/knex": "file://home/dhs/Projects/@via-profit-services/knex/package-0.1.0-rc.16.tgz"
-    "@via-profit-services/redis": "file://home/dhs/Projects/@via-profit-services/redis/package-0.1.0-rc.3.tgz"
-    "@via-profit-services/sms": "file://home/dhs/Projects/@via-profit-services/sms/package-0.1.0-rc.5.tgz"
+    "@via-profit-services/knex": "file://home/dhs/Projects/@via-profit-services/knex/package-1.0.0-rc.1.tgz"
+    "@via-profit-services/redis": "file://home/dhs/Projects/@via-profit-services/redis/package-1.0.0-rc.1.tgz"
+    "@via-profit-services/sms": "file://home/dhs/Projects/@via-profit-services/sms/package-1.0.0-rc.1.tgz"
     bcryptjs: ^2.4.3
     cross-env: ^6.0.3
     dataloader: ^2.0.0
@@ -1056,10 +1056,10 @@ __metadata:
     winston: ^3.3.3
     winston-daily-rotate-file: ^4.5.0
   peerDependencies:
-    "@via-profit-services/core": "*"
-    "@via-profit-services/knex": "*"
-    "@via-profit-services/redis": "*"
-    "@via-profit-services/sms": "*"
+    "@via-profit-services/core": ^1.0.0
+    "@via-profit-services/knex": ^1.0.0
+    "@via-profit-services/redis": ^1.0.0
+    "@via-profit-services/sms": ^1.0.0
     graphql: "*"
     libphonenumber-js: "*"
     moment: "*"
@@ -1070,9 +1070,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.52.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
-  version: 0.31.6-rc.52
-  resolution: "@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core/package-0.31.6-rc.52.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
+"@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core/package-1.0.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
+  version: 1.0-rc.1
+  resolution: "@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core/package-1.0.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
   dependencies:
     bufferutil: ^4.0.2
     content-type: ^1.0.4
@@ -1091,7 +1091,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: b7b3c235c2c744a73ac3bf11d9ce55ca7a04a5fe56bb41bbd6360bee212f3a30e5acfb720d5be8c40fb8e05b3823311cb16fc7b6c2092dedea162b1ebc67dfd6
+  checksum: 061625c2014e55f7e07cbc7235bb240d44513388b3f0ca3ce35d33e45f78c887340db9f87a0ed92912d59764a5d032b21f988c7eba4ea26e368be90c6aa1eda9
   languageName: node
   linkType: hard
 
@@ -1102,34 +1102,34 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@via-profit-services/knex@file://home/dhs/Projects/@via-profit-services/knex/package-0.1.0-rc.16.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
-  version: 0.1.0-rc.16
-  resolution: "@via-profit-services/knex@file://home/dhs/Projects/@via-profit-services/knex/package-0.1.0-rc.16.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
+"@via-profit-services/knex@file://home/dhs/Projects/@via-profit-services/knex/package-1.0.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
+  version: 1.0.0-rc.1
+  resolution: "@via-profit-services/knex@file://home/dhs/Projects/@via-profit-services/knex/package-1.0.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
   peerDependencies:
-    "@via-profit-services/core": "*"
-    knex: "*"
+    "@via-profit-services/core": 1.x.x
+    knex: 1.x.x
     pg: ^8.5.1
-  checksum: d5f2007d3a8263c14833ddbc44248b43a4b3098c00e9e99fd6cb13363419211eda52a8db8aa3aee724da0fc1f62ed7ee83bc23c934c24d7ad0b77c71730ed1c2
+  checksum: 0892df69eac7fff4bbb1bbf4a56c9dcea9b6ae87feb9a92903a50f2bb193e53403903f92f2d76d6bb30449ee5a737f66ef98c771d2d68beff2a169ad37826c22
   languageName: node
   linkType: hard
 
-"@via-profit-services/redis@file://home/dhs/Projects/@via-profit-services/redis/package-0.1.0-rc.3.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
-  version: 0.1.0-rc.3
-  resolution: "@via-profit-services/redis@file://home/dhs/Projects/@via-profit-services/redis/package-0.1.0-rc.3.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
+"@via-profit-services/redis@file://home/dhs/Projects/@via-profit-services/redis/package-1.0.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
+  version: 1.0.0-rc.1
+  resolution: "@via-profit-services/redis@file://home/dhs/Projects/@via-profit-services/redis/package-1.0.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
   peerDependencies:
-    "@via-profit-services/core": "*"
+    "@via-profit-services/core": ^1.0.0
     ioredis: "*"
-  checksum: 17eae73d412a0a0368b80197eba2f598b131ff95344e5cf1b52257ea574992da6ada429eee25868f56c387ded2c984acde5d5f97d9782a401b0efdf01d73e0e8
+  checksum: dc2bd79bea847d4a5029865713b1547952f0ba509810075d9105afbfc426f89f56cd31201ed58d9fb9dc55f9aa4c9d85172afd8ff104f99d0994fd808020cf27
   languageName: node
   linkType: hard
 
-"@via-profit-services/sms@file://home/dhs/Projects/@via-profit-services/sms/package-0.1.0-rc.5.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
-  version: 0.1.0-rc.5
-  resolution: "@via-profit-services/sms@file://home/dhs/Projects/@via-profit-services/sms/package-0.1.0-rc.5.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
+"@via-profit-services/sms@file://home/dhs/Projects/@via-profit-services/sms/package-1.0.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
+  version: 1.0.0-rc.1
+  resolution: "@via-profit-services/sms@file://home/dhs/Projects/@via-profit-services/sms/package-1.0.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
   peerDependencies:
     "@via-profit-services/core": "*"
     uuid: "*"
-  checksum: 4357fe01e4c24361042661b02ba20de74e96abcb9a15e6b89e9022cf42fc3384a99939dea221ad2d0af6876332481e25dedecfa947fb7a7aa331edf407e7a56a
+  checksum: 1597a21b9a531491f14de96386c55d31ef9361ff6a7cc8dde7dd7d79156bb39ae02a4956078a408faff10a1e61b1838cf2b6e0b76148a6de6547f958b5c6bcd4
   languageName: node
   linkType: hard
 
