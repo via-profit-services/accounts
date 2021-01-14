@@ -1,7 +1,7 @@
 import type { ValidatioRuleMiddleware } from '@via-profit-services/accounts';
 import { GraphQLError, BREAK } from 'graphql';
 
-import { ACCESS_TOKEN_EMPTY_ID, AUTHORIZED_PRIVILEGE } from './constants';
+import { ACCESS_TOKEN_EMPTY_ID, SERVICE_PRIVILEGES } from './constants';
 
 const validationRuleMiddleware: ValidatioRuleMiddleware = async (props) => {
   const { context, configuration, config } = props;
@@ -33,7 +33,7 @@ const validationRuleMiddleware: ValidatioRuleMiddleware = async (props) => {
 
   // add «authorized» privilege if user already authorized
   if (token.id !== ACCESS_TOKEN_EMPTY_ID) {
-    privileges.push(AUTHORIZED_PRIVILEGE);
+    privileges.push(SERVICE_PRIVILEGES.authorized);
   }
 
   let isIntrospection = false;

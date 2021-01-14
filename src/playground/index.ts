@@ -40,9 +40,7 @@ const server = http.createServer(app);
     publicKey: path.resolve(__dirname, './jwtRS256.key.pub'),
     accessTokenExpiresIn: 60 * 60 * 24,
     enableIntrospection: true,
-    defaultPermissions: {
-      'Account.password': { grant: ['*'] },
-    },
+    defaultAccess: 'grant',
   });
 
   const smsMiddleware = sms.factory({

@@ -577,6 +577,7 @@ declare module '@via-profit-services/accounts' {
   export const TOKEN_BEARER: 'Bearer';
   export const REDIS_TOKENS_BLACKLIST: string;
   export const INTROSPECTION_FIELDS: string[];
+  export const SERVICE_PRIVILEGES: Record<string, string>;
 
   export const resolvers: Resolvers;
   export const typeDefs: string;

@@ -7,7 +7,7 @@ import type {
   PermissionsMapResolver,
 } from '@via-profit-services/accounts';
 
-import { AUTHORIZED_PRIVILEGE, INTROSPECTION_FIELDS } from '../constants';
+import { SERVICE_PRIVILEGES, INTROSPECTION_FIELDS } from '../constants';
 
 type PermissionsTableModel = {
   readonly typeName: string;
@@ -66,7 +66,7 @@ class PermissionsService implements PermissionsServiceInterface {
       requireAuthorization, enableIntrospection, defaultAccess,
     } = props;
     const { map } = permissionsMap;
-    const pathWithoutField = `${typeName}.*`;
+    const pathWithoutField = `${typeName}.${SERVICE_PRIVILEGES.asterisk}`;
     const pathWithField = `${typeName}.${fieldName}`;
 
     // compose resolver
@@ -93,54 +93,75 @@ class PermissionsService implements PermissionsServiceInterface {
     };
 
     // append «authorized» permission
-    if (requireAuthorization && !resolver.grant.includes('*')) {
-      resolver.grant.push(AUTHORIZED_PRIVILEGE);
+    if (requireAuthorization) {
+      resolver.grant.push(SERVICE_PRIVILEGES.authorized);
     }
 
 
     // introspection control
     if (INTROSPECTION_FIELDS.includes(pathWithField)) {
-      resolver.grant = enableIntrospection ? ['*'] : [];
-      resolver.restrict = !enableIntrospection ? ['*'] : [];
+      resolver.grant = enableIntrospection ? [SERVICE_PRIVILEGES.asterisk] : [];
+      resolver.restrict = !enableIntrospection ? [SERVICE_PRIVILEGES.asterisk] : [];
     }
 
     // correct asterisks in grant «*»
     // from grant: ['priv1', '*', 'priv2'] to grant: ['*']
-    if (resolver.grant.includes('*')) {
-      resolver.grant = ['*'];
+    if (resolver.grant.includes(SERVICE_PRIVILEGES.asterisk)) {
+      resolver.grant = [SERVICE_PRIVILEGES.asterisk];
     }
 
     // correct asterisks in restrict «*»
     // from restrict: ['priv1', '*', 'priv2'] to restrict: ['*']
-    if (resolver.restrict.includes('*')) {
-      resolver.restrict = ['*'];
+    if (resolver.restrict.includes(SERVICE_PRIVILEGES.asterisk)) {
+      resolver.restrict = [SERVICE_PRIVILEGES.asterisk];
     }
+
 
     const { restrict, grant } = resolver;
 
-    // resolve permissions or return true if array are empty
-    const needToRestrict = !restrict.length ? false : restrict.map((negative) => {
-
-      if (negative === '*') {
+    // combine restrict matches array
+    const needToRestrict = [...restrict].map((negative) => {
+      if (negative === SERVICE_PRIVILEGES.asterisk) {
         return true;
       }
 
       return privileges.includes(negative);
-
     }).includes(true);
 
-    // resolve permissions or return true if array are empty
-    const needToGrant = !grant.length ? (defaultAccess === 'grant') : grant.map((positive) => {
 
-      if (privileges.includes('*') || positive === '*') {
+    // combine grant matches array
+    const needToGrant = !grant.length ? (defaultAccess === 'grant') : grant.map((positive) => {
+      if (
+        privileges.includes(SERVICE_PRIVILEGES.asterisk) ||
+        positive === SERVICE_PRIVILEGES.asterisk
+        ) {
         return true;
       }
 
       return privileges.includes(positive);
-
     }).every((elem) => elem);
 
     const result = !needToRestrict && needToGrant;
+
+    // check to default access
+    if (defaultAccess === 'restrict' && result) {
+      const privList = resolver.grant.filter((privilege) => ![
+        SERVICE_PRIVILEGES.authorized,
+      ].includes(privilege));
+
+      if (!privList.length) {
+        // console.log({
+        //   result: 'RESTRICT FALLBACK',
+        //   typeName: pathWithField,
+        //   privileges,
+        //   needToRestrict,
+        //   needToGrant,
+        //   resolver,
+        // });
+
+        return false;
+      }
+    }
 
     // console.log({
     //   result,

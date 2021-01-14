@@ -9,6 +9,9 @@ export const ACCESS_TOKEN_EMPTY_ISSUER = 'NOT_ASSIGNED';
 export const TOKEN_BEARER_KEY = 'Authorization';
 export const TOKEN_BEARER = 'Bearer';
 export const REDIS_TOKENS_BLACKLIST = 'tokensBlackList';
-export const AUTHORIZED_PRIVILEGE = 'authorized';
+export const SERVICE_PRIVILEGES = {
+  authorized: 'authorized',
+  asterisk: '*',
+};
 export const RESET_PASSWORD_MESSAGE = 'New password: {password}';
 export const INTROSPECTION_FIELDS = ['Query.__schema', 'Query.__type', 'Query.__Directive']
