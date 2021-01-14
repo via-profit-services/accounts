@@ -19,6 +19,7 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (props) => {
   const configuration: Configuration = {
     requireAuthorization: true, // default value
     enableIntrospection: false, // default value
+    defaultAccess: 'restrict', // default value
     ...props,
   }
 

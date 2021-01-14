@@ -130,7 +130,7 @@ class PermissionsService implements PermissionsServiceInterface {
     }).includes(true);
 
     // resolve permissions or return true if array are empty
-    const needToGrant = !grant.length ? (defaultAccess !== 'grant') : grant.map((positive) => {
+    const needToGrant = !grant.length ? (defaultAccess === 'grant') : grant.map((positive) => {
 
       if (privileges.includes('*') || positive === '*') {
         return true;

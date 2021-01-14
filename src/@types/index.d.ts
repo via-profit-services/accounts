@@ -22,8 +22,8 @@ declare module '@via-profit-services/accounts' {
     requirePrivileges?: string[];
 
     /**
-     * If 'grant` then you will get access to the type if no permissions are set for it \
-     * `Default`: `false`
+     * If `grant` then you will get access to the type if no permissions are set for it \
+     * Default: `restrict`
      */
     defaultAccess?: 'grant' | 'restrict';
 
