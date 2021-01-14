@@ -6,6 +6,7 @@ extend type Query {
 
 extend type Mutation {
   accounts: AccountsMutation!
+  users: UsersMutation!
   authentification: AuthentificationMutation!
 }
 
@@ -253,8 +254,28 @@ type AccountListConnection implements Connection {
 }
 
 type AccountsMutation {
+  """
+  Create new account
+  """
   create(input: AccountInputCreate!): Account!
+  
+  """
+  Update exists account data
+  """
   update(id: ID!, input: AccountInputUpdate!): Account!
+}
+
+
+type UsersMutation {
+  """
+  Create new user
+  """
+  create(input: UserInputCreate!): User!
+
+  """
+  Update exists user data
+  """
+  update(id: ID!, input: UserInputUpdate!): User!
 }
 
 type AuthentificationMutation {
@@ -278,16 +299,32 @@ type AuthentificationMutation {
   reset(login: String!): ResetPasswordResponse!
 }
 
+
+input UserInputUpdate {
+  id: String
+  account: String
+  name: String
+  phones: [PhoneInput!]
+}
+
+input UserInputCreate {
+  id: String
+  account: String!
+  name: String!
+  phones: [PhoneInput]!
+}
+
 input AccountInputUpdate {
   id: String
   login: String
   password: String
   status: AccountStatus
-  createdAt: DateTime
-  updatedAt: DateTime
   roles: [AccountRole!]
+
+  """
+  Phones list for password recovery
+  """
   recoveryPhones: [PhoneInput!]
-  deleted: Boolean
 }
 
 input AccountInputCreate {
@@ -295,6 +332,9 @@ input AccountInputCreate {
   login: String!
   password: String!
   roles: [AccountRole!]!
+  """
+  Phones list for password recovery
+  """
   recoveryPhones: [PhoneInput!]!
 }
 

@@ -279,6 +279,7 @@ declare module '@via-profit-services/accounts' {
     Mutation: {
       accounts: GraphQLFieldResolver<unknown, Context>;
       authentification: GraphQLFieldResolver<unknown, Context>;
+      users: GraphQLFieldResolver<unknown, Context>;
     };
     AuthentificationMutation: {
       create: GraphQLFieldResolver<unknown, Context, {
@@ -294,6 +295,42 @@ declare module '@via-profit-services/accounts' {
       }>;
       reset: GraphQLFieldResolver<unknown, Context, {
         login: string;
+      }>;
+    };
+    UsersMutation: {
+      update: GraphQLFieldResolver<unknown, Context, {
+        id: string;
+        input: {
+          id?: string;
+          account?: string;
+          name?: string;
+          phones?: string;
+        };
+      }>;
+      create: GraphQLFieldResolver<unknown, Context, {
+
+      }>;
+    };
+    AccountsMutation: {
+      update:  GraphQLFieldResolver<unknown, Context, {
+        id: string;
+        input: {
+          id?: string;
+          login?: string;
+          password?: string;
+          status?: AccountStatus;
+          roles?: AccountRole[];
+          recoveryPhones?: Phone[];
+        };
+      }>;
+      create:  GraphQLFieldResolver<unknown, Context, {
+        input: {
+          id?: string;
+          login: string;
+          password: string;
+          roles: AccountRole[];
+          recoveryPhones: Phone[];
+        };
       }>;
     };
     AuthentificationQuery: {
@@ -317,28 +354,6 @@ declare module '@via-profit-services/accounts' {
     UsersQuery: {
       list: GraphQLFieldResolver<unknown, Context, InputFilter>;
       user: GraphQLFieldResolver<unknown, Context, { id: string }>;
-    };
-    AccountsMutation: {
-      update:  GraphQLFieldResolver<unknown, Context, {
-        id: string;
-        input: {
-          id?: string;
-          login?: string;
-          password?: string;
-          status?: AccountStatus;
-          roles?: AccountRole[];
-          recoveryPhones?: Phone[];
-        };
-      }>;
-      create:  GraphQLFieldResolver<unknown, Context, {
-        input: {
-          id?: string;
-          login: string;
-          password: string;
-          roles: AccountRole[];
-          recoveryPhones: Phone[];
-        };
-      }>;
     };
     Account: AccountResolver;
     MyAccount: MyAccountResolver;
