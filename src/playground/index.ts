@@ -39,6 +39,10 @@ const server = http.createServer(app);
     privateKey: path.resolve(__dirname, './jwtRS256.key'),
     publicKey: path.resolve(__dirname, './jwtRS256.key.pub'),
     accessTokenExpiresIn: 60 * 60 * 24,
+    enableIntrospection: true,
+    defaultPermissions: {
+      'Account.password': { grant: ['*'] },
+    },
   });
 
   const smsMiddleware = sms.factory({

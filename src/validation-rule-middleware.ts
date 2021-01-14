@@ -13,6 +13,14 @@ const validationRuleMiddleware: ValidatioRuleMiddleware = async (props) => {
   const privilegesMap = await dataloader.privilegesMaps.load('common');
   const permissionsMap = await dataloader.permissionsMap.load('common');
 
+  // merge permissions
+  if (defaultPermissions) {
+    permissionsMap.map = services.permissions.mergePermissions(
+      permissionsMap.map,
+      defaultPermissions,
+    );
+  }
+
   // compose privileges list by privilegesMap
   const privileges = token.roles.reduce<string[]>((prev, role) => {
     const list = privilegesMap.map[role] || [];
@@ -54,12 +62,6 @@ const validationRuleMiddleware: ValidatioRuleMiddleware = async (props) => {
         node.selections.forEach((selectionNode) => {
           if (selectionNode.kind === 'Field') {
             const fieldName = selectionNode.name.value;
-
-            // merge permissions
-            if (defaultPermissions) {
-              services.permissions.mergePermissions(permissionsMap.map, defaultPermissions);
-            }
-
             const validationResult = services.permissions.resolvePermissions({
               permissionsMap,
               privileges,

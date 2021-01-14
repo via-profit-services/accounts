@@ -46,8 +46,14 @@ class PermissionsService implements PermissionsServiceInterface {
       }
 
       if (permissions[field]) {
-        permissions[field].grant = permissions[field].grant.concat(resolver.grant);
-        permissions[field].restrict = permissions[field].restrict.concat(resolver.restrict);
+        permissions[field].grant = permissions[field]?.grant || [];
+        permissions[field].restrict = permissions[field]?.restrict || [];
+
+        permissions[field].grant = permissions[field].grant.concat(resolver.grant || []);
+        permissions[field].restrict = permissions[field].restrict.concat(resolver.restrict || []);
+
+        permissions[field].grant = [...new Set(permissions[field].grant)];
+        permissions[field].restrict = [...new Set(permissions[field].restrict)];
       }
     });
 
@@ -64,7 +70,7 @@ class PermissionsService implements PermissionsServiceInterface {
     const pathWithField = `${typeName}.${fieldName}`;
 
     // compose resolver
-    const resolver: PermissionsMapResolver = {
+    const resolver: Required<PermissionsMapResolver> = {
       grant: [
 
         // append permission without field (e.g.: «MyType.*)
@@ -98,6 +104,17 @@ class PermissionsService implements PermissionsServiceInterface {
       resolver.restrict = !enableIntrospection ? ['*'] : [];
     }
 
+    // correct asterisks in grant «*»
+    // from grant: ['priv1', '*', 'priv2'] to grant: ['*']
+    if (resolver.grant.includes('*')) {
+      resolver.grant = ['*'];
+    }
+
+    // correct asterisks in restrict «*»
+    // from restrict: ['priv1', '*', 'priv2'] to restrict: ['*']
+    if (resolver.restrict.includes('*')) {
+      resolver.restrict = ['*'];
+    }
 
     const { restrict, grant } = resolver;
 
@@ -126,8 +143,11 @@ class PermissionsService implements PermissionsServiceInterface {
     const result = !needToRestrict && needToGrant;
 
     // console.log({
-    //   privileges,
+    //   result,
     //   typeName: pathWithField,
+    //   privileges,
+    //   needToRestrict,
+    //   needToGrant,
     //   resolver,
     // })
 

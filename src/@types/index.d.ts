@@ -271,8 +271,8 @@ declare module '@via-profit-services/accounts' {
   };
 
   export type PermissionsMapResolver = {
-    grant: string[];
-    restrict: string[];
+    grant?: string[];
+    restrict?: string[];
   };
   
   export type AccountsMiddlewareFactory = (config: Configuration) => Promise<Middleware>;
