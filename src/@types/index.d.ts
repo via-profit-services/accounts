@@ -578,6 +578,7 @@ declare module '@via-profit-services/accounts' {
   export const REDIS_TOKENS_BLACKLIST: string;
   export const INTROSPECTION_FIELDS: string[];
   export const SERVICE_PRIVILEGES: Record<string, string>;
+  export const DEFAULT_PERMISSIONS: Record<string, PermissionsMapResolver>;
 
   export const resolvers: Resolvers;
   export const typeDefs: string;

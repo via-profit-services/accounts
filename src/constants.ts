@@ -1,3 +1,5 @@
+import { PermissionsMapResolver } from '@via-profit-services/accounts';
+
 export const DEFAULT_ACCESS_TOKEN_EXPIRED = 1800;
 export const DEFAULT_REFRESH_TOKEN_EXPIRED = 2.592e6;
 export const DEFAULT_SIGNATURE_ALGORITHM = 'RS256';
@@ -16,3 +18,18 @@ export const SERVICE_PRIVILEGES = {
 export const RESET_PASSWORD_MESSAGE = 'New password: {password}';
 export const INTROSPECTION_FIELDS = ['Query.__schema', 'Query.__type', 'Query.__Directive'];
 export const TIMEOUT_MAX_INT = 2147483647;
+export const DEFAULT_PERMISSIONS: Record<string, PermissionsMapResolver> = {
+  'Query.authentification':  { grant: ['*'] },
+  'Mutation.authentification':  { grant: ['*'] },
+  'TokenBag.*':  { grant: ['*'] },
+  'AccessToken.*':  { grant: ['*'] },
+  'RefreshToken.*':  { grant: ['*'] },
+  'AccessTokenPayload.*':  { grant: ['*'] },
+  'RefreshTokenPayload.*':  { grant: ['*'] },
+  'TokenRegistrationError.*':  { grant: ['*'] },
+  'TokenVerificationError.*':  { grant: ['*'] },
+  'ResetPasswordError.*':  { grant: ['*'] },
+  'ResetPasswordSuccess.*':  { grant: ['*'] },
+  'AuthentificationMutation.*':  { grant: ['*'] },
+  'AuthentificationQuery.*':  { grant: ['*'] },
+};

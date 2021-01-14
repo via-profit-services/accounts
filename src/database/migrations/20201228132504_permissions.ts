@@ -59,42 +59,14 @@ export async function up(knex: Knex): Promise<void> {
     insert into privileges
       ("name", "description")
     values
-      ('*', 'Unlimited access'),
-      ('user.read.phones', 'Read user phone number'),
-      ('account.read.login', 'Read user login'),
-      ('account.read.password', 'Read user password hash'),
-      ('account.read.recoveryPhones', 'Read account recovery phones');
+      ('*', 'Unlimited access');
 
     -- insert roles2privileges
     insert into "roles2privileges"
       ("role", "privilege")
     values
       ('developer', '*'),
-      ('administrator', '*'),
-      ('viewer', 'user.read.phones'),
-      ('viewer', 'account.read.login');
-
-    -- inser permissions
-    insert into "permissions"
-      ("typeName", "fieldName", "type", "privilege")
-    values
-    ('Query', 'authentification', 'grant', '*'),
-    ('Mutation', 'authentification', 'grant', '*'),
-    ('TokenBag', '*', 'grant', '*'),
-    ('AccessToken', '*', 'grant', '*'),
-    ('RefreshToken', '*', 'grant', '*'),
-    ('AccessTokenPayload', '*', 'grant', '*'),
-    ('RefreshTokenPayload', '*', 'grant', '*'),
-    ('TokenRegistrationError', '*', 'grant', '*'),
-    ('TokenVerificationError', '*', 'grant', '*'),
-    ('ResetPasswordError', '*', 'grant', '*'),
-    ('ResetPasswordSuccess', '*', 'grant', '*'),
-    ('AuthentificationMutation', '*', 'grant', '*'),
-    ('AuthentificationQuery', '*', 'grant', '*'),
-    ('Account', 'login', 'grant', 'account.read.login'),
-    ('Account', 'password', 'grant', 'account.read.password'),
-    ('Account', 'recoveryPhones', 'grant', 'account.read.recoveryPhones'),
-    ('User', 'phones', 'grant', 'user.read.phones');
+      ('administrator', '*');
   `);
 
 }
