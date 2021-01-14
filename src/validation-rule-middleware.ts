@@ -54,6 +54,12 @@ const validationRuleMiddleware: ValidatioRuleMiddleware = async (props) => {
         node.selections.forEach((selectionNode) => {
           if (selectionNode.kind === 'Field') {
             const fieldName = selectionNode.name.value;
+
+            // merge permissions
+            if (defaultPermissions) {
+              services.permissions.mergePermissions(permissionsMap.map, defaultPermissions);
+            }
+
             const validationResult = services.permissions.resolvePermissions({
               permissionsMap,
               privileges,

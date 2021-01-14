@@ -18,7 +18,7 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (props) => {
 
   const configuration: Configuration = {
     requireAuthorization: true, // default value
-    enableIntrospection: process.env.NODE_ENV === 'development', // default value
+    enableIntrospection: false, // default value
     ...props,
   }
 

@@ -32,10 +32,32 @@ class PermissionsService implements PermissionsServiceInterface {
     this.props = props;
   }
 
+  public mergePermissions (
+    source: Record<string, PermissionsMapResolver>,
+    mixin: Record<string, PermissionsMapResolver>,
+  ) {
+    const permissions: Record<string, PermissionsMapResolver> = {
+      ...source,
+    };
+
+    Object.entries(mixin).forEach(([field, resolver]) => {
+      if (!permissions[field]) {
+        permissions[field] = resolver;
+      }
+
+      if (permissions[field]) {
+        permissions[field].grant = permissions[field].grant.concat(resolver.grant);
+        permissions[field].restrict = permissions[field].restrict.concat(resolver.restrict);
+      }
+    });
+
+    return permissions;
+  }
+
   public resolvePermissions (props: ResolvePermissionsProps): boolean {
     const {
-      permissionsMap, privileges, fieldName, typeName,
-      requireAuthorization, defaultPermissions, enableIntrospection,
+      permissionsMap, privileges, fieldName, typeName, requirePrivileges,
+      requireAuthorization, enableIntrospection,
     } = props;
     const { map } = permissionsMap;
     const pathWithoutField = `${typeName}.*`;
@@ -52,7 +74,8 @@ class PermissionsService implements PermissionsServiceInterface {
         ...map[pathWithField]?.grant || [],
 
         // append any permissions
-        ...defaultPermissions?.grant || [],
+        ...requirePrivileges || [],
+
       ],
       restrict: [
         // append permission without field (e.g.: «MyType.*)
@@ -60,9 +83,6 @@ class PermissionsService implements PermissionsServiceInterface {
 
         // append permission with field (e.g.: «MyType.field»)
         ...map[pathWithField]?.restrict || [],
-
-        // append any permissions
-        ...defaultPermissions?.restrict || [],
       ],
     };
 
@@ -70,6 +90,7 @@ class PermissionsService implements PermissionsServiceInterface {
     if (requireAuthorization && !resolver.grant.includes('*')) {
       resolver.grant.push(AUTHORIZED_PRIVILEGE);
     }
+
 
     // introspection control
     if (INTROSPECTION_FIELDS.includes(pathWithField)) {

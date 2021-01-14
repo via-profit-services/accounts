@@ -152,7 +152,6 @@ const authentificationMutation: Resolvers['AuthentificationMutation'] = {
       await services.sms.send({
         message: RESET_PASSWORD_MESSAGE.replace('{password}', password),
         phones: phones.map((phone) => phone.formatInternational()),
-        emulate: process.env.NODE_ENV === 'development',
       });
     } catch (err) {
       throw new ServerError('Failed to send SMS');

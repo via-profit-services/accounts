@@ -15,20 +15,34 @@ declare module '@via-profit-services/accounts' {
      * Default: `true`
      */
     requireAuthorization?: boolean;
+
+    /**
+     * Array of privileges to require as grant
+     */
+    requirePrivileges?: string[];
     
     /**
      * Introspection control \
-     * Default: `false` or `true` if is `development` mode
+     * Default: `false`
      */
     enableIntrospection?: boolean;
 
     /**
-     * Default permissions map
+     * Default permissions map \
+     * For example:
+     * ```js
+     * {
+     *   'Query.books': {
+     *     grant: ['read.books'],
+     *     restrict: ['read.books'],
+     *   },
+     *   'Book.award': {
+     *     grant: ['author'],
+     *   },
+     * }
+     * ```
      */
-    defaultPermissions?: {
-      grant?: string[];
-      restrict?: string[];
-    };
+    defaultPermissions?: Record<string, PermissionsMapResolver>;
     /**
      * Signature algorithm. Could be one of these values :
      * - HS256:    HMAC using SHA-256 hash algorithm (default)
@@ -482,10 +496,8 @@ declare module '@via-profit-services/accounts' {
     privileges: string[];
     enableIntrospection?: boolean;
     requireAuthorization?: boolean;
-    defaultPermissions?: {
-      grant?: string[];
-      restrict?: string[];
-    };
+    requirePrivileges?: string[];
+    defaultPermissions?: Record<string, PermissionsMapResolver>;
   };
 
   class PermissionsService {
@@ -495,6 +507,10 @@ declare module '@via-profit-services/accounts' {
     getPrivilegesMap(): Promise<PrivilegesMap>;
     getPermissionsMap(): Promise<PermissionsMap>;
     resolvePermissions(props: ResolvePermissionsProps): boolean;
+    mergePermissions (
+      source: Record<string, PermissionsMapResolver>,
+      merged: Record<string, PermissionsMapResolver>,
+    ): Record<string, PermissionsMapResolver>;
   }
 
   /**
