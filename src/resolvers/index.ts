@@ -11,6 +11,7 @@ import MyAccount from './MyAccount';
 import Query from './Query';
 import TokenBag from './TokenBag';
 import User from './User';
+import UsersMutation from './UsersMutation';
 import UsersQuery from './UsersQuery';
 
 const resolvers: Resolvers = {
@@ -23,6 +24,7 @@ const resolvers: Resolvers = {
   AuthentificationMutation,
   Query,
   User,
+  UsersMutation,
   UsersQuery,
   TokenBag,
 }

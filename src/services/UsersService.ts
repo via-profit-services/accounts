@@ -1,34 +1,13 @@
 /* eslint-disable import/max-dependencies */
-import type { User, UsersServiceProps } from '@via-profit-services/accounts';
+import type { User, UsersServiceProps, UsersTableModelResult, UsersTableModel } from '@via-profit-services/accounts';
 import '@via-profit-services/redis';
-import { OutputFilter, ListResponse, Phone } from '@via-profit-services/core';
+import { OutputFilter, ListResponse } from '@via-profit-services/core';
 import {
   convertWhereToKnex, convertOrderByToKnex,
   convertSearchToKnex, extractTotalCountPropOfNode,
 } from '@via-profit-services/knex';
-
-interface UsersTableModel {
-  readonly id: string;
-  readonly name: string;
-  readonly account: string;
-  readonly createdAt: string;
-  readonly updatedAt: string;
-  readonly phones: string;
-  readonly deleted: boolean;
-  readonly totalCount: number;
-}
-
-interface UsersTableModelResult {
-  readonly id: string;
-  readonly name: string;
-  readonly account: string | null;
-  readonly createdAt: Date;
-  readonly updatedAt: Date;
-  readonly phones: Phone[];
-  readonly deleted: boolean;
-  readonly totalCount: number;
-}
-
+import moment from 'moment-timezone';
+import { v4 as uuidv4 } from 'uuid';
 
 class UsersService {
   props: UsersServiceProps;
@@ -87,6 +66,55 @@ class UsersService {
     return nodes.length ? nodes[0] : false;
   }
 
+
+  public prepareDataToInsert(input: Partial<User>): Partial<UsersTableModel> {
+    const { context } = this.props;
+    const { timezone } = context;
+    const userData: Partial<UsersTableModel> = {
+      ...input,
+      account: input.account ? input.account.id : undefined,
+      phones: input.phones ? JSON.stringify(input.phones) : undefined,
+      createdAt: input.createdAt ? moment.tz(input.createdAt, timezone).format() : undefined,
+      updatedAt: input.updatedAt ? moment.tz(input.updatedAt, timezone).format() : undefined,
+    };
+
+    return userData;
+  }
+
+  public async updateUser(id: string, userData: Partial<User>) {
+    const { knex, timezone } = this.props.context;
+
+    const data = this.prepareDataToInsert({
+      ...userData,
+      updatedAt: moment.tz(timezone).toDate(),
+    });
+
+    await knex<UsersTableModel>('users')
+      .update(data)
+      .where('id', id)
+      .returning('id');
+  }
+
+  public async createUser(userData: Partial<User>) {
+    const { knex, timezone } = this.props.context;
+    const createdAt = moment.tz(timezone).toDate();
+
+    const data = this.prepareDataToInsert({
+      ...userData,
+      id: userData.id ? userData.id : uuidv4(),
+      createdAt,
+      updatedAt: createdAt,
+    });
+    const result = await knex<UsersTableModel>('accounts').insert(data).returning('id');
+
+    return result[0];
+  }
+
+  public async deleteUser(id: string) {
+    return this.updateUser(id, {
+      deleted: true,
+    });
+  }
 
 }
 

@@ -203,6 +203,7 @@ declare module '@via-profit-services/accounts' {
     readonly deleted: boolean;
   }
 
+  
   export interface UsersTableModel {
     readonly id: string;
     readonly name: string;
@@ -224,6 +225,7 @@ declare module '@via-profit-services/accounts' {
     readonly deleted: boolean;
     readonly totalCount: number;
   }
+
 
 
   export interface Account {
@@ -304,11 +306,16 @@ declare module '@via-profit-services/accounts' {
           id?: string;
           account?: string;
           name?: string;
-          phones?: string;
+          phones?: Phone[];
         };
       }>;
       create: GraphQLFieldResolver<unknown, Context, {
-
+        input: {
+          id?: string;
+          account?: string;
+          name: string;
+          phones?: Phone[];
+        };
       }>;
     };
     AccountsMutation: {
@@ -521,6 +528,10 @@ declare module '@via-profit-services/accounts' {
     getUsers(filter: Partial<OutputFilter>): Promise<ListResponse<User>>;
     getUsersByIds(ids: string[]): Promise<User[]>;
     getUser(id: string): Promise<User | false>;
+    prepareDataToInsert(input: Partial<User>): Partial<UsersTableModel>;
+    createUser(userData: Partial<User>): Promise<string>;
+    updateUser(id: string, userData: Partial<User>): Promise<void>;
+    deleteUser(id: string): Promise<void>;
   }
 
 
