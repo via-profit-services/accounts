@@ -14,4 +14,5 @@ export const SERVICE_PRIVILEGES = {
   asterisk: '*',
 };
 export const RESET_PASSWORD_MESSAGE = 'New password: {password}';
-export const INTROSPECTION_FIELDS = ['Query.__schema', 'Query.__type', 'Query.__Directive']
+export const INTROSPECTION_FIELDS = ['Query.__schema', 'Query.__type', 'Query.__Directive'];
+export const TIMEOUT_MAX_INT = 2147483647;

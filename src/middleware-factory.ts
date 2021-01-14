@@ -9,6 +9,7 @@ import {
   DEFAULT_SIGNATURE_ALGORITHM,
   DEFAULT_SIGNATURE_ISSUER,
   REDIS_TOKENS_BLACKLIST,
+  TIMEOUT_MAX_INT,
 } from './constants';
 import contextMiddleware from './context-middleware';
 import UnauthorizedError from './UnauthorizedError';
@@ -100,7 +101,7 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (props) => {
     if (!timers.blacklist) {
       timers.blacklist = setInterval(() => {
         authentification.clearExpiredTokens();
-      }, jwt.accessTokenExpiresIn * 1000);
+      }, Math.min(jwt.accessTokenExpiresIn * 1000, TIMEOUT_MAX_INT));
     }
     // try to parse token
     const bearerToken = authentification.extractTokenFromRequest(request);
