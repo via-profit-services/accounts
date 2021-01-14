@@ -96,6 +96,8 @@ function up(knex) {
     insert into "permissions"
       ("typeName", "fieldName", "type", "privilege")
     values
+    ('Query', 'authentification', 'grant', '*'),
+    ('Mutation', 'authentification', 'grant', '*'),
     ('TokenBag', '*', 'grant', '*'),
     ('AccessToken', '*', 'grant', '*'),
     ('RefreshToken', '*', 'grant', '*'),
@@ -103,6 +105,8 @@ function up(knex) {
     ('RefreshTokenPayload', '*', 'grant', '*'),
     ('TokenRegistrationError', '*', 'grant', '*'),
     ('TokenVerificationError', '*', 'grant', '*'),
+    ('ResetPasswordError', '*', 'grant', '*'),
+    ('ResetPasswordSuccess', '*', 'grant', '*'),
     ('AuthentificationMutation', '*', 'grant', '*'),
     ('AuthentificationQuery', '*', 'grant', '*'),
     ('Account', 'login', 'grant', 'account.read.login'),
