@@ -5,7 +5,10 @@ import { ACCESS_TOKEN_EMPTY_ID, AUTHORIZED_PRIVILEGE } from './constants';
 
 const validationRuleMiddleware: ValidatioRuleMiddleware = async (props) => {
   const { context, configuration, config } = props;
-  const { defaultPermissions, requireAuthorization, enableIntrospection } = configuration;
+  const {
+    defaultPermissions, requireAuthorization, enableIntrospection,
+    defaultAccess,
+  } = configuration;
   const { token, services, dataloader, logger } = context;
   const { debug } = config;
 
@@ -70,6 +73,7 @@ const validationRuleMiddleware: ValidatioRuleMiddleware = async (props) => {
               defaultPermissions,
               requireAuthorization,
               enableIntrospection,
+              defaultAccess,
             });
 
             if (!validationResult) {

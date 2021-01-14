@@ -20,7 +20,13 @@ declare module '@via-profit-services/accounts' {
      * Array of privileges to require as grant
      */
     requirePrivileges?: string[];
-    
+
+    /**
+     * If 'grant` then you will get access to the type if no permissions are set for it \
+     * `Default`: `false`
+     */
+    defaultAccess?: 'grant' | 'restrict';
+
     /**
      * Introspection control \
      * Default: `false`
@@ -498,6 +504,7 @@ declare module '@via-profit-services/accounts' {
     requireAuthorization?: boolean;
     requirePrivileges?: string[];
     defaultPermissions?: Record<string, PermissionsMapResolver>;
+    defaultAccess?: 'grant' | 'restrict';
   };
 
   class PermissionsService {

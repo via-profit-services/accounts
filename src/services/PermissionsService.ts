@@ -63,7 +63,7 @@ class PermissionsService implements PermissionsServiceInterface {
   public resolvePermissions (props: ResolvePermissionsProps): boolean {
     const {
       permissionsMap, privileges, fieldName, typeName, requirePrivileges,
-      requireAuthorization, enableIntrospection,
+      requireAuthorization, enableIntrospection, defaultAccess,
     } = props;
     const { map } = permissionsMap;
     const pathWithoutField = `${typeName}.*`;
@@ -130,7 +130,7 @@ class PermissionsService implements PermissionsServiceInterface {
     }).includes(true);
 
     // resolve permissions or return true if array are empty
-    const needToGrant = !grant.length ? false : grant.map((positive) => {
+    const needToGrant = !grant.length ? (defaultAccess !== 'grant') : grant.map((positive) => {
 
       if (privileges.includes('*') || positive === '*') {
         return true;
