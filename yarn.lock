@@ -1008,6 +1008,7 @@ __metadata:
     "@via-profit-services/core": "file://home/dhs/Projects/@via-profit-services/core/package-1.0.0-rc.1.tgz"
     "@via-profit-services/eslint-config": ^0.1.11
     "@via-profit-services/knex": "file://home/dhs/Projects/@via-profit-services/knex/package-1.0.0-rc.1.tgz"
+    "@via-profit-services/permissions": "file://home/dhs/Projects/@via-profit-services/permissions/package-1.0.0-rc.4.tgz"
     "@via-profit-services/redis": "file://home/dhs/Projects/@via-profit-services/redis/package-1.0.0-rc.1.tgz"
     "@via-profit-services/sms": "file://home/dhs/Projects/@via-profit-services/sms/package-1.0.0-rc.1.tgz"
     bcryptjs: ^2.4.3
@@ -1058,6 +1059,7 @@ __metadata:
   peerDependencies:
     "@via-profit-services/core": ^1.0.0
     "@via-profit-services/knex": ^1.0.0
+    "@via-profit-services/permissions": ^1.0.0
     "@via-profit-services/redis": ^1.0.0
     "@via-profit-services/sms": ^1.0.0
     graphql: "*"
@@ -1110,6 +1112,18 @@ __metadata:
     knex: 1.x.x
     pg: ^8.5.1
   checksum: 0892df69eac7fff4bbb1bbf4a56c9dcea9b6ae87feb9a92903a50f2bb193e53403903f92f2d76d6bb30449ee5a737f66ef98c771d2d68beff2a169ad37826c22
+  languageName: node
+  linkType: hard
+
+"@via-profit-services/permissions@file://home/dhs/Projects/@via-profit-services/permissions/package-1.0.0-rc.4.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
+  version: 1.0.0-rc.4
+  resolution: "@via-profit-services/permissions@file://home/dhs/Projects/@via-profit-services/permissions/package-1.0.0-rc.4.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
+  peerDependencies:
+    "@via-profit-services/core": ^1.0.0
+    graphql: "*"
+    winston: "*"
+    winston-daily-rotate-file: "*"
+  checksum: 1aeff85b8c04865145a69cdb5cd0a252be82458ae401c8fb8d8c98a63cf9099373939ab872ce6ea91b33afce50fba37f385311283382ec148857c9c35535196d
   languageName: node
   linkType: hard
 

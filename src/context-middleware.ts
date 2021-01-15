@@ -5,7 +5,6 @@ import DataLoader from 'dataloader';
 import authLogger from './auth-logger';
 import AccountsService from './services/AccountsService';
 import AuthentificationService from './services/AuthentificationService';
-import PermissionsService from './services/PermissionsService';
 import UsersService from './services/UsersService';
 
 
@@ -26,9 +25,6 @@ const contextMiddleware = async (props: Props): Promise<Context> => {
 
   // Accounts Service
   context.services.accounts = new AccountsService({ context });
-
-  // Permissions Service
-  context.services.permissions = new PermissionsService({ context });
 
   // Users Service
   context.services.users = new UsersService({ context });
@@ -56,20 +52,6 @@ const contextMiddleware = async (props: Props): Promise<Context> => {
     return collateForDataloader(ids, nodes);
   });
 
-
-  // Load privileges map
-  context.dataloader.privilegesMaps = new DataLoader(async (ids: string[]) => {
-    const node = await context.services.permissions.getPrivilegesMap();
-
-    return collateForDataloader(ids, [node]);
-  });
-
-  // Load permissions map
-  context.dataloader.permissionsMap = new DataLoader(async (ids: string[]) => {
-    const node = await context.services.permissions.getPermissionsMap();
-
-    return collateForDataloader(ids, [node]);
-  });
 
   return context;
 }

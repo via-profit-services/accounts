@@ -1,5 +1,6 @@
 declare module '@via-profit-services/accounts' {
-  import { Algorithm, JsonWebTokenError } from 'jsonwebtoken';
+  import { Algorithm } from 'jsonwebtoken';
+  import { PermissionsResolverObject, Privileges, PermissionsResolver } from '@via-profit-services/permissions';
   import { InputFilter, Middleware, Context, ErrorHandler, OutputFilter, ListResponse, Phone, MiddlewareProps, MaybePromise } from '@via-profit-services/core';
   import { IncomingMessage } from 'http';
   import { GraphQLFieldResolver, ValidationRule } from 'graphql';
@@ -15,40 +16,6 @@ declare module '@via-profit-services/accounts' {
      * Default: `true`
      */
     requireAuthorization?: boolean;
-
-    /**
-     * Array of privileges to require as grant
-     */
-    requirePrivileges?: string[];
-
-    /**
-     * If `grant` then you will get access to the type if no permissions are set for it \
-     * Default: `restrict`
-     */
-    defaultAccess?: 'grant' | 'restrict';
-
-    /**
-     * Introspection control \
-     * Default: `false`
-     */
-    enableIntrospection?: boolean;
-
-    /**
-     * Default permissions map \
-     * For example:
-     * ```js
-     * {
-     *   'Query.books': {
-     *     grant: ['read.books'],
-     *     restrict: ['read.books'],
-     *   },
-     *   'Book.award': {
-     *     grant: ['author'],
-     *   },
-     * }
-     * ```
-     */
-    defaultPermissions?: Record<string, PermissionsMapResolver>;
     /**
      * Signature algorithm. Could be one of these values :
      * - HS256:    HMAC using SHA-256 hash algorithm (default)
@@ -262,25 +229,6 @@ declare module '@via-profit-services/accounts' {
 
   export type MyAccount = Omit<Account, 'deleted'>;
 
-  export type PrivilegesMap = {
-    id: 'common';
-    createdAt: Date;
-    updatedAt: Date;
-    map: Record<string, string[]>;
-  };
-
-  export type PermissionsMap = {
-    id: 'common';
-    createdAt: Date;
-    updatedAt: Date;
-    map: Record<string, PermissionsMapResolver>;
-  };
-
-  export type PermissionsMapResolver = {
-    grant?: string[];
-    restrict?: string[];
-  };
-  
   export type AccountsMiddlewareFactory = (config: Configuration) => Promise<Middleware>;
 
 
@@ -430,12 +378,6 @@ declare module '@via-profit-services/accounts' {
 
   
 
-  /**
-   * Permissions service constructor props
-   */
-  export interface PermissionsServiceProps {
-    context: Context;
-  }
 
   /**
    * Accounts service constructor props
@@ -492,34 +434,13 @@ declare module '@via-profit-services/accounts' {
      * Revoke all tokens by Account ID
      */
     revokeAccountTokens(account: string): Promise<string[]>;
+
+    loadPermissions(): Promise<Record<string, PermissionsResolverObject>>;
+    loadPrivileges(): Promise<Record<string, Privileges>>;
   }
 
 
-  export type ResolvePermissionsProps = {
-    permissionsMap: PermissionsMap;
-    typeName: string;
-    fieldName: string;
-    privileges: string[];
-    enableIntrospection?: boolean;
-    requireAuthorization?: boolean;
-    requirePrivileges?: string[];
-    defaultPermissions?: Record<string, PermissionsMapResolver>;
-    defaultAccess?: 'grant' | 'restrict';
-  };
-
-  class PermissionsService {
-    props: PermissionsServiceProps;
-    constructor(props: PermissionsServiceProps);
-
-    getPrivilegesMap(): Promise<PrivilegesMap>;
-    getPermissionsMap(): Promise<PermissionsMap>;
-    resolvePermissions(props: ResolvePermissionsProps): boolean;
-    mergePermissions (
-      source: Record<string, PermissionsMapResolver>,
-      merged: Record<string, PermissionsMapResolver>,
-    ): Record<string, PermissionsMapResolver>;
-  }
-
+  
   /**
    * Accounts service
    */
@@ -577,8 +498,8 @@ declare module '@via-profit-services/accounts' {
   export const TOKEN_BEARER: 'Bearer';
   export const REDIS_TOKENS_BLACKLIST: string;
   export const INTROSPECTION_FIELDS: string[];
-  export const SERVICE_PRIVILEGES: Record<string, string>;
-  export const DEFAULT_PERMISSIONS: Record<string, PermissionsMapResolver>;
+  export const AUTHORIZED_PRIVILEGE: 'authorized';
+  export const DEFAULT_PERMISSIONS: Record<string, PermissionsResolver>;
 
   export const resolvers: Resolvers;
   export const typeDefs: string;
@@ -588,10 +509,10 @@ declare module '@via-profit-services/accounts' {
 
 declare module '@via-profit-services/core' {
   import DataLoader from 'dataloader';
+  import { } from '@via-profit-services/permissions';
   import {
     JwtConfig, AccessTokenPayload, Account, User, UsersService,
-    AccountsService, TokenPackage, PermissionsService, AuthentificationService,
-    PrivilegesMap, PermissionsMap,
+    AccountsService, TokenPackage, AuthentificationService,
   } from '@via-profit-services/accounts';
 
   interface Context {
@@ -627,15 +548,6 @@ declare module '@via-profit-services/core' {
      */
     users: DataLoader<string, Node<User>>;
 
-    /**
-     * Privileges map dataloader
-     */
-    privilegesMaps: DataLoader<string, Node<PrivilegesMap>>;
-
-    /**
-     * Permissions map dataloader
-     */
-    permissionsMap: DataLoader<string, Node<PermissionsMap>>;
   }
 
   interface ServicesCollection {
@@ -644,11 +556,6 @@ declare module '@via-profit-services/core' {
      * Accounts service
      */
     accounts: AccountsService;
-
-    /**
-     * Permissions service
-     */
-    permissions: PermissionsService;
 
     /**
      * Users service

@@ -1,5 +1,6 @@
-import type { AccountsMiddlewareFactory, JwtConfig, AccessTokenPayload, RefreshTokenPayload, Configuration } from '@via-profit-services/accounts';
+import type { AccountsMiddlewareFactory, JwtConfig, AccessTokenPayload, RefreshTokenPayload } from '@via-profit-services/accounts';
 import { Middleware, ServerError } from '@via-profit-services/core';
+import { Privileges, PermissionsResolverObject } from '@via-profit-services/permissions';
 import fs from 'fs';
 import '@via-profit-services/sms';
 
@@ -10,19 +11,14 @@ import {
   DEFAULT_SIGNATURE_ISSUER,
   REDIS_TOKENS_BLACKLIST,
   TIMEOUT_MAX_INT,
+  AUTHORIZED_PRIVILEGE,
+  DEFAULT_PERMISSIONS,
 } from './constants';
 import contextMiddleware from './context-middleware';
 import UnauthorizedError from './UnauthorizedError';
-import validationRuleMiddleware from './validation-rule-middleware';
 
-const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (props) => {
 
-  const configuration: Configuration = {
-    requireAuthorization: true, // default value
-    enableIntrospection: false, // default value
-    defaultAccess: 'restrict', // default value
-    ...props,
-  }
+const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuration) => {
 
   const {
     privateKey, publicKey, algorithm, issuer,
@@ -52,6 +48,18 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (props) => {
     extensions: null,
   };
 
+  interface Cache {
+    privilegesMap: Record<string, Privileges>;
+    permissions: Record<string, PermissionsResolverObject>;
+    initialPrivileges: Privileges;
+  }
+
+  const cache: Cache = {
+    privilegesMap: null,
+    permissions: null,
+    initialPrivileges: null,
+  };
+
   const timers: { blacklist: NodeJS.Timeout } = {
     blacklist: null,
   };
@@ -78,6 +86,12 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (props) => {
       );
     }
 
+    if (typeof context.services.permissions === 'undefined') {
+      throw new ServerError(
+        '«@via-profit-services/permissions is missing. If permissions middleware is already connected, make sure that the connection order is correct: permissions middleware must be connected before',
+      );
+    }
+
     // define static context at once
     pool.context = pool.context ?? await contextMiddleware({
       jwt,
@@ -89,12 +103,44 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (props) => {
     const { services, redis } = pool.context;
     const { authentification } = services;
 
+    if (cache.initialPrivileges === null) {
+      cache.initialPrivileges = [...services.permissions.privileges];
+    }
+
+    // put permissions into permissions middleware
+    if (cache.permissions === null) {
+      cache.permissions = await services.authentification.loadPermissions();
+
+      const requirePrivileges = [...services.permissions.requirePrivileges];
+      requirePrivileges.push('authorized');
+
+      services.permissions.permissions = {
+        // permissions to allow Mutation.authorized, ...etc
+        ...DEFAULT_PERMISSIONS,
+
+        // original permissions (introspection control, etc.)
+        ...services.permissions.permissions,
+
+        // permissions from database
+        ...cache.permissions,
+      };
+
+      services.permissions.requirePrivileges = [...new Set(requirePrivileges)];
+    }
+
+    // load privileges map
+    if (cache.privilegesMap === null) {
+      cache.privilegesMap = await services.authentification.loadPrivileges();
+    }
+
     // extract token
     pool.context.token = authentification.getDefaultTokenPayload();
     pool.extensions = {
       tokenPayload: pool.context.token,
     };
 
+    // reset privileges
+    services.permissions.privileges = [...cache.initialPrivileges];
 
     // setup it once
     // setup timer to clear expired tokens
@@ -130,13 +176,21 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (props) => {
       pool.context.emitter.emit('got-access-token', tokenPayload);
       pool.context.token = tokenPayload;
       pool.extensions.tokenPayload = tokenPayload;
-    }
 
-    pool.validationRule = await validationRuleMiddleware({
-      context: pool.context,
-      config: props.config,
-      configuration,
-    });
+
+      // extract token privileges
+      const tokenPrivileges = context.token.roles.reduce<string[]>((prev, role) => {
+        const list = cache.privilegesMap[role] || [];
+
+        return prev.concat(list);
+      }, [AUTHORIZED_PRIVILEGE]);
+
+      // compose privileges to permissions middleware
+      const privileges = tokenPrivileges.concat(services.permissions.privileges || []);
+
+      // make array of unique privileges and provide it to middleware
+      services.permissions.privileges = [...new Set(privileges)];
+    }
 
     return pool;
   }

@@ -72,6 +72,7 @@
         "@via-profit-services/core": "file://home/dhs/Projects/@via-profit-services/core/package-1.0.0-rc.1.tgz",
         "@via-profit-services/eslint-config": "^0.1.11",
         "@via-profit-services/knex": "file://home/dhs/Projects/@via-profit-services/knex/package-1.0.0-rc.1.tgz",
+        "@via-profit-services/permissions": "file://home/dhs/Projects/@via-profit-services/permissions/package-1.0.0-rc.4.tgz",
         "@via-profit-services/redis": "file://home/dhs/Projects/@via-profit-services/redis/package-1.0.0-rc.1.tgz",
         "@via-profit-services/sms": "file://home/dhs/Projects/@via-profit-services/sms/package-1.0.0-rc.1.tgz",
         "cross-env": "^6.0.3",
@@ -121,6 +122,7 @@
     "peerDependencies": {
         "@via-profit-services/core": "^1.0.0",
         "@via-profit-services/knex": "^1.0.0",
+        "@via-profit-services/permissions": "^1.0.0",
         "@via-profit-services/redis": "^1.0.0",
         "@via-profit-services/sms": "^1.0.0",
         "graphql": "*",

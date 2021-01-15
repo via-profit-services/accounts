@@ -1,12 +1,13 @@
 import type {
-  PermissionsServiceProps,
   AccessTokenPayload,
   TokenPackage,
   AuthentificationService as AuthentificationServiceInterface,
   RefreshTokenPayload,
   AccountRole,
+  AuthentificationServiceProps,
 } from '@via-profit-services/accounts';
 import { ServerError } from '@via-profit-services/core';
+import { PermissionsResolverObject, Privileges } from '@via-profit-services/permissions';
 import bcryptjs from 'bcryptjs';
 import { IncomingMessage } from 'http';
 import jsonwebtoken from 'jsonwebtoken';
@@ -23,10 +24,26 @@ import {
 } from '../constants';
 import UnauthorizedError from '../UnauthorizedError';
 
-class AuthentificationService implements AuthentificationServiceInterface {
-  props: PermissionsServiceProps;
+type PermissionsTableModel = {
+  readonly typeName: string;
+  readonly fieldName: string;
+  readonly type: 'grant' | 'restrict';
+  readonly privilege: string;
+}
 
-  public constructor(props: PermissionsServiceProps) {
+type PermissionsTableModelResult = PermissionsTableModel;
+
+type PrivilegesTableModel = {
+  readonly role: string;
+  readonly privilege: string;
+}
+
+type PrivilegesTableModelResult = PrivilegesTableModel;
+
+class AuthentificationService implements AuthentificationServiceInterface {
+  props: AuthentificationServiceProps;
+
+  public constructor(props: AuthentificationServiceProps) {
     this.props = props;
   }
 
@@ -277,6 +294,50 @@ class AuthentificationService implements AuthentificationServiceInterface {
       logger.auth.info(`Revoke Access Token ${data.access} for account ${data.account}`, { data });
       logger.auth.info(`Revoke Refresh Token ${data.refresh} for account ${data.account}`, { data });
     });
+  }
+
+  public async loadPermissions() {
+    const { context } = this.props;
+    const { knex } = context;
+
+    const permissions: Record<string, PermissionsResolverObject> = {};
+    const res = await knex
+      .select('*')
+      .from<PermissionsTableModel, PermissionsTableModelResult[]>('permissions');
+
+    if (res.length) {
+      res.forEach(({ typeName, fieldName, type, privilege }) => {
+        const field = `${typeName}.${fieldName}`;
+
+        permissions[field] = permissions[field] || {
+          grant: [],
+          restrict: [],
+        };
+
+        permissions[field][type].push(privilege);
+      })
+    }
+
+    return permissions;
+  }
+
+  public async loadPrivileges() {
+    const { context } = this.props;
+    const { knex } = context;
+
+    const privileges: Record<string, Privileges> = {};
+    const res = await knex
+      .select('*')
+      .from<PrivilegesTableModel, PrivilegesTableModelResult[]>('roles2privileges');
+
+    if (res.length) {
+      res.forEach(({ role, privilege }) => {
+        privileges[role] = privileges[role] || [];
+        privileges[role].push(privilege);
+      })
+    }
+
+    return privileges;
   }
 }
 

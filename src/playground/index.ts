@@ -1,7 +1,9 @@
+/* eslint-disable import/max-dependencies */
 /* eslint-disable no-console */
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { factory, resolvers, typeDefs } from '@via-profit-services/core';
 import * as knex from '@via-profit-services/knex';
+import * as permissions from '@via-profit-services/permissions';
 import * as redis from '@via-profit-services/redis';
 import * as sms from '@via-profit-services/sms';
 import dotenv from 'dotenv';
@@ -39,7 +41,9 @@ const server = http.createServer(app);
     privateKey: path.resolve(__dirname, './jwtRS256.key'),
     publicKey: path.resolve(__dirname, './jwtRS256.key.pub'),
     accessTokenExpiresIn: 60 * 60 * 24,
-    enableIntrospection: true,
+  });
+
+  const permissionsMiddleware = await permissions.factory({
     defaultAccess: 'grant',
   });
 
@@ -69,7 +73,8 @@ const server = http.createServer(app);
       knexMiddleware,
       redisMiddleware,
       smsMiddleware,
-      accountsMiddleware, // <-- After redis and knex and sms
+      permissionsMiddleware,
+      accountsMiddleware, // <-- After all
     ],
   });
 
