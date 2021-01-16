@@ -23,6 +23,7 @@ export const DEFAULT_PERMISSIONS: Record<string, PermissionsResolver> = {
   'RefreshToken.*':  { grant: ['*'] },
   'AccessTokenPayload.*':  { grant: ['*'] },
   'RefreshTokenPayload.*':  { grant: ['*'] },
+  'TokenRegistrationResponse.*':  { grant: ['*'] },
   'TokenRegistrationError.*':  { grant: ['*'] },
   'TokenVerificationError.*':  { grant: ['*'] },
   'TokenVerificationResponse.*':  { grant: ['*'] },
