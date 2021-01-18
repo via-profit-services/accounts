@@ -15,13 +15,15 @@ import {
   DEFAULT_PERMISSIONS,
 } from './constants';
 import contextMiddleware from './context-middleware';
+import resolvers from './resolvers';
+import typeDefs from './schema.graphql';
 import UnauthorizedError from './UnauthorizedError';
 
 
 const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuration) => {
 
   const {
-    privateKey, publicKey, algorithm, issuer,
+    privateKey, publicKey, algorithm, issuer, entities,
     refreshTokenExpiresIn, accessTokenExpiresIn,
   } = configuration;
 
@@ -195,7 +197,19 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuratio
     return pool;
   }
 
-  return middleware;
+  const typeList = [...entities || []].concat(['User']);
+
+  return {
+    middleware,
+    resolvers,
+    typeDefs: `
+      ${typeDefs}
+      union AccountEntity = ${typeList.join(' | ')}
+      enum AccountType {
+        ${typeList.join(',\n')}
+      }
+      `,
+  };
 }
 
 export default accountsMiddlewareFactory;

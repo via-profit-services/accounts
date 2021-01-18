@@ -11,7 +11,7 @@ import express from 'express';
 import http from 'http';
 import path from 'path';
 
-import * as accounts from '../index';
+import { factory as accountsFactory } from '../index';
 
 dotenv.config();
 
@@ -37,14 +37,16 @@ const server = http.createServer(app);
 
   const redisMiddleware = redis.factory(redisConfig);
 
-  const accountsMiddleware = await accounts.factory({
+  const accounts = await accountsFactory({
     privateKey: path.resolve(__dirname, './jwtRS256.key'),
     publicKey: path.resolve(__dirname, './jwtRS256.key.pub'),
     accessTokenExpiresIn: 60 * 60 * 24,
+    entities: ['Driver'],
   });
 
   const permissionsMiddleware = await permissions.factory({
     defaultAccess: 'grant',
+    enableIntrospection: true,
   });
 
   const smsMiddleware = sms.factory({
@@ -57,10 +59,19 @@ const server = http.createServer(app);
     typeDefs: [
       typeDefs,
       accounts.typeDefs,
+      `type Driver {
+        name: String!
+      }`,
     ],
     resolvers: [
       resolvers,
       accounts.resolvers,
+      {
+        Driver: ({
+          __typename: 'Driver',
+          name: () => 'Driver ivan',
+        }),
+      },
     ],
   });
 
@@ -74,7 +85,7 @@ const server = http.createServer(app);
       redisMiddleware,
       smsMiddleware,
       permissionsMiddleware,
-      accountsMiddleware, // <-- After all
+      accounts.middleware, // <-- After all
     ],
   });
 

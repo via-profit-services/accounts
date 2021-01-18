@@ -3,7 +3,7 @@ module.exports =
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 203:
+/***/ 909:
 /***/ (function(__unused_webpack_module, exports) {
 
 
@@ -21,11 +21,18 @@ exports.down = exports.up = void 0;
 function up(knex) {
     return __awaiter(this, void 0, void 0, function* () {
         return knex.raw(`
-    -- add column
+    -- add column recoveryPhones
     alter table "accounts" add column "recoveryPhones" jsonb NOT NULL DEFAULT '[]'::jsonb;
+
+    -- add column entity
+    alter table "accounts" add column "entity" uuid default null;
+
+    -- add account user type
+    alter type "accountType" add value 'User';
 
     -- add default phones
     update "accounts" set "recoveryPhones"='[{"number": "9876543210", "country": "RU", "primary": true, "comfirmed": false, "description": "Phone number to recovery access. This phone number was added automatically"}]' where "recoveryPhones"='[]';
+  
   `);
     });
 }
@@ -33,7 +40,9 @@ exports.up = up;
 function down(knex) {
     return __awaiter(this, void 0, void 0, function* () {
         return knex.raw(`
-    alter table "accounts" drop column "recoveryPhones";
+    alter table "accounts" drop column "recoveryPhones" cascade;
+    alter table "accounts" drop column "entity" cascade;
+
   `);
     });
 }
@@ -71,6 +80,6 @@ exports.down = down;
 /******/ 	// module exports must be returned from runtime so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(203);
+/******/ 	return __webpack_require__(909);
 /******/ })()
 ;

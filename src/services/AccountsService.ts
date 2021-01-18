@@ -33,7 +33,9 @@ class AccountsService implements AccountsServiceInterface {
       recoveryPhones: [],
       createdAt: moment().toDate(),
       updatedAt: moment().toDate(),
+      entity: null,
       deleted: false,
+      type: 'User',
     };
   }
 
@@ -42,6 +44,7 @@ class AccountsService implements AccountsServiceInterface {
     const { timezone } = context;
     const accountData: Partial<AccountsTableModel> = {
       ...input,
+      entity: input?.entity?.id ? input.entity.id : null,
       status: input.status ? String(input.status) : undefined,
       roles: input.roles ? JSON.stringify(input.roles) : undefined,
       recoveryPhones: input.recoveryPhones ? JSON.stringify(input.recoveryPhones) : undefined,
@@ -68,6 +71,12 @@ class AccountsService implements AccountsServiceInterface {
       .where((builder) => convertSearchToKnex(builder, search))
       .limit(limit || 1)
       .offset(offset || 0)
+      .then((nodes) => nodes.map((node) => ({
+          ...node,
+          entity: node.entity
+            ? { id: node.entity }
+            : null,
+        })))
       .then((nodes) => ({
         ...extractTotalCountPropOfNode(nodes),
           offset,

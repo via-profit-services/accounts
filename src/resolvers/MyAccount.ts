@@ -12,6 +12,8 @@ const myAccountResolver = new Proxy<MyAccountResolver>({
   password: () => ({}),
   roles: () => ({}),
   recoveryPhones: () => ({}),
+  entity: () => ({}),
+  type: () => ({}),
 }, {
   get: (_target, prop: keyof MyAccountResolver) => {
     const resolver: MyAccountResolver[keyof MyAccountResolver] = async (parent, _args, context) => {
@@ -39,6 +41,13 @@ const myAccountResolver = new Proxy<MyAccountResolver>({
         throw new BadRequestError(
           `Account with id «${token.uuid}» not found`, { id: token.uuid },
         )
+      }
+
+      if (prop === 'entity' && account.entity) {
+        return {
+          __typename: account.type,
+          ...account.entity,
+        }
       }
 
       return account[prop];

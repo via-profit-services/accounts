@@ -12,6 +12,8 @@ const accountResolver = new Proxy<AccountResolver>({
   roles: () => ({}),
   deleted: () => ({}),
   recoveryPhones: () => ({}),
+  entity: () => ({}),
+  type: () => ({}),
 }, {
   get: (_target, prop: keyof AccountResolver) => {
     const resolver: AccountResolver[keyof AccountResolver] = async (parent, _args, context) => {
@@ -32,6 +34,13 @@ const accountResolver = new Proxy<AccountResolver>({
         throw new BadRequestError(
           `Account with id «${id}» not found`, { id },
         )
+      }
+
+      if (prop === 'entity' && account.entity) {
+        return {
+          __typename: account.type,
+          ...account.entity,
+        }
       }
 
       return account[prop];

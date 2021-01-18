@@ -10,6 +10,7 @@ declare module '@via-profit-services/accounts' {
   export type AccountRole = 'developer' | 'administrator' | 'viewer';
 
   export interface Configuration {
+    entities?: string[];
 
     /**
      * If `true` then all fields will be required authorization \
@@ -172,6 +173,8 @@ declare module '@via-profit-services/accounts' {
     readonly password: string;
     readonly roles: string;
     readonly status: string;
+    readonly entity: string;
+    readonly type: string;
     readonly deleted: boolean;
     readonly recoveryPhones: string;
     readonly totalCount: number;
@@ -187,6 +190,8 @@ declare module '@via-profit-services/accounts' {
     readonly totalCount: number;
     readonly status: AccountStatus;
     readonly recoveryPhones: Phone[];
+    readonly entity: string;
+    readonly type: string;
     readonly deleted: boolean;
   }
 
@@ -225,11 +230,19 @@ declare module '@via-profit-services/accounts' {
     updatedAt: Date;
     recoveryPhones: Phone[];
     deleted: boolean;
+    type: string;
+    entity: {
+      id: string;
+    };
   }
 
   export type MyAccount = Omit<Account, 'deleted'>;
 
-  export type AccountsMiddlewareFactory = (config: Configuration) => Promise<Middleware>;
+  export type AccountsMiddlewareFactory = (config: Configuration) => Promise<{
+    resolvers: Resolvers;
+    typeDefs: string;
+    middleware: Middleware;
+  }>;
 
 
   export type ValidatioRuleMiddleware = (props: {
@@ -350,6 +363,8 @@ declare module '@via-profit-services/accounts' {
   | 'login'
   | 'password'
   | 'roles'
+  | 'entity'
+  | 'type'
   | 'deleted'
   | 'recoveryPhones',
   GraphQLFieldResolver<{  id: string }, Context>>
@@ -363,6 +378,8 @@ declare module '@via-profit-services/accounts' {
   | 'login'
   | 'password'
   | 'roles'
+  | 'entity'
+  | 'type'
   | 'recoveryPhones',
   GraphQLFieldResolver<{  id: string }, Context>>;
 
@@ -500,9 +517,6 @@ declare module '@via-profit-services/accounts' {
   export const INTROSPECTION_FIELDS: string[];
   export const AUTHORIZED_PRIVILEGE: 'authorized';
   export const DEFAULT_PERMISSIONS: Record<string, PermissionsResolver>;
-
-  export const resolvers: Resolvers;
-  export const typeDefs: string;
   export const factory: AccountsMiddlewareFactory;
 }
 

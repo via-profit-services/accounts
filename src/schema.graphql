@@ -97,6 +97,8 @@ interface Profile {
   deleted: Boolean!
 }
 
+
+
 type Account implements Node {
   id: ID!
   login: String!
@@ -107,6 +109,8 @@ type Account implements Node {
   roles: [AccountRole!]!
   recoveryPhones: [Phone!]!
   deleted: Boolean!
+  entity: AccountEntity!
+  type: AccountType!
 }
 
 type MyAccount implements Node {
@@ -118,6 +122,8 @@ type MyAccount implements Node {
   updatedAt: DateTime!
   roles: [AccountRole!]!
   recoveryPhones: [Phone!]!
+  entity: AccountEntity!
+  type: AccountType!
 }
 
 type User implements Node & Profile {
