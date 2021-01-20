@@ -10,6 +10,14 @@ declare module '@via-profit-services/accounts' {
   export type AccountRole = 'developer' | 'administrator' | 'viewer';
 
   export interface Configuration {
+
+    /**
+     * You can add Account entities.\
+     * The entities that will be passed here will be added 
+     * to the types: \
+     * `enum AccountType` \
+     * `union AccountEntity`
+     */
     entities?: string[];
 
     /**
