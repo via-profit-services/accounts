@@ -358,47 +358,10 @@ declare module '@via-profit-services/accounts' {
   }
 
 
-  export type TokenBagResolver = Record<
-    | 'accessToken'
-    | 'refreshToken',
-    GraphQLFieldResolver<TokenRegistrationResponseSuccess, Context>>;
-
-  export type AccountResolver = Record<
-  | 'id'
-  | 'createdAt'
-  | 'updatedAt'
-  | 'status'
-  | 'login'
-  | 'password'
-  | 'roles'
-  | 'entity'
-  | 'type'
-  | 'deleted'
-  | 'recoveryPhones',
-  GraphQLFieldResolver<{  id: string }, Context>>
-
-
-  export type MyAccountResolver = Record<
-  | 'id'
-  | 'createdAt'
-  | 'updatedAt'
-  | 'status'
-  | 'login'
-  | 'password'
-  | 'roles'
-  | 'entity'
-  | 'type'
-  | 'recoveryPhones',
-  GraphQLFieldResolver<{  id: string }, Context>>;
-
-  export type UserResolver = Record<
-  | 'id'
-  | 'createdAt'
-  | 'updatedAt'
-  | 'name'
-  | 'phones'
-  | 'deleted',
-  GraphQLFieldResolver<{  id: string }, Context>>;
+  export type TokenBagResolver = Record<keyof TokenPackage, GraphQLFieldResolver<TokenRegistrationResponseSuccess, Context>>;
+  export type AccountResolver = Record<keyof Account, GraphQLFieldResolver<{  id: string }, Context>>;
+  export type MyAccountResolver = Record<keyof MyAccount, GraphQLFieldResolver<{  id: string }, Context>>;
+  export type UserResolver = Record<keyof User, GraphQLFieldResolver<{  id: string }, Context>>;
 
 
   
