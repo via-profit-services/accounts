@@ -1,7 +1,8 @@
 declare module '@via-profit-services/accounts' {
   import { Algorithm } from 'jsonwebtoken';
+  import { Phone } from '@via-profit-services/phones';
   import { PermissionsResolverObject, Privileges, PermissionsResolver } from '@via-profit-services/permissions';
-  import { InputFilter, Middleware, Context, ErrorHandler, OutputFilter, ListResponse, Phone, MiddlewareProps, MaybePromise } from '@via-profit-services/core';
+  import { InputFilter, Middleware, Context, ErrorHandler, OutputFilter, ListResponse, MiddlewareProps, MaybePromise } from '@via-profit-services/core';
   import { IncomingMessage } from 'http';
   import { GraphQLFieldResolver, ValidationRule } from 'graphql';
 
