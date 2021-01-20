@@ -1009,7 +1009,7 @@ __metadata:
     "@via-profit-services/eslint-config": ^0.1.11
     "@via-profit-services/knex": "file://home/dhs/Projects/@via-profit-services/knex/package-1.0.0-rc.1.tgz"
     "@via-profit-services/permissions": "file://home/dhs/Projects/@via-profit-services/permissions/package-1.0.0-rc.5.tgz"
-    "@via-profit-services/phones": "file://home/dhs/Projects/@via-profit-services/phones/package-1.0.0-rc.6.tgz"
+    "@via-profit-services/phones": "file://home/dhs/Projects/@via-profit-services/phones/package-1.0.0-rc.7.tgz"
     "@via-profit-services/redis": "file://home/dhs/Projects/@via-profit-services/redis/package-1.0.0-rc.1.tgz"
     "@via-profit-services/sms": "file://home/dhs/Projects/@via-profit-services/sms/package-1.0.0-rc.1.tgz"
     bcryptjs: ^2.4.3
@@ -1129,9 +1129,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@via-profit-services/phones@file://home/dhs/Projects/@via-profit-services/phones/package-1.0.0-rc.6.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
-  version: 1.0.0-rc.6
-  resolution: "@via-profit-services/phones@file://home/dhs/Projects/@via-profit-services/phones/package-1.0.0-rc.6.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
+"@via-profit-services/phones@file://home/dhs/Projects/@via-profit-services/phones/package-1.0.0-rc.7.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
+  version: 1.0.0-rc.7
+  resolution: "@via-profit-services/phones@file://home/dhs/Projects/@via-profit-services/phones/package-1.0.0-rc.7.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
   peerDependencies:
     "@via-profit-services/core": ^1.0.0
     "@via-profit-services/knex": ^1.0.0
@@ -1140,7 +1140,7 @@ __metadata:
     moment: ""
     moment-timezone: "*"
     uuid: "*"
-  checksum: cada61a0fdbc512fadc975dadeea327fa3dada4e68a8c9cb884b583cfc022321e0e298dbc723d915ff95476fee588f0792615dcfc46bc8ef91edf29d6935f3c8
+  checksum: 4f1e9771d99c62c6bc58329c867f8057b247999dfc32fdb218d693a90b6bd76e544c56034d8fd3913e7aaf8ff98ab30a7be4dfe7826e948c8d249323a83c7c6b
   languageName: node
   linkType: hard
 

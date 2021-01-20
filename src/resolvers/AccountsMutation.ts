@@ -8,15 +8,6 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
     const { recoveryPhones, ...accountInput } = input;
     const { dataloader, services, emitter } = context;
 
-    // check phones IDs
-    if (typeof recoveryPhones !== 'undefined') {
-      recoveryPhones.map((phone) => {
-        if (typeof phone.id === 'undefined') {
-          throw new BadRequestError('You must pass the Phone id to update it');
-        }
-      });
-    }
-
     try {
       await services.accounts.updateAccount(id, accountInput);
     } catch (err) {
