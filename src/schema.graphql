@@ -143,6 +143,7 @@ enum AccountStatus {
 
 enum AccountOrderField {
   login
+  type
   createdAt
   updatedAt
 }
@@ -221,6 +222,7 @@ Possible data to filter list of accounts
 """
 input AccountListFilter {
   status: [AccountStatus!]
+  type: [AccountType!]
 }
 
 """
