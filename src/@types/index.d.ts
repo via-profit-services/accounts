@@ -523,7 +523,6 @@ declare module '@via-profit-services/accounts' {
 
 declare module '@via-profit-services/core' {
   import DataLoader from 'dataloader';
-  import { } from '@via-profit-services/permissions';
   import {
     JwtConfig, AccessTokenPayload, Account, User, UsersService,
     AccountsService, TokenPackage, AuthentificationService,
