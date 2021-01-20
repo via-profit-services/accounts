@@ -1,12 +1,21 @@
 import type { Resolvers } from '@via-profit-services/accounts';
-import { ServerError } from '@via-profit-services/core';
+import { ServerError, BadRequestError } from '@via-profit-services/core';
 
 
 const accountsMutationResolver: Resolvers['AccountsMutation'] = {
   update: async (_parent, args, context) => {
     const { id, input } = args;
-    const { phones, ...accountInput } = input;
+    const { recoveryPhones, ...accountInput } = input;
     const { dataloader, services, emitter } = context;
+
+    // check phones IDs
+    if (typeof recoveryPhones !== 'undefined') {
+      recoveryPhones.map((phone) => {
+        if (typeof phone.id === 'undefined') {
+          throw new BadRequestError('You must pass the Phone id to update it');
+        }
+      });
+    }
 
     try {
       await services.accounts.updateAccount(id, accountInput);
@@ -15,9 +24,9 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
     }
 
     // update phones
-    if (typeof phones !== 'undefined') {
+    if (typeof recoveryPhones !== 'undefined') {
       try {
-        await phones.reduce(async (prev, phone) => {
+        await recoveryPhones.reduce(async (prev, phone) => {
           await prev;
           await services.phones.updatePhone(phone.id, phone);
           dataloader.phones.clear(phone.id);
@@ -46,7 +55,7 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
   create: async (_parent, args, context) => {
     const { input } = args;
     const { services, logger } = context;
-    const { phones, ...accountInput } = input;
+    const { recoveryPhones, ...accountInput } = input;
 
     const result = { id: '' };
 
@@ -61,9 +70,9 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
     }
 
     // create phones
-    if (typeof phones !== 'undefined') {
+    if (typeof recoveryPhones !== 'undefined') {
       try {
-        await phones.reduce(async (prev, phone) => {
+        await recoveryPhones.reduce(async (prev, phone) => {
           await prev;
           await services.phones.createPhone(phone);
         }, Promise.resolve());

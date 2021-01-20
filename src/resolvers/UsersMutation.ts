@@ -8,6 +8,15 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
     const { phones, ...userInput } = input;
     const { dataloader, services, emitter } = context;
 
+    // check phones IDs
+    if (typeof phones !== 'undefined') {
+      phones.map((phone) => {
+        if (typeof phone.id === 'undefined') {
+          throw new BadRequestError('You must pass the Phone id to update it');
+        }
+      });
+    }
+
     const account = input.account
     ? { id: input.account }
     : undefined;

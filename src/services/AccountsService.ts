@@ -44,7 +44,7 @@ class AccountsService implements AccountsServiceInterface {
     const { timezone } = context;
     const accountData: Partial<AccountsTableModel> = {
       ...input,
-      entity: input?.entity?.id ? input.entity.id : null,
+      entity: input?.entity?.id ? input.entity.id : undefined,
       status: input.status ? String(input.status) : undefined,
       roles: input.roles ? JSON.stringify(input.roles) : undefined,
       createdAt: input.createdAt ? moment.tz(input.createdAt, timezone).format() : undefined,

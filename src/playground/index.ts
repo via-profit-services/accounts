@@ -52,6 +52,19 @@ const server = http.createServer(app);
   const permissionsMiddleware = await permissions.factory({
     defaultAccess: 'grant',
     enableIntrospection: true,
+    permissions: {
+      'Mutation.phones': { grant: ['*'] },
+      'Query.phones': { grant: ['*'] },
+      'User.*': { grant: ['*'] },
+      'Account.*': { grant: ['*'] },
+      'Phone.*': { grant: ['*'] },
+      'PhoneInputCreate.*': { grant: ['*'] },
+      'PhoneInputUpdate.*': { grant: ['*'] },
+      'PhonesMutation.*': { grant: ['*'] },
+      'PhonesQuery.*': { grant: ['*'] },
+      'PhoneListConnection.*': { grant: ['*'] },
+      'PhonesEdge.*': { grant: ['*'] },
+    },
   });
 
   const smsMiddleware = sms.factory({
@@ -93,13 +106,6 @@ const server = http.createServer(app);
       phones.middleware,
       permissionsMiddleware,
       accounts.middleware, // <-- After all
-      ({ context }) => {
-        context.emitter.on('user-was-updated', (user) => {
-          console.log('user was updated', user);
-        });
-
-        return {};
-      },
     ],
   });
 

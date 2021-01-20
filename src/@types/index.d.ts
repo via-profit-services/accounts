@@ -316,7 +316,7 @@ declare module '@via-profit-services/accounts' {
           password?: string;
           status?: AccountStatus;
           roles?: AccountRole[];
-          phones?: Phone[];
+          recoveryPhones?: Phone[];
         };
       }>;
       create: GraphQLFieldResolver<unknown, Context, {
@@ -325,7 +325,7 @@ declare module '@via-profit-services/accounts' {
           login: string;
           password: string;
           roles: AccountRole[];
-          phones: Phone[];
+          recoveryPhones: Phone[];
         };
       }>;
       delete: GraphQLFieldResolver<unknown, Context, {
