@@ -28,7 +28,7 @@ const server = http.createServer(app);
 (async () => {
 
   const phones = phonesFactory({
-    entities: ['User'],
+    entities: ['User', 'Account'],
   });
 
   const knexMiddleware = knex.factory({

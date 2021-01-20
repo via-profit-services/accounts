@@ -197,16 +197,18 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuratio
     return pool;
   }
 
-  const typeList = [...entities || []].concat(['User']);
+
+  const typeList = new Set(entities);
+  typeList.add('User');
 
   return {
     middleware,
     resolvers,
     typeDefs: `
       ${typeDefs}
-      union AccountEntity = ${typeList.join(' | ')}
+      union AccountEntity = ${[...typeList].join(' | ')}
       enum AccountType {
-        ${typeList.join(',\n')}
+        ${[...typeList].join(',\n')}
       }
       `,
   };
