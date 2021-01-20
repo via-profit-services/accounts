@@ -21,18 +21,18 @@ exports.down = exports.up = void 0;
 function up(knex) {
     return __awaiter(this, void 0, void 0, function* () {
         return knex.raw(`
-    -- add column recoveryPhones
-    alter table "accounts" add column "recoveryPhones" jsonb NOT NULL DEFAULT '[]'::jsonb;
 
-    -- add column entity
+  -- add column entity
     alter table "accounts" add column "entity" uuid default null;
 
-    -- add account user type
-    alter type "accountType" add value 'User';
+    -- set new type for column
+    alter table "accounts" alter column "type" type varchar(50) using "type"::varchar;
 
-    -- add default phones
-    update "accounts" set "recoveryPhones"='[{"number": "9876543210", "country": "RU", "primary": true, "comfirmed": false, "description": "Phone number to recovery access. This phone number was added automatically"}]' where "recoveryPhones"='[]';
-  
+    -- delete type
+    drop type if exists "accountType";
+
+    update "accounts" set "type" = 'User';
+
   `);
     });
 }
@@ -40,9 +40,12 @@ exports.up = up;
 function down(knex) {
     return __awaiter(this, void 0, void 0, function* () {
         return knex.raw(`
-    alter table "accounts" drop column "recoveryPhones" cascade;
     alter table "accounts" drop column "entity" cascade;
-
+    create type "accountType" as enum (
+      'stuff',
+      'client'
+    );
+    alter table "accounts" alter column "type" type "accountType" using 'stuff'::"accountType";
   `);
     });
 }
