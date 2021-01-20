@@ -6,6 +6,5 @@ import webpackBaseConfig from './webpack-config-base';
 export default merge(
   webpackBaseConfig,
   webpackMigrationsConfig(),
-  { mode: 'production' },
 );
 
