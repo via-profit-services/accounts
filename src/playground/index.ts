@@ -93,6 +93,13 @@ const server = http.createServer(app);
       phones.middleware,
       permissionsMiddleware,
       accounts.middleware, // <-- After all
+      ({ context }) => {
+        context.emitter.on('user-was-updated', (user) => {
+          console.log('user was updated', user);
+        });
+
+        return {};
+      },
     ],
   });
 
