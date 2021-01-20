@@ -4,6 +4,7 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 import { factory, resolvers, typeDefs } from '@via-profit-services/core';
 import * as knex from '@via-profit-services/knex';
 import * as permissions from '@via-profit-services/permissions';
+import { factory as phonesFactory } from '@via-profit-services/phones';
 import * as redis from '@via-profit-services/redis';
 import * as sms from '@via-profit-services/sms';
 import dotenv from 'dotenv';
@@ -25,6 +26,10 @@ const redisConfig: redis.InitialProps = {
 };
 const server = http.createServer(app);
 (async () => {
+
+  const phones = phonesFactory({
+    entities: ['User'],
+  });
 
   const knexMiddleware = knex.factory({
     connection: {
@@ -58,6 +63,7 @@ const server = http.createServer(app);
   const schema = makeExecutableSchema({
     typeDefs: [
       typeDefs,
+      phones.typeDefs,
       accounts.typeDefs,
       `type Driver {
         name: String!
@@ -65,10 +71,10 @@ const server = http.createServer(app);
     ],
     resolvers: [
       resolvers,
+      phones.resolvers,
       accounts.resolvers,
       {
         Driver: ({
-          __typename: 'Driver',
           name: () => 'Driver ivan',
         }),
       },
@@ -84,6 +90,7 @@ const server = http.createServer(app);
       knexMiddleware,
       redisMiddleware,
       smsMiddleware,
+      phones.middleware,
       permissionsMiddleware,
       accounts.middleware, // <-- After all
     ],

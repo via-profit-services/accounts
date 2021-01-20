@@ -1005,11 +1005,11 @@ __metadata:
     "@types/webpack-node-externals": ^2.5.0
     "@typescript-eslint/eslint-plugin": ^4.9.1
     "@typescript-eslint/parser": ^4.9.1
-    "@via-profit-services/core": "file://home/dhs/Projects/@via-profit-services/core/package-1.0.0-rc.2.tgz"
+    "@via-profit-services/core": "file://home/dhs/Projects/@via-profit-services/core/package-1.0.0-rc.3.tgz"
     "@via-profit-services/eslint-config": ^0.1.11
     "@via-profit-services/knex": "file://home/dhs/Projects/@via-profit-services/knex/package-1.0.0-rc.1.tgz"
     "@via-profit-services/permissions": "file://home/dhs/Projects/@via-profit-services/permissions/package-1.0.0-rc.5.tgz"
-    "@via-profit-services/phones": "file://home/dhs/Projects/@via-profit-services/phones/package-1.0.0-rc.1.tgz"
+    "@via-profit-services/phones": "file://home/dhs/Projects/@via-profit-services/phones/package-1.0.0-rc.2.tgz"
     "@via-profit-services/redis": "file://home/dhs/Projects/@via-profit-services/redis/package-1.0.0-rc.1.tgz"
     "@via-profit-services/sms": "file://home/dhs/Projects/@via-profit-services/sms/package-1.0.0-rc.1.tgz"
     bcryptjs: ^2.4.3
@@ -1074,9 +1074,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core/package-1.0.0-rc.2.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
-  version: 1.0.0-rc.2
-  resolution: "@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core/package-1.0.0-rc.2.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
+"@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core/package-1.0.0-rc.3.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
+  version: 1.0.0-rc.3
+  resolution: "@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core/package-1.0.0-rc.3.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
   dependencies:
     bufferutil: ^4.0.2
     content-type: ^1.0.4
@@ -1095,7 +1095,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: f999397aa1e60d65ef0eb879205fa622e9e6bda243128cc508507f8e55738b55402b5d963b3a3d245529f0d1bda584c3509ff273f4e2e0dc6489291e83628326
+  checksum: d3a8c11d96d4a992e1bfedff501934abd4f21dfba4e48d6dce5143afca77b7c9c0d369a0d7458ed1b2bc4ecd47c1856cbdf74f2d5458c3618a98d5be25e03b7c
   languageName: node
   linkType: hard
 
@@ -1129,9 +1129,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@via-profit-services/phones@file://home/dhs/Projects/@via-profit-services/phones/package-1.0.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
-  version: 1.0.0-rc.1
-  resolution: "@via-profit-services/phones@file://home/dhs/Projects/@via-profit-services/phones/package-1.0.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
+"@via-profit-services/phones@file://home/dhs/Projects/@via-profit-services/phones/package-1.0.0-rc.2.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
+  version: 1.0.0-rc.2
+  resolution: "@via-profit-services/phones@file://home/dhs/Projects/@via-profit-services/phones/package-1.0.0-rc.2.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
   peerDependencies:
     "@via-profit-services/core": ^1.0.0
     "@via-profit-services/knex": ^1.0.0
@@ -1140,7 +1140,7 @@ __metadata:
     moment: ""
     moment-timezone: "*"
     uuid: "*"
-  checksum: 77bc35e7d97eed8f71271db40d880efd2c5c104a479b84ccdad95994eee6385c9fdeb1256c9062772419afc3adb595bf848a02ca0f8d2c5d70536fc5585da11f
+  checksum: 6404d3e07e48950df20889676717d19383e965cde03085260b7faef2d27f8a7e0e52a52ab68b4421a4c21f3d716661d450a1e54786e60cc029cc3b80882119cd
   languageName: node
   linkType: hard
 

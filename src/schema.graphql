@@ -271,6 +271,11 @@ type AccountsMutation {
   Update exists account data
   """
   update(id: ID!, input: AccountInputUpdate!): Account!
+
+  """
+  Delete account
+  """
+  delete(id: ID!): Boolean!
 }
 
 
@@ -284,6 +289,11 @@ type UsersMutation {
   Update exists user data
   """
   update(id: ID!, input: UserInputUpdate!): User!
+
+  """
+  Delete exists user
+  """
+  delete(id: ID!): Boolean!
 }
 
 type AuthentificationMutation {
@@ -312,14 +322,14 @@ input UserInputUpdate {
   id: String
   account: String
   name: String
-  phones: [PhoneInput!]
+  phones: [PhoneInputUpdate!]
 }
 
 input UserInputCreate {
   id: String
   account: String!
   name: String!
-  phones: [PhoneInput]!
+  phones: [PhoneInputCreate]!
 }
 
 input AccountInputUpdate {
@@ -332,7 +342,7 @@ input AccountInputUpdate {
   """
   Phones list for password recovery
   """
-  recoveryPhones: [PhoneInput!]
+  recoveryPhones: [PhoneInputUpdate!]
 }
 
 input AccountInputCreate {
@@ -343,7 +353,7 @@ input AccountInputCreate {
   """
   Phones list for password recovery
   """
-  recoveryPhones: [PhoneInput!]!
+  recoveryPhones: [PhoneInputCreate!]!
 }
 
 

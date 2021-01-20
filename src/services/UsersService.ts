@@ -1,7 +1,7 @@
 /* eslint-disable import/max-dependencies */
 import type { User, UsersServiceProps, UsersTableModelResult, UsersTableModel } from '@via-profit-services/accounts';
 import '@via-profit-services/redis';
-import { OutputFilter, ListResponse } from '@via-profit-services/core';
+import { OutputFilter, ListResponse, extractNodeField } from '@via-profit-services/core';
 import {
   convertWhereToKnex, convertOrderByToKnex,
   convertSearchToKnex, extractTotalCountPropOfNode,
@@ -19,10 +19,10 @@ class UsersService {
 
   public async getUsers(filter: Partial<OutputFilter>): Promise<ListResponse<User>> {
     const { context } = this.props;
-    const { knex } = context;
+    const { knex, services } = context;
     const { limit, offset, orderBy, where, search } = filter;
 
-    const result = await knex
+    const response = await knex
       .select([
         'users.*',
         knex.raw('count(*) over() as "totalCount"'),
@@ -32,20 +32,24 @@ class UsersService {
       .where((builder) => convertWhereToKnex(builder, where))
       .where((builder) => convertSearchToKnex(builder, search))
       .limit(limit || 1)
-      .offset(offset || 0)
-      .then((nodes) => nodes.map((node) => ({
+      .offset(offset || 0);
+
+    const userIDs = extractNodeField(response, 'id');
+    const phonesBundle = await services.phones.getPhonesByEntities(userIDs);
+    const nodes = response.map((node) => ({
         ...node,
-        account: !node.account ? null : {
-          id: node.account,
-        },
-      })))
-      .then((nodes) => ({
-        ...extractTotalCountPropOfNode(nodes),
-          offset,
-          limit,
-          orderBy,
-          where,
-        }))
+        account: node.account ? { id: node.account } : null,
+        phones: phonesBundle.nodes.filter((phone) => phone.entity.id === node.id),
+      }));
+
+    const result: ListResponse<User> = {
+      ...extractTotalCountPropOfNode(response),
+      nodes,
+      offset,
+      limit,
+      orderBy,
+      where,
+    };
 
     return result;
   }
@@ -73,7 +77,6 @@ class UsersService {
     const userData: Partial<UsersTableModel> = {
       ...input,
       account: input.account ? input.account.id : undefined,
-      phones: input.phones ? JSON.stringify(input.phones) : undefined,
       createdAt: input.createdAt ? moment.tz(input.createdAt, timezone).format() : undefined,
       updatedAt: input.updatedAt ? moment.tz(input.updatedAt, timezone).format() : undefined,
     };

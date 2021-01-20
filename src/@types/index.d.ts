@@ -185,7 +185,6 @@ declare module '@via-profit-services/accounts' {
     readonly entity: string;
     readonly type: string;
     readonly deleted: boolean;
-    readonly recoveryPhones: string;
     readonly totalCount: number;
   }
 
@@ -198,7 +197,6 @@ declare module '@via-profit-services/accounts' {
     readonly updatedAt: Date;
     readonly totalCount: number;
     readonly status: AccountStatus;
-    readonly recoveryPhones: Phone[];
     readonly entity: string;
     readonly type: string;
     readonly deleted: boolean;
@@ -211,7 +209,6 @@ declare module '@via-profit-services/accounts' {
     readonly account: string;
     readonly createdAt: string;
     readonly updatedAt: string;
-    readonly phones: string;
     readonly deleted: boolean;
     readonly totalCount: number;
   }
@@ -222,7 +219,6 @@ declare module '@via-profit-services/accounts' {
     readonly account: string | null;
     readonly createdAt: Date;
     readonly updatedAt: Date;
-    readonly phones: Phone[];
     readonly deleted: boolean;
     readonly totalCount: number;
   }
@@ -307,9 +303,12 @@ declare module '@via-profit-services/accounts' {
           phones?: Phone[];
         };
       }>;
+      delete: GraphQLFieldResolver<unknown, Context, {
+        id: string;
+      }>
     };
     AccountsMutation: {
-      update:  GraphQLFieldResolver<unknown, Context, {
+      update: GraphQLFieldResolver<unknown, Context, {
         id: string;
         input: {
           id?: string;
@@ -317,18 +316,21 @@ declare module '@via-profit-services/accounts' {
           password?: string;
           status?: AccountStatus;
           roles?: AccountRole[];
-          recoveryPhones?: Phone[];
+          phones?: Phone[];
         };
       }>;
-      create:  GraphQLFieldResolver<unknown, Context, {
+      create: GraphQLFieldResolver<unknown, Context, {
         input: {
           id?: string;
           login: string;
           password: string;
           roles: AccountRole[];
-          recoveryPhones: Phone[];
+          phones: Phone[];
         };
       }>;
+      delete: GraphQLFieldResolver<unknown, Context, {
+        id: string;
+      }>
     };
     AuthentificationQuery: {
       tokenPayload: GraphQLFieldResolver<unknown, Context>;
@@ -517,9 +519,20 @@ declare module '@via-profit-services/core' {
     on(event: 'got-access-token', callback: (tokenBag: AccessTokenPayload) => void): this;
     on(event: 'refresh-token-success', callback: (tokenBag: AccessTokenPayload) => void): this;
     on(event: 'authentification-success', callback: (tokenBag: TokenPackage) => void): this;
+    on(event: 'account-was-deleted', callback: (accountID: string) => void): this;
+    on(event: 'account-was-updated', callback: (account: Account) => void): this;
+    on(event: 'user-was-updated', callback: (user: User) => void): this;
+    on(event: 'user-was-created', callback: (user: User) => void): this;
+    on(event: 'user-was-deleted', callback: (userID: string) => void): this;
+
     once(event: 'got-access-token', callback: (tokenBag: AccessTokenPayload) => void): this;
     once(event: 'authentification-success', callback: (tokenBag: TokenPackage) => void): this;
     once(event: 'refresh-token-success', callback: (tokenBag: TokenPackage) => void): this;
+    once(event: 'account-was-deleted', callback: (accountID: string) => void): this;
+    once(event: 'account-was-updated', callback: (account: Account) => void): this;
+    once(event: 'user-was-updated', callback: (user: User) => void): this;
+    once(event: 'user-was-created', callback: (user: User) => void): this;
+    once(event: 'user-was-deleted', callback: (userID: string) => void): this;
   }
   
   interface DataLoaderCollection {

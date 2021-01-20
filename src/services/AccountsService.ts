@@ -1,17 +1,17 @@
 /* eslint-disable import/max-dependencies */
 import type {
   Account, AccountsServiceProps, AccountsService as AccountsServiceInterface,
-  User, AccountsTableModel, AccountsTableModelResult, UsersTableModel,
-  UsersTableModelResult,
+  AccountsTableModel, AccountsTableModelResult,
 } from '@via-profit-services/accounts';
 import '@via-profit-services/redis';
-import { OutputFilter, ListResponse } from '@via-profit-services/core';
+import { OutputFilter, ListResponse, extractNodeField } from '@via-profit-services/core';
 import {
   convertWhereToKnex, convertOrderByToKnex,
   convertSearchToKnex, extractTotalCountPropOfNode,
 } from '@via-profit-services/knex';
 import bcryptjs from 'bcryptjs';
 import moment from 'moment-timezone';
+import '@via-profit-services/phones';
 import { v4 as uuidv4 } from 'uuid';
 
 
@@ -30,12 +30,12 @@ class AccountsService implements AccountsServiceInterface {
       password: uuidv4(),
       status: 'allowed',
       roles: [],
-      recoveryPhones: [],
       createdAt: moment().toDate(),
       updatedAt: moment().toDate(),
       entity: null,
       deleted: false,
       type: 'User',
+      recoveryPhones: [],
     };
   }
 
@@ -47,7 +47,6 @@ class AccountsService implements AccountsServiceInterface {
       entity: input?.entity?.id ? input.entity.id : null,
       status: input.status ? String(input.status) : undefined,
       roles: input.roles ? JSON.stringify(input.roles) : undefined,
-      recoveryPhones: input.recoveryPhones ? JSON.stringify(input.recoveryPhones) : undefined,
       createdAt: input.createdAt ? moment.tz(input.createdAt, timezone).format() : undefined,
       updatedAt: input.updatedAt ? moment.tz(input.updatedAt, timezone).format() : undefined,
     };
@@ -57,10 +56,10 @@ class AccountsService implements AccountsServiceInterface {
 
   public async getAccounts(filter: Partial<OutputFilter>): Promise<ListResponse<Account>> {
     const { context } = this.props;
-    const { knex } = context;
+    const { knex, services } = context;
     const { limit, offset, orderBy, where, search } = filter;
 
-    const result = await knex
+    const response = await knex
       .select([
         'accounts.*',
         knex.raw('count(*) over() as "totalCount"'),
@@ -70,20 +69,32 @@ class AccountsService implements AccountsServiceInterface {
       .where((builder) => convertWhereToKnex(builder, where))
       .where((builder) => convertSearchToKnex(builder, search))
       .limit(limit || 1)
-      .offset(offset || 0)
-      .then((nodes) => nodes.map((node) => ({
-          ...node,
-          entity: node.entity
-            ? { id: node.entity }
-            : null,
-        })))
-      .then((nodes) => ({
-        ...extractTotalCountPropOfNode(nodes),
-          offset,
-          limit,
-          orderBy,
-          where,
-        }))
+      .offset(offset || 0);
+
+    const accountIDs = extractNodeField(response, 'id');
+    const phonesBundle = await services.phones.getPhonesByEntities(accountIDs);
+
+    const nodes = response.map((node) => {
+      const recoveryPhones = phonesBundle.nodes.filter((phone) => phone.entity.id === node.id);
+      const entity = node.entity ? { id: node.entity } : null
+
+      return {
+        ...node,
+        recoveryPhones,
+        entity,
+      }
+    });
+
+
+    const result: ListResponse<Account> = {
+      ...extractTotalCountPropOfNode(response),
+      nodes,
+      offset,
+      limit,
+      orderBy,
+      where,
+    };
+
 
     return result;
   }
@@ -185,55 +196,6 @@ class AccountsService implements AccountsServiceInterface {
     return false;
   }
 
-
-  public async getUsers(filter: Partial<OutputFilter>): Promise<ListResponse<User>> {
-    const { context } = this.props;
-    const { knex } = context;
-    const { limit, offset, orderBy, where, search } = filter;
-
-    const result = await knex
-      .select([
-        'users.*',
-        knex.raw('count(*) over() as "totalCount"'),
-      ])
-      .from<UsersTableModel, UsersTableModelResult[]>('users')
-      .orderBy(convertOrderByToKnex(orderBy))
-      .where((builder) => convertWhereToKnex(builder, where))
-      .where((builder) => convertSearchToKnex(builder, search))
-      .limit(limit || 1)
-      .offset(offset || 0)
-      .then((nodes) => nodes.map((node) => ({
-        ...node,
-        account: !node.account ? null : {
-          id: node.account,
-        },
-      })))
-      .then((nodes) => ({
-        ...extractTotalCountPropOfNode(nodes),
-          offset,
-          limit,
-          orderBy,
-          where,
-        }))
-
-    return result;
-  }
-
-  public async getUsersByIds(ids: string[]): Promise<User[]> {
-    const { nodes } = await this.getUsers({
-      where: [['id', 'in', ids]],
-      offset: 0,
-      limit: ids.length,
-    });
-
-    return nodes;
-  }
-
-  public async getUser(id: string): Promise<User | false> {
-    const nodes = await this.getUsersByIds([id]);
-
-    return nodes.length ? nodes[0] : false;
-  }
 
   public getAccountStatusesList(): string[] {
     return ['allowed', 'forbidden'];
