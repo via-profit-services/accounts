@@ -1,5 +1,5 @@
 import type { Resolvers } from '@via-profit-services/accounts';
-import { ServerError, BadRequestError } from '@via-profit-services/core';
+import { ServerError } from '@via-profit-services/core';
 
 
 const accountsMutationResolver: Resolvers['AccountsMutation'] = {
