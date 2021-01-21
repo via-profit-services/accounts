@@ -27,6 +27,7 @@ function up(knex) {
 
     -- set new type for column
     alter table "accounts" alter column "type" type varchar(50) using "type"::varchar;
+    alter table "accounts" alter column "type" set default 'User';
 
     -- delete type
     drop type if exists "accountType";
