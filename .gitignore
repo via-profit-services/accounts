@@ -1,10 +1,11 @@
 /node_modules/
 /.env
-/.env.prod
 /log
 /misc
 /sandbox.js
 /sessions
+
+20210120105405_phones-setup.js
 
 # jest
 /coverage
@@ -21,3 +22,11 @@
 /dump.rdb
 
 /sessions
+/package.tgz
+/package-*.tgz
+
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions

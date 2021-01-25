@@ -1,0 +1,417 @@
+extend type Query {
+  accounts: AccountsQuery!
+  users: UsersQuery!
+  authentification: AuthentificationQuery!
+}
+
+extend type Mutation {
+  accounts: AccountsMutation!
+  users: UsersMutation!
+  authentification: AuthentificationMutation!
+}
+
+type AuthentificationQuery {
+  """
+  Returns payload of your «Access» token
+  """
+  tokenPayload: AccessTokenPayload!
+
+  """
+  Verify your token
+  """
+  verifyToken(token: String!): TokenVerificationResponse!
+}
+
+enum AccountRole {
+  developer
+  administrator
+  viewer
+}
+
+
+type TokenRegistrationError implements Error {
+  name: String!
+  msg: String!
+}
+
+
+type TokenVerificationError implements Error {
+  name: String!
+  msg: String!
+}
+
+type ResetPasswordError implements Error {
+  name: String!
+  msg: String!
+}
+
+type ResetPasswordSuccess {
+  msg: String!
+  phones: [String!]!
+}
+
+
+union TokenRegistrationResponse = TokenBag | TokenRegistrationError
+union TokenVerificationResponse = AccessTokenPayload | RefreshTokenPayload | TokenVerificationError
+union ResetPasswordResponse = ResetPasswordSuccess | ResetPasswordError
+
+type TokenBag {
+  accessToken: AccessToken
+  refreshToken: RefreshToken
+}
+
+type AccessToken {
+  token: String!
+  payload: AccessTokenPayload!
+}
+
+type RefreshToken {
+  token: String!
+  payload: RefreshTokenPayload!
+}
+
+type AccessTokenPayload {
+  type: TokenType!
+  id: ID!
+  uuid: ID!
+  roles: [AccountRole!]!
+  exp: Int!
+  iss: String!
+}
+
+type RefreshTokenPayload {
+  type: TokenType!
+  id: ID!
+  uuid: ID!
+  roles: [AccountRole!]!
+  exp: Int!
+  iss: String!
+  associated: AccessToken!
+}
+
+interface Profile {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  account: Account
+  deleted: Boolean!
+}
+
+
+
+type Account implements Node {
+  id: ID!
+  login: String!
+  password: String!
+  status: AccountStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  roles: [AccountRole!]!
+  recoveryPhones: [Phone!]!
+  deleted: Boolean!
+  entity: AccountEntity!
+  type: AccountType!
+}
+
+type MyAccount implements Node {
+  id: ID!
+  login: String!
+  password: String!
+  status: AccountStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  roles: [AccountRole!]!
+  recoveryPhones: [Phone!]!
+  entity: AccountEntity!
+  type: AccountType!
+}
+
+type User implements Node & Profile {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  account: Account
+  deleted: Boolean!
+  name: String!
+  phones: [Phone!]
+}
+
+enum AccountStatus {
+  allowed
+  forbidden
+}
+
+enum AccountOrderField {
+  login
+  type
+  createdAt
+  updatedAt
+}
+
+enum TokenType {
+  access
+  refresh
+}
+
+type UsersQuery {
+  """
+  Returns Users list bundle
+  """
+  list(
+    first: Int
+    offset: Int
+    after: String
+    orderBy: [UserOrderBy!]
+    filter: UserListFilter
+    search: UserFilterSearch
+  ): UserListConnection!
+
+  """
+  Returns user if exists
+  """
+  user(id: ID!): User
+}
+
+"""
+Accounts module queries
+"""
+type AccountsQuery {
+  """
+  Returns Your account
+  """
+  me: MyAccount!
+
+  """
+  Returns account if exists
+  """
+  account(id: ID!): Account
+
+  """
+  Check if passed login exists
+  """
+  checkLoginExists(login: String!, skipId: ID): Boolean!
+
+  """
+  Returns Accounts list bundle
+  """
+  list(
+    first: Int
+    offset: Int
+    after: String
+    orderBy: [AccountOrderBy!]
+    filter: AccountListFilter
+    search: AccountFilterSearch
+  ): AccountListConnection!
+
+  """
+  Returns Account statuses list
+  """
+  statusesList: [AccountStatus!]!
+}
+
+"""
+Account edge bundle
+"""
+type AccountsEdge implements Edge {
+  node: Account!
+  cursor: String!
+}
+
+"""
+Possible data to filter list of accounts
+"""
+input AccountListFilter {
+  status: [AccountStatus!]
+  type: [AccountType!]
+}
+
+"""
+Account search filter
+"""
+input AccountFilterSearch {
+  fields: [AccountFilterSearchField!]!
+
+  """
+  Search query string
+  """
+  query: String!
+}
+
+"""
+Possible fields to search accounts
+"""
+enum AccountFilterSearchField {
+  login
+}
+
+"""
+Ordering options for accounts returned from the connection
+"""
+input AccountOrderBy {
+  field: AccountOrderField!
+  direction: OrderDirection!
+}
+
+"""
+Accounts list bundle
+"""
+type AccountListConnection implements Connection {
+  totalCount: Int!
+  pageInfo: PageInfo!
+  edges: [AccountsEdge!]!
+}
+
+type AccountsMutation {
+  """
+  Create new account
+  """
+  create(input: AccountInputCreate!): Account!
+  
+  """
+  Update exists account data
+  """
+  update(id: ID!, input: AccountInputUpdate!): Account!
+
+  """
+  Delete account
+  """
+  delete(id: ID!): Boolean!
+}
+
+
+type UsersMutation {
+  """
+  Create new user
+  """
+  create(input: UserInputCreate!): User!
+
+  """
+  Update exists user data
+  """
+  update(id: ID!, input: UserInputUpdate!): User!
+
+  """
+  Delete exists user
+  """
+  delete(id: ID!): Boolean!
+}
+
+type AuthentificationMutation {
+  """
+  Pass your login and password to get «Access» and «Refresh» tokens pair
+  """
+  create(login: String!, password: String!): TokenRegistrationResponse!
+
+  """
+  Revoke Tokens by token ID or/and account ID
+  """
+  revoke(tokenID: ID accountID: ID): Void!
+  """
+  Pass your «Refresh» token to exchange it to new «Access» and «Refresh» tokens pair
+  """
+  refresh(refreshToken: String!): TokenRegistrationResponse!
+
+  """
+  A new password will be generated and an SMS will be sent to the phone numbers that are specified as Recovery
+  """
+  reset(login: String!): ResetPasswordResponse!
+}
+
+
+input UserInputUpdate {
+  id: String
+  account: String
+  name: String
+  phones: [PhoneInputUpdate!]
+}
+
+input UserInputCreate {
+  id: String
+  account: String!
+  name: String!
+  phones: [PhoneInputCreate]!
+}
+
+input AccountInputUpdate {
+  id: String
+  login: String
+  password: String
+  status: AccountStatus
+  roles: [AccountRole!]
+
+  """
+  Phones list for password recovery
+  """
+  recoveryPhones: [PhoneInputUpdate!]
+}
+
+input AccountInputCreate {
+  id: String
+  login: String!
+  password: String!
+  roles: [AccountRole!]!
+  """
+  Phones list for password recovery
+  """
+  recoveryPhones: [PhoneInputCreate!]!
+}
+
+
+"""
+User edge bundle
+"""
+type UsersEdge implements Edge {
+  node: User!
+  cursor: String!
+}
+
+"""
+Possible data to filter list of users
+"""
+input UserListFilter {
+  account: [ID!]
+}
+
+"""
+User search filter
+"""
+input UserFilterSearch {
+  fields: [UserFilterSearchField!]!
+
+  """
+  Search query string
+  """
+  query: String!
+}
+
+
+"""
+Possible fields to search users
+"""
+enum UserFilterSearchField {
+  name
+}
+
+"""
+Ordering options for users returned from the connection
+"""
+input UserOrderBy {
+  field: UserOrderField!
+  direction: OrderDirection!
+}
+
+enum UserOrderField {
+  name
+  createdAt
+  updatedAt
+}
+
+"""
+Users list bundle
+"""
+type UserListConnection implements Connection {
+  totalCount: Int!
+  pageInfo: PageInfo!
+  edges: [UsersEdge!]!
+}
+

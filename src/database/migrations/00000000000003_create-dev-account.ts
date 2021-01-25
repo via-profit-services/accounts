@@ -1,12 +1,4 @@
-/* eslint-disable import/no-extraneous-dependencies */
-/**
- * @via-profit-services/core
- *
- * This migration file was created by the @via-profit-services/core package
- * This migration will create development account
- */
-
-import { Knex } from '@via-profit-services/core';
+import Knex from 'knex';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function up(knex: Knex): Promise<any> {
@@ -17,7 +9,7 @@ export async function up(knex: Knex): Promise<any> {
     password: '$2a$10$W2AIgtHMlwKtZB65S7scVuWHVxomH0KxTc47EJ0xXuJgCSvBFRnw.',
     status: 'allowed',
     type: 'stuff',
-    roles: knex.raw(`'${JSON.stringify(['admin', 'developer'])}'::jsonb`),
+    roles: knex.raw(`'${JSON.stringify(['developer'])}'::jsonb`),
     comment: 'Development account. Please delete this account when development is complete',
   });
 }

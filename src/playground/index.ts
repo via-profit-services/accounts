@@ -1,53 +1,119 @@
+/* eslint-disable import/max-dependencies */
 /* eslint-disable no-console */
-/* eslint-disable import/no-extraneous-dependencies */
-import { App, schemas } from '@via-profit-services/core';
-import { makeSchema } from '@via-profit-services/file-storage';
-import chalk from 'chalk';
-import { v4 as uuidv4 } from 'uuid';
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import { factory, resolvers, typeDefs } from '@via-profit-services/core';
+import * as knex from '@via-profit-services/knex';
+import * as permissions from '@via-profit-services/permissions';
+import { factory as phonesFactory } from '@via-profit-services/phones';
+import * as redis from '@via-profit-services/redis';
+import * as sms from '@via-profit-services/sms';
+import dotenv from 'dotenv';
+import express from 'express';
+import http from 'http';
+import path from 'path';
 
-import { typeDefs, resolvers } from '../schemas/accounts';
-import { configureApp } from '../utils/configureApp';
+import { factory as accountsFactory } from '../index';
 
+dotenv.config();
 
-const fileStorageData = makeSchema({
-  hostname: `localhost:${process.env.PORT}`,
-});
+const PORT = 9005;
+const app = express();
+const redisConfig: redis.InitialProps = {
+  host: 'localhost',
+  port: 6379,
+  password: '',
+  db: 5,
+};
+const server = http.createServer(app);
+(async () => {
 
-const config = configureApp({
-  typeDefs: [typeDefs, fileStorageData.typeDefs],
-  resolvers: [resolvers, fileStorageData.resolvers],
-  expressMiddlewares: [fileStorageData.expressMiddleware],
-});
-const app = new App(config);
-const AuthService = schemas.auth.service;
-
-app.bootstrap((props) => {
-  const { resolveUrl, context } = props;
-  if (process.env.NODE_ENV !== 'development') {
-    console.log(`GraphQL server was started at ${resolveUrl.graphql}`);
-
-    return;
-  }
-
-  console.log('');
-  const authService = new AuthService({ context });
-  const { accessToken } = authService.generateTokens({
-    uuid: uuidv4(),
-    roles: ['developer'],
-  }, {
-    access: 2.592e6,
-    refresh: 2.592e6,
+  const phones = phonesFactory({
+    entities: ['User', 'Account'],
   });
 
-  console.log(chalk.green('Your development token is:'));
-  console.log(chalk.yellow(accessToken.token));
-  console.log('');
+  const knexMiddleware = knex.factory({
+    connection: {
+      user: process.env.DB_USER,
+      database: process.env.DB_NAME,
+      password: process.env.DB_PASSWORD,
+      host: process.env.DB_HOST,
+    },
+  });
 
-  console.log('');
-  console.log(chalk.green('============== Server =============='));
-  console.log('');
-  console.log(`${chalk.green('GraphQL server')}:     ${chalk.yellow(resolveUrl.graphql)}`);
-  console.log(`${chalk.green('Auth server')}:        ${chalk.yellow(resolveUrl.auth)}`);
+  const redisMiddleware = redis.factory(redisConfig);
 
-  console.log('');
-});
+  const accounts = await accountsFactory({
+    privateKey: path.resolve(__dirname, './jwtRS256.key'),
+    publicKey: path.resolve(__dirname, './jwtRS256.key.pub'),
+    accessTokenExpiresIn: 60 * 60 * 24,
+    entities: ['Driver'],
+  });
+
+  const permissionsMiddleware = await permissions.factory({
+    defaultAccess: 'grant',
+    enableIntrospection: true,
+    permissions: {
+      'Mutation.phones': { grant: ['*'] },
+      'Query.phones': { grant: ['*'] },
+      'User.*': { grant: ['*'] },
+      'Account.*': { grant: ['*'] },
+      'Phone.*': { grant: ['*'] },
+      'PhoneInputCreate.*': { grant: ['*'] },
+      'PhoneInputUpdate.*': { grant: ['*'] },
+      'PhonesMutation.*': { grant: ['*'] },
+      'PhonesQuery.*': { grant: ['*'] },
+      'PhoneListConnection.*': { grant: ['*'] },
+      'PhonesEdge.*': { grant: ['*'] },
+    },
+  });
+
+  const smsMiddleware = sms.factory({
+    provider: 'smsc.ru',
+    login: process.env.SMSC_LOGIN,
+    password: process.env.SMSC_PASSWORD,
+  });
+
+  const schema = makeExecutableSchema({
+    typeDefs: [
+      typeDefs,
+      phones.typeDefs,
+      accounts.typeDefs,
+      `type Driver {
+        name: String!
+      }`,
+    ],
+    resolvers: [
+      resolvers,
+      phones.resolvers,
+      accounts.resolvers,
+      {
+        Driver: ({
+          name: () => 'Driver ivan',
+        }),
+      },
+    ],
+  });
+
+
+  const { graphQLExpress } = await factory({
+    server,
+    schema,
+    debug: true,
+    middleware: [
+      knexMiddleware,
+      redisMiddleware,
+      smsMiddleware,
+      phones.middleware,
+      permissionsMiddleware,
+      accounts.middleware, // <-- After all
+    ],
+  });
+
+  app.use(graphQLExpress);
+  server.listen(PORT, () => {
+
+
+    console.log(`GraphQL Server started at http://localhost:${PORT}/graphql`);
+  })
+
+})();

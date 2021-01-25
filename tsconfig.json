@@ -2,21 +2,25 @@
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "baseUrl": "./src",
-    "declaration": true,
+    "declaration": false,
     "esModuleInterop": true,
     "module": "commonjs",
     "moduleResolution": "node",
     "noImplicitAny": true,
     "outDir": "./dist",
-    "paths": {
-      "~/*": ["./*"]
-    },
     "resolveJsonModule": true,
     "rootDir": "./src",
-    "sourceMap": false,
+    "sourceMap": true,
     "target": "es6",
-    "typeRoots": ["node_modules/@types", "src/@types"]
+    "types": [
+      "node"
+    ]
   },
-  "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts"],
-  "include": ["src/**/*"]
+  "exclude": [
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts"
+  ],
+  "include": [
+    "src/**/*"
+  ]
 }

@@ -1,4 +1,12 @@
-.*
+.yarn/*
+.env
+.knex/knexfile.js
+.vscode/*
+.eslintignore
+.eslintrc
+.prettierrc
+20210120105405_phones-setup.js
+
 /assets
 /build
 /keys
@@ -13,3 +21,5 @@
 /yarn.lock
 /yarn-error.lock
 /dump.rdb
+/package.tgz
+/package-*.tgz
