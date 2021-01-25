@@ -41,12 +41,14 @@ exports.up = up;
 function down(knex) {
     return __awaiter(this, void 0, void 0, function* () {
         return knex.raw(`
+    alter table "accounts" alter column "type" drop default;
     alter table "accounts" drop column "entity" cascade;
     create type "accountType" as enum (
       'stuff',
       'client'
     );
     alter table "accounts" alter column "type" type "accountType" using 'stuff'::"accountType";
+    alter table "accounts" alter column "type" set default 'stuff'::"accountType";
   `);
     });
 }
