@@ -37,17 +37,62 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
       }
     }
 
+
     // update phones
-    if (typeof phones !== 'undefined') {
-      try {
-        await phones.reduce(async (prev, phone) => {
-          await prev;
-          await services.phones.updatePhone(phone.id, phone);
+    if (phones) {
+      const allClientPhones = await services.phones.getPhonesByEntities([id, userInput.id]);
+
+      // delete old phones
+      await allClientPhones.nodes.reduce(async (prev, phone) => {
+        await prev;
+
+        if (!phones.find((p) => p.id === phone.id)) {
+          await services.phones.deletePhones([phone.id]);
           dataloader.phones.clear(phone.id);
-        }, Promise.resolve());
-      } catch (err) {
-        throw new ServerError('Failed to update phones', { err });
-      }
+        }
+      }, Promise.resolve())
+
+      // check and create/update new phones
+      await phones.reduce(async (prev, phone) => {
+        await prev;
+
+        if (!phone.id) {
+          throw new BadRequestError('Phone number must be contain ID');
+        }
+
+        // try to load phone
+        const existsPhone = await dataloader.phones.load(phone.id);
+
+        // Clearing!, since the dataloader remembered this phone as not existing
+        dataloader.phones.clear(phone.id);
+
+        // update phone
+        if (existsPhone) {
+
+          if (existsPhone.entity.id !== userInput.id) {
+            throw new BadRequestError('This phone number belongs to another entity');
+          }
+
+          await services.phones.updatePhone(phone.id, {
+            ...phone,
+            type: 'User',
+          });
+
+          dataloader.phones.clear(phone.id);
+
+          // create new phone
+        } else {
+
+          await services.phones.createPhone({
+            ...phone,
+            type: 'User',
+            entity: {
+              id: userInput.id,
+            },
+          });
+        }
+
+      }, Promise.resolve());
     }
 
     dataloader.users.clear(id);
