@@ -138,11 +138,27 @@ const authentificationMutation: Resolvers['AuthentificationMutation'] = {
       }
     }
 
+    if (!account.recoveryPhones) {
+      return {
+        name: 'MissingRecoveryPhones',
+        msg: 'Account has not recovery phone numbers',
+        __typename: 'ResetPasswordError',
+      }
+    }
+
     // reset password
     const min = 12222;
     const max = 99999;
     const password = Math.floor( min + Math.random() * (max + 1 - min)).toString();
-    const phones: PhoneNumber[] = account.recoveryPhones.map(({ number, country }) => {
+    const recoveryPhones = await Promise.all(
+      account.recoveryPhones.map(({ id }) => dataloader.phones.load(id)),
+    );
+
+    if (!recoveryPhones) {
+      throw new ServerError('Failed to load recovery phones');
+    }
+
+    const phones: PhoneNumber[] = recoveryPhones.map(({ number, country }) => {
       const phone = parsePhoneNumberFromString(number, country as CountryCode);
 
       return phone;

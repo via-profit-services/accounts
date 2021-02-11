@@ -16,7 +16,6 @@ import { factory as accountsFactory } from '../index';
 
 dotenv.config();
 
-const PORT = 9005;
 const app = express();
 const redisConfig: redis.InitialProps = {
   host: 'localhost',
@@ -110,10 +109,10 @@ const server = http.createServer(app);
   });
 
   app.use(graphQLExpress);
-  server.listen(PORT, () => {
+  server.listen(Number(process.env.SERVER_PORT), process.env.SERVER_HOST, () => {
 
 
-    console.log(`GraphQL Server started at http://localhost:${PORT}/graphql`);
+    console.log(`GraphQL Server started at http://${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/graphql`);
   })
 
 })();

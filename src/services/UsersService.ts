@@ -35,12 +35,18 @@ class UsersService {
       .offset(offset || 0);
 
     const userIDs = extractNodeField(response, 'id');
+    const accountsBundle = await services.accounts.getAccountsByEntities(userIDs);
     const phonesBundle = await services.phones.getPhonesByEntities(userIDs);
-    const nodes = response.map((node) => ({
+    const nodes = response.map((node) => {
+      const accounts = accountsBundle.nodes.filter((account) => account.entity.id === node.id);
+      const phones = phonesBundle.nodes.filter((phone) => phone.entity.id === node.id);
+
+      return {
         ...node,
-        account: node.account ? { id: node.account } : null,
-        phones: phonesBundle.nodes.filter((phone) => phone.entity.id === node.id),
-      }));
+        phones,
+        accounts,
+      }
+    });
 
     const result: ListResponse<User> = {
       ...extractTotalCountPropOfNode(response),
@@ -76,7 +82,6 @@ class UsersService {
     const { timezone } = context;
     const userData: Partial<UsersTableModel> = {
       ...input,
-      account: input.account ? input.account.id : undefined,
       createdAt: input.createdAt ? moment.tz(input.createdAt, timezone).format() : undefined,
       updatedAt: input.updatedAt ? moment.tz(input.updatedAt, timezone).format() : undefined,
     };

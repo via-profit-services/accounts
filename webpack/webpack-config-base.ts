@@ -26,6 +26,7 @@ const webpackBaseConfig: Configuration = {
     ...knexExternals,
     /^@via-profit-services\/core/,
     /^@via-profit-services\/knex/,
+    /^faker$/,
     /^moment$/,
     /^moment-timezone$/,
     /^uuid$/,

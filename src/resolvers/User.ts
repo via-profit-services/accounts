@@ -7,7 +7,7 @@ const userResolver = new Proxy<UserResolver>({
   updatedAt: () => ({}),
   name: () => ({}),
   phones: () => ({}),
-  account: () => ({}),
+  accounts: () => ({}),
   deleted: () => ({}),
 }, {
   get: (target, prop: keyof UserResolver) => {

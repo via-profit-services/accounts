@@ -1,5 +1,5 @@
 import type { Resolvers } from '@via-profit-services/accounts';
-import { ServerError } from '@via-profit-services/core';
+import { BadRequestError, ServerError } from '@via-profit-services/core';
 
 
 const accountsMutationResolver: Resolvers['AccountsMutation'] = {
@@ -7,6 +7,17 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
     const { id, input } = args;
     const { recoveryPhones, ...accountInput } = input;
     const { dataloader, services, emitter } = context;
+
+    // check to passed login and password if one of this fields will be updated
+    if (typeof accountInput.login !== 'undefined' && typeof accountInput.password === 'undefined') {
+      throw new BadRequestError('For login update you should provide the password');
+    }
+
+    if (typeof accountInput.password !== 'undefined' && typeof accountInput.login === 'undefined') {
+      throw new BadRequestError('For password update you should provide your login');
+    }
+
+    accountInput.id = id;
 
     try {
       await services.accounts.updateAccount(id, accountInput);
@@ -40,6 +51,7 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
     dataloader.accounts.clear(id);
     const account = await dataloader.accounts.load(id);
     emitter.emit('account-was-updated', account);
+
 
     return account;
   },

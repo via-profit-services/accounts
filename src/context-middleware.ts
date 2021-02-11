@@ -17,14 +17,15 @@ interface Props {
 
 const contextMiddleware = async (props: Props): Promise<Context> => {
 
-  const { context, config, jwt } = props;
+  const { context, config, jwt, configuration } = props;
+  const { entities } = configuration;
   const { logDir } = config;
 
   // JsonWebToken settings
   context.jwt = jwt;
 
   // Accounts Service
-  context.services.accounts = new AccountsService({ context });
+  context.services.accounts = new AccountsService({ context, entities });
 
   // Users Service
   context.services.users = new UsersService({ context });

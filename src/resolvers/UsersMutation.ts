@@ -5,29 +5,36 @@ import { BadRequestError, ServerError } from '@via-profit-services/core';
 const usersMutationResolver: Resolvers['UsersMutation'] = {
   update: async (_parent, args, context) => {
     const { id, input } = args;
-    const { phones, ...userInput } = input;
+    const { phones, accounts, ...userInput } = input;
     const { dataloader, services, emitter } = context;
 
-    const account = input.account
-    ? { id: input.account }
-    : undefined;
-
-    // check for account exists
-    if (account) {
-      const accountData = await services.accounts.getAccount(account.id);
-      if (!accountData) {
-        throw new BadRequestError(`Account with id «${account.id}» not found`);
-      }
+    const originalData = await dataloader.users.load(id);
+    if (!originalData) {
+      throw new BadRequestError('User not found');
     }
 
+    userInput.id = id;
 
     try {
-      await services.users.updateUser(id, {
-        ...userInput,
-        account,
-      });
+      await services.users.updateUser(id, userInput);
     } catch (err) {
       throw new ServerError('Failed to update user', { err });
+    }
+
+    // update accounts
+    if (typeof accounts !== 'undefined') {
+      try {
+        await accounts.reduce(async (prev, account) => {
+          await prev;
+          await services.accounts.updateAccount(account.id, account);
+          dataloader.accounts.clear(account.id);
+          const updatedAccount = await dataloader.accounts.load(account.id);
+
+          emitter.emit('account-was-updated', updatedAccount);
+        }, Promise.resolve());
+      } catch (err) {
+        throw new ServerError('Failed to update accounts', { err });
+      }
     }
 
     // update phones
@@ -39,41 +46,26 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
           dataloader.phones.clear(phone.id);
         }, Promise.resolve());
       } catch (err) {
-        throw new ServerError('Failed to update account', { err });
+        throw new ServerError('Failed to update phones', { err });
       }
     }
 
     dataloader.users.clear(id);
-    const user = await dataloader.users.load(id);
+    dataloader.users.clear(userInput.id);
+    const user = await dataloader.users.load(userInput.id);
     emitter.emit('user-was-updated', user);
 
     return user;
   },
   create: async (_parent, args, context) => {
     const { input } = args;
-    const { phones, ...userInput } = input;
+    const { phones, accounts, ...userInput } = input;
     const { services, logger, emitter, dataloader } = context;
-
-    const account = userInput.account
-    ? { id: input.account }
-    : undefined;
-
-    // check for account exists
-    if (account) {
-      const accountData = await services.accounts.getAccount(account.id);
-      if (!accountData) {
-        throw new BadRequestError(`Account with id «${account.id}» not found`);
-      }
-    }
 
     const result = { id: '' };
 
     try {
-
-      result.id = await services.users.createUser({
-        ...input,
-        account,
-      });
+      result.id = await services.users.createUser(userInput);
       logger.auth.debug(`New user was created with id «${result.id}»`);
 
     } catch (err) {
@@ -87,6 +79,21 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
         await phones.reduce(async (prev, phone) => {
           await prev;
           await services.phones.createPhone(phone);
+        }, Promise.resolve());
+      } catch (err) {
+        throw new ServerError('Failed to create user phones', { err });
+      }
+    }
+
+
+    // create accounts
+    if (typeof accounts !== 'undefined') {
+      try {
+        await accounts.reduce(async (prev, account) => {
+          await prev;
+          await services.accounts.createAccount(account);
+          const newAccount = dataloader.accounts.load(account.id);
+          emitter.emit('account-was-created', newAccount);
         }, Promise.resolve());
       } catch (err) {
         throw new ServerError('Failed to create user phones', { err });
@@ -113,13 +120,17 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
 
     // delete account first
     try {
-      if (user.account) {
-        await services.accounts.deleteAccount(user.account.id);
-        dataloader.users.clear(user.account.id);
-        emitter.emit('account-was-deleted', user.account.id);
+      if (user.accounts && user.accounts.length) {
+        const userAccountIDs = user.accounts.map((account) => account.id);
+        await services.accounts.deleteAccounts(userAccountIDs);
+        userAccountIDs.map((userAccountID) => {
+          dataloader.accounts.clear(userAccountID);
+          emitter.emit('account-was-deleted', userAccountID);
+        });
+
       }
     } catch (err) {
-      throw new ServerError(`Failed to delete account ${user.account.id}`, { err });
+      throw new ServerError(`Failed to delete accounts of user ${user.id}`, { err });
     }
 
     // delete user first

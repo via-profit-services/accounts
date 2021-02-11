@@ -164,10 +164,8 @@ declare module '@via-profit-services/accounts' {
 
   export interface User {
     id: string;
-    account: {
-      id: string;
-    };
     name: string;
+    accounts: Account[];
     phones: Phone[];
     createdAt: Date;
     updatedAt: Date;
@@ -185,7 +183,6 @@ declare module '@via-profit-services/accounts' {
     readonly entity: string;
     readonly type: string;
     readonly deleted: boolean;
-    readonly totalCount: number;
   }
 
   export interface AccountsTableModelResult {
@@ -199,6 +196,7 @@ declare module '@via-profit-services/accounts' {
     readonly status: AccountStatus;
     readonly entity: string;
     readonly type: string;
+    readonly recoveryPhones: string;
     readonly deleted: boolean;
   }
 
@@ -206,11 +204,10 @@ declare module '@via-profit-services/accounts' {
   export interface UsersTableModel {
     readonly id: string;
     readonly name: string;
-    readonly account: string;
     readonly createdAt: string;
     readonly updatedAt: string;
     readonly deleted: boolean;
-    readonly totalCount: number;
+    readonly comment: string;
   }
 
   export interface UsersTableModelResult {
@@ -233,7 +230,7 @@ declare module '@via-profit-services/accounts' {
     roles: AccountRole[];
     createdAt: Date;
     updatedAt: Date;
-    recoveryPhones: Phone[];
+    recoveryPhones: Array<{ id: string }> | null;
     deleted: boolean;
     type: string;
     entity: {
@@ -290,16 +287,16 @@ declare module '@via-profit-services/accounts' {
         id: string;
         input: {
           id?: string;
-          account?: string;
           name?: string;
+          accounts?: Account[];
           phones?: Phone[];
         };
       }>;
       create: GraphQLFieldResolver<unknown, Context, {
         input: {
           id?: string;
-          account?: string;
           name: string;
+          accounts?: Account[];
           phones?: Phone[];
         };
       }>;
@@ -375,6 +372,7 @@ declare module '@via-profit-services/accounts' {
    */
   export interface AccountsServiceProps {
     context: Context;
+    entities: string[];
   }
 
   /**
@@ -398,7 +396,11 @@ declare module '@via-profit-services/accounts' {
     /**
      * Just crypt password
      */
-    cryptUserPassword(password: string): string;
+    cryptUserPassword(login: string, password: string): string;
+    /**
+     * Compose credentials before crypt the password
+     */
+    composeCredentials(login: string, password: string): string;
     /**
      * Generate token pair (access + refresh)
      */
@@ -449,8 +451,13 @@ declare module '@via-profit-services/accounts' {
     updateAccount(id: string, accountData: Partial<Account>): Promise<void>;
     createAccount(accountData: Partial<Account>): Promise<string>;
     deleteAccount(id: string): Promise<void>;
+    deleteAccounts(ids: string[]): Promise<void>;
     checkLoginExists(login: string, skipId?: string): Promise<boolean>;
     getAccountByCredentials(login: string, password: string): Promise<Account | false>;
+    rebaseTypes(types: string[]): Promise<void>;
+    getEntitiesTypes(): string[];
+    getAccountsByEntities(entitiesIDs: string[]): Promise<ListResponse<Account>>;
+    getAccountsByEntity(entityID: string): Promise<ListResponse<Account>>;
   }
 
   /**

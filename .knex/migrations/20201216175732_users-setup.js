@@ -28,9 +28,7 @@ function up(knex) {
 
     CREATE TABLE "users" (
       "id" uuid NOT NULL,
-      "account" uuid NULL,
       "name" varchar(100) NOT NULL,
-      "phones" jsonb NOT NULL DEFAULT '[]'::jsonb,
       "createdAt" timestamptz NOT NULL DEFAULT now(),
       "updatedAt" timestamptz NOT NULL DEFAULT now(),
       "deleted" boolean NOT NULL DEFAULT false,
@@ -39,7 +37,6 @@ function up(knex) {
     );
  
     CREATE INDEX "usersDeletedIndex" ON users USING btree (deleted);
-    ALTER TABLE "users" ADD CONSTRAINT "usersToAccounts_fk" FOREIGN KEY (account) REFERENCES "accounts"(id) ON DELETE SET NULL;
 
   `);
         if (accounts.length) {
@@ -47,9 +44,7 @@ function up(knex) {
                 id: uuid_1.v4(),
                 createdAt: account.createdAt,
                 updatedAt: account.updatedAt,
-                account: account.id,
                 name: account.name,
-                phones: '[]',
                 deleted: account.deleted,
                 comment: account.comment,
             }))).into('users');

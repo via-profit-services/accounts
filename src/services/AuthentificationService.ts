@@ -81,13 +81,19 @@ class AuthentificationService implements AuthentificationServiceInterface {
     };
   }
 
-  /**
+
+  public composeCredentials (login: string, password: string) {
+    return `${login}.${password}`;
+  }
+
+    /**
    * Just crypt password
    */
-  public cryptUserPassword(password: string) {
+  public cryptUserPassword(login: string, password: string) {
     const salt = bcryptjs.genSaltSync(10);
+    const str = this.composeCredentials(login, password);
 
-    return bcryptjs.hashSync(password, salt);
+    return bcryptjs.hashSync(str, salt);
   }
 
 

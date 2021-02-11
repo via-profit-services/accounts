@@ -1,12 +1,12 @@
 import Knex from 'knex';
-import { v4 as uuidv4 } from 'uuid';
+
 
 export async function up(knex: Knex): Promise<any> {
   return knex('accounts').insert({
-    id: uuidv4(),
+    id: '40491ee1-a365-454f-b3ec-8a325ccfc371',
     name: 'Developer',
     login: 'dev',
-    password: '$2a$10$W2AIgtHMlwKtZB65S7scVuWHVxomH0KxTc47EJ0xXuJgCSvBFRnw.',
+    password: '$2a$10$bNKUriLTo8EGtAxoyJnzfuI0Njj.PFbORvGwCOOWt.9Dfi2NQmFNi',
     status: 'allowed',
     type: 'stuff',
     roles: knex.raw(`'${JSON.stringify(['developer'])}'::jsonb`),
@@ -16,6 +16,6 @@ export async function up(knex: Knex): Promise<any> {
 
 export async function down(knex: Knex): Promise<any> {
   return knex('accounts').del().where({
-    login: 'dev',
+    id: '40491ee1-a365-454f-b3ec-8a325ccfc371',
   });
 }
