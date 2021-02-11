@@ -54,17 +54,25 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuratio
     privilegesMap: Record<string, Privileges>;
     permissions: Record<string, PermissionsResolverObject>;
     initialPrivileges: Privileges;
+    typesTableInit: boolean;
   }
 
   const cache: Cache = {
     privilegesMap: null,
     permissions: null,
     initialPrivileges: null,
+    typesTableInit: false,
   };
 
   const timers: { blacklist: NodeJS.Timeout } = {
     blacklist: null,
   };
+
+
+  const typeList = new Set(
+    [...entities || []].map((entity) => entity.replace(/[^a-zA-Z]/g, '')),
+  );
+  typeList.add('User');
 
   const middleware: Middleware = async (props) => {
 
@@ -105,6 +113,13 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuratio
     const { services, redis } = pool.context;
     const { authentification } = services;
 
+    // check to init tables
+    if (!cache.typesTableInit) {
+      await services.accounts.rebaseTypes([...typeList]);
+      cache.typesTableInit = true;
+    }
+
+    // cache passed privileges
     if (cache.initialPrivileges === null) {
       cache.initialPrivileges = [...services.permissions.privileges];
     }
@@ -197,9 +212,6 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuratio
     return pool;
   }
 
-
-  const typeList = new Set(entities);
-  typeList.add('User');
 
   return {
     middleware,

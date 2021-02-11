@@ -4,7 +4,7 @@ module.exports =
 /******/ 	var __webpack_modules__ = ({
 
 /***/ 473:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ (function(__unused_webpack_module, exports) {
 
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -18,14 +18,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.down = exports.up = void 0;
-const uuid_1 = __webpack_require__(231);
 function up(knex) {
     return __awaiter(this, void 0, void 0, function* () {
         return knex('accounts').insert({
-            id: uuid_1.v4(),
+            id: '40491ee1-a365-454f-b3ec-8a325ccfc371',
             name: 'Developer',
             login: 'dev',
-            password: '$2a$10$W2AIgtHMlwKtZB65S7scVuWHVxomH0KxTc47EJ0xXuJgCSvBFRnw.',
+            password: '$2a$10$bNKUriLTo8EGtAxoyJnzfuI0Njj.PFbORvGwCOOWt.9Dfi2NQmFNi',
             status: 'allowed',
             type: 'stuff',
             roles: knex.raw(`'${JSON.stringify(['developer'])}'::jsonb`),
@@ -37,19 +36,12 @@ exports.up = up;
 function down(knex) {
     return __awaiter(this, void 0, void 0, function* () {
         return knex('accounts').del().where({
-            login: 'dev',
+            id: '40491ee1-a365-454f-b3ec-8a325ccfc371',
         });
     });
 }
 exports.down = down;
 
-
-/***/ }),
-
-/***/ 231:
-/***/ ((module) => {
-
-module.exports = require("uuid");;
 
 /***/ })
 

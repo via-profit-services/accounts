@@ -93,7 +93,7 @@ interface Profile {
   id: ID!
   createdAt: DateTime!
   updatedAt: DateTime!
-  account: Account
+  accounts: [Account!]
   deleted: Boolean!
 }
 
@@ -130,9 +130,9 @@ type User implements Node & Profile {
   id: ID!
   createdAt: DateTime!
   updatedAt: DateTime!
-  account: Account
   deleted: Boolean!
   name: String!
+  accounts: [Account!]
   phones: [Phone!]
 }
 
@@ -144,6 +144,7 @@ enum AccountStatus {
 enum AccountOrderField {
   login
   type
+  name
   createdAt
   updatedAt
 }
@@ -163,7 +164,7 @@ type UsersQuery {
     after: String
     orderBy: [UserOrderBy!]
     filter: UserListFilter
-    search: UserFilterSearch
+    search: [UserFilterSearch!]
   ): UserListConnection!
 
   """
@@ -200,7 +201,7 @@ type AccountsQuery {
     after: String
     orderBy: [AccountOrderBy!]
     filter: AccountListFilter
-    search: AccountFilterSearch
+    search: [AccountFilterSearch!]
   ): AccountListConnection!
 
   """
@@ -229,7 +230,7 @@ input AccountListFilter {
 Account search filter
 """
 input AccountFilterSearch {
-  fields: [AccountFilterSearchField!]!
+  field: AccountFilterSearchField!
 
   """
   Search query string
@@ -320,15 +321,15 @@ type AuthentificationMutation {
 
 input UserInputUpdate {
   id: String
-  account: String
   name: String
-  phones: [PhoneInputUpdate!]
+  accounts: [AccountInputUpdate]
+  phones: [PhoneInputUpdate]
 }
 
 input UserInputCreate {
   id: String
-  account: String!
   name: String!
+  accounts: [AccountInputCreate]!
   phones: [PhoneInputCreate]!
 }
 
@@ -376,7 +377,7 @@ input UserListFilter {
 User search filter
 """
 input UserFilterSearch {
-  fields: [UserFilterSearchField!]!
+  field: UserFilterSearchField!
 
   """
   Search query string
@@ -390,6 +391,7 @@ Possible fields to search users
 """
 enum UserFilterSearchField {
   name
+  login
 }
 
 """

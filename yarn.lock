@@ -599,6 +599,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/faker@npm:^5.1.6":
+  version: 5.1.6
+  resolution: "@types/faker@npm:5.1.6"
+  checksum: 4fb5005a7292270ada198cb731ce7dde94a91a671b0e6bd0a4fa04e995ed93f83f357ef60dca8ec79ce42401c285e28eed4907226293a4154f83b830fb7adf60
+  languageName: node
+  linkType: hard
+
 "@types/ioredis@npm:^4.17.8":
   version: 4.17.8
   resolution: "@types/ioredis@npm:4.17.8"
@@ -992,6 +999,7 @@ __metadata:
     "@jagi/jest-transform-graphql": ^1.0.2
     "@types/bcryptjs": ^2.4.2
     "@types/express": ^4.17.9
+    "@types/faker": ^5.1.6
     "@types/ioredis": ^4.17.8
     "@types/jest": ^24.0.23
     "@types/jsonwebtoken": ^8.5.0
@@ -1005,13 +1013,13 @@ __metadata:
     "@types/webpack-node-externals": ^2.5.0
     "@typescript-eslint/eslint-plugin": ^4.9.1
     "@typescript-eslint/parser": ^4.9.1
-    "@via-profit-services/core": "file://home/dhs/Projects/@via-profit-services/core/package-1.0.0-rc.3.tgz"
+    "@via-profit-services/core": ^1.0.2
     "@via-profit-services/eslint-config": ^0.1.11
-    "@via-profit-services/knex": "file://home/dhs/Projects/@via-profit-services/knex/package-1.0.0-rc.1.tgz"
-    "@via-profit-services/permissions": "file://home/dhs/Projects/@via-profit-services/permissions/package-1.0.0-rc.5.tgz"
-    "@via-profit-services/phones": "file://home/dhs/Projects/@via-profit-services/phones/package-1.0.0-rc.7.tgz"
-    "@via-profit-services/redis": "file://home/dhs/Projects/@via-profit-services/redis/package-1.0.0-rc.1.tgz"
-    "@via-profit-services/sms": "file://home/dhs/Projects/@via-profit-services/sms/package-1.0.0-rc.1.tgz"
+    "@via-profit-services/knex": ^1.0.1
+    "@via-profit-services/permissions": ^1.0.0
+    "@via-profit-services/phones": ^1.0.1
+    "@via-profit-services/redis": ^1.0.0
+    "@via-profit-services/sms": ^1.0.0
     bcryptjs: ^2.4.3
     cross-env: ^6.0.3
     dataloader: ^2.0.0
@@ -1028,6 +1036,7 @@ __metadata:
     eslint-plugin-react: ^7.21.5
     eslint-plugin-standard: ^4.0.2
     express: ^4.17.1
+    faker: ^5.4.0
     graphql: ^15.4.0
     graphql-tag: ^2.11.0
     ioredis: ^4.19.4
@@ -1059,7 +1068,7 @@ __metadata:
     winston-daily-rotate-file: ^4.5.0
   peerDependencies:
     "@via-profit-services/core": ^1.0.0
-    "@via-profit-services/knex": ^1.0.0
+    "@via-profit-services/knex": "*"
     "@via-profit-services/permissions": ^1.0.0
     "@via-profit-services/phones": ^1.0.0
     "@via-profit-services/redis": ^1.0.0
@@ -1074,9 +1083,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core/package-1.0.0-rc.3.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
-  version: 1.0.0-rc.3
-  resolution: "@via-profit-services/core@file://home/dhs/Projects/@via-profit-services/core/package-1.0.0-rc.3.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
+"@via-profit-services/core@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@via-profit-services/core@npm:1.0.2"
   dependencies:
     bufferutil: ^4.0.2
     content-type: ^1.0.4
@@ -1095,7 +1104,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: d3a8c11d96d4a992e1bfedff501934abd4f21dfba4e48d6dce5143afca77b7c9c0d369a0d7458ed1b2bc4ecd47c1856cbdf74f2d5458c3618a98d5be25e03b7c
+  checksum: 18dc82c9317d5b2403789c00d6217ffad9acda1990f995b2da1b2b480e87ec02d70ae3c31f0fd57f031eabb018f86d6e3f057b7245b4f6f5460c25c3e8f9493e
   languageName: node
   linkType: hard
 
@@ -1106,32 +1115,32 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@via-profit-services/knex@file://home/dhs/Projects/@via-profit-services/knex/package-1.0.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
-  version: 1.0.0-rc.1
-  resolution: "@via-profit-services/knex@file://home/dhs/Projects/@via-profit-services/knex/package-1.0.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
+"@via-profit-services/knex@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@via-profit-services/knex@npm:1.0.1"
   peerDependencies:
     "@via-profit-services/core": 1.x.x
-    knex: 1.x.x
+    knex: ^0.21.12
     pg: ^8.5.1
-  checksum: 0892df69eac7fff4bbb1bbf4a56c9dcea9b6ae87feb9a92903a50f2bb193e53403903f92f2d76d6bb30449ee5a737f66ef98c771d2d68beff2a169ad37826c22
+  checksum: 673d61d7fc8c34b760871828c16e5cde73512cdd227e35c8778837906f1fb036cd6c342654d842a6976c8b8f6692a44b3c26f480fd4ca4060374abf9fdf91a1f
   languageName: node
   linkType: hard
 
-"@via-profit-services/permissions@file://home/dhs/Projects/@via-profit-services/permissions/package-1.0.0-rc.5.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
-  version: 1.0.0-rc.5
-  resolution: "@via-profit-services/permissions@file://home/dhs/Projects/@via-profit-services/permissions/package-1.0.0-rc.5.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
+"@via-profit-services/permissions@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@via-profit-services/permissions@npm:1.0.0"
   peerDependencies:
     "@via-profit-services/core": ^1.0.0
     graphql: "*"
     winston: "*"
     winston-daily-rotate-file: "*"
-  checksum: 45f7bb4a51f7437feeadb0581c64c881e7c842c0bb26d7b0d86f4edee58fc750f3a4b6c1854c859917bc12b94ddf64130f2b310488b8400b33ff6accd061536f
+  checksum: ad1a6c72d8d47187536eafad217dad41769d95d758d0fb0585669c0e1c5ca8fc3b91d1ec69d7fa20d322a868fdaa778fab6a1225758a3ab89e94e82401e1d2cb
   languageName: node
   linkType: hard
 
-"@via-profit-services/phones@file://home/dhs/Projects/@via-profit-services/phones/package-1.0.0-rc.7.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
-  version: 1.0.0-rc.7
-  resolution: "@via-profit-services/phones@file://home/dhs/Projects/@via-profit-services/phones/package-1.0.0-rc.7.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
+"@via-profit-services/phones@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@via-profit-services/phones@npm:1.0.1"
   peerDependencies:
     "@via-profit-services/core": ^1.0.0
     "@via-profit-services/knex": ^1.0.0
@@ -1140,27 +1149,27 @@ __metadata:
     moment: ""
     moment-timezone: "*"
     uuid: "*"
-  checksum: 4f1e9771d99c62c6bc58329c867f8057b247999dfc32fdb218d693a90b6bd76e544c56034d8fd3913e7aaf8ff98ab30a7be4dfe7826e948c8d249323a83c7c6b
+  checksum: d75406f4a9de9e611bc6b1cb73befcc67c990b20d6b7d161c3c826fa6a8ffcd0a388471c199160e75a91b9c84946753ee066880971b24df50f37f78f791b0663
   languageName: node
   linkType: hard
 
-"@via-profit-services/redis@file://home/dhs/Projects/@via-profit-services/redis/package-1.0.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
-  version: 1.0.0-rc.1
-  resolution: "@via-profit-services/redis@file://home/dhs/Projects/@via-profit-services/redis/package-1.0.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
+"@via-profit-services/redis@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@via-profit-services/redis@npm:1.0.0"
   peerDependencies:
     "@via-profit-services/core": ^1.0.0
     ioredis: "*"
-  checksum: dc2bd79bea847d4a5029865713b1547952f0ba509810075d9105afbfc426f89f56cd31201ed58d9fb9dc55f9aa4c9d85172afd8ff104f99d0994fd808020cf27
+  checksum: ed1ebec9b64a74c11b5141da37e90973acf8fe21f516ea7b21301888069f3f73f646fa5ec11c512dc6144d42e1b28290c05f205eba2ff06c6f327a9bb425a4e7
   languageName: node
   linkType: hard
 
-"@via-profit-services/sms@file://home/dhs/Projects/@via-profit-services/sms/package-1.0.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A.":
-  version: 1.0.0-rc.1
-  resolution: "@via-profit-services/sms@file://home/dhs/Projects/@via-profit-services/sms/package-1.0.0-rc.1.tgz::locator=%40via-profit-services%2Faccounts%40workspace%3A."
+"@via-profit-services/sms@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@via-profit-services/sms@npm:1.0.0"
   peerDependencies:
-    "@via-profit-services/core": "*"
+    "@via-profit-services/core": ^1.0.0
     uuid: "*"
-  checksum: 1597a21b9a531491f14de96386c55d31ef9361ff6a7cc8dde7dd7d79156bb39ae02a4956078a408faff10a1e61b1838cf2b6e0b76148a6de6547f958b5c6bcd4
+  checksum: 6db3783b51dd84eda10d88b3b42aa994a970f233f8074ee94d5a89fc97992443443affdc5c11cb0d303b6a6885e809c4d9e13cb5b7579456e918d94cf42c8cdb
   languageName: node
   linkType: hard
 
@@ -4011,6 +4020,13 @@ __metadata:
   version: 1.4.0
   resolution: "extsprintf@npm:1.4.0"
   checksum: 092e011574324c5cddd78b5a27f869c2703613c1140eb7763aef8f5b0e33769a9b4c7dbcc50acd39b6afebe79bf66adcec73bf3c84e095c5bcfb42306d128ad0
+  languageName: node
+  linkType: hard
+
+"faker@npm:^5.4.0":
+  version: 5.4.0
+  resolution: "faker@npm:5.4.0"
+  checksum: f29deef14c3e91ac4f67b8dd02d0d5147d42ef44e9a6051f8aa5a0b63083d42302af9679a3de7d92bb7c36ef8e2b1b31e3b36813e678fc0483026e3c30d6cbe5
   languageName: node
   linkType: hard
 

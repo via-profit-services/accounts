@@ -7,7 +7,7 @@ const userResolver = new Proxy<UserResolver>({
   updatedAt: () => ({}),
   name: () => ({}),
   phones: () => ({}),
-  account: () => ({}),
+  accounts: () => ({}),
   deleted: () => ({}),
 }, {
   get: (target, prop: keyof UserResolver) => {
@@ -18,14 +18,10 @@ const userResolver = new Proxy<UserResolver>({
       try {
         const user = await dataloader.users.load(id);
 
-        if (prop === 'phones' && !user[prop].length) {
-          return null;
-        }
-
         return user[prop];
       } catch ( err ) {
         throw new ServerError(
-          `Failed to load user with id «${id}»`, { id },
+          `Failed to load user with id «${id}»`, { id, err },
         )
       }
     };

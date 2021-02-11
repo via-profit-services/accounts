@@ -1,5 +1,5 @@
 import type { Resolvers } from '@via-profit-services/accounts';
-import { ServerError } from '@via-profit-services/core';
+import { BadRequestError, ServerError } from '@via-profit-services/core';
 
 
 const accountsMutationResolver: Resolvers['AccountsMutation'] = {
@@ -8,23 +8,77 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
     const { recoveryPhones, ...accountInput } = input;
     const { dataloader, services, emitter } = context;
 
+    // check to passed login and password if one of this fields will be updated
+    if (typeof accountInput.login !== 'undefined' && typeof accountInput.password === 'undefined') {
+      throw new BadRequestError('For login update you should provide the password');
+    }
+
+    if (typeof accountInput.password !== 'undefined' && typeof accountInput.login === 'undefined') {
+      throw new BadRequestError('For password update you should provide your login');
+    }
+
+    accountInput.id = id;
+
     try {
       await services.accounts.updateAccount(id, accountInput);
     } catch (err) {
       throw new ServerError('Failed to update account', { err });
     }
 
-    // update phones
-    if (typeof recoveryPhones !== 'undefined') {
-      try {
-        await recoveryPhones.reduce(async (prev, phone) => {
-          await prev;
-          await services.phones.updatePhone(phone.id, phone);
+    if (recoveryPhones) {
+      const allClientPhones = await services.phones.getPhonesByEntities([id, accountInput.id]);
+
+      // delete old phones
+      await allClientPhones.nodes.reduce(async (prev, phone) => {
+        await prev;
+
+        if (!recoveryPhones.find((p) => p.id === phone.id)) {
+          await services.phones.deletePhones([phone.id]);
           dataloader.phones.clear(phone.id);
-        }, Promise.resolve());
-      } catch (err) {
-        throw new ServerError('Failed to update account', { err });
-      }
+        }
+      }, Promise.resolve())
+
+      // check and create/update new phones
+      await recoveryPhones.reduce(async (prev, phone) => {
+        await prev;
+
+        if (!phone.id) {
+          throw new BadRequestError('Phone number must be contain ID');
+        }
+
+        // try to load phone
+        const existsPhone = await dataloader.phones.load(phone.id);
+
+        // Clearing!, since the dataloader remembered this phone as not existing
+        dataloader.phones.clear(phone.id);
+
+        // update phone
+        if (existsPhone) {
+
+          if (existsPhone.entity.id !== accountInput.id) {
+            throw new BadRequestError('This phone number belongs to another entity');
+          }
+
+          await services.phones.updatePhone(phone.id, {
+            ...phone,
+            type: 'Account',
+          });
+
+          dataloader.phones.clear(phone.id);
+
+          // create new phone
+        } else {
+
+          await services.phones.createPhone({
+            ...phone,
+            type: 'Account',
+            entity: {
+              id: accountInput.id,
+            },
+          });
+        }
+
+      }, Promise.resolve());
     }
 
     if (accountInput.status === 'forbidden') {
@@ -40,6 +94,7 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
     dataloader.accounts.clear(id);
     const account = await dataloader.accounts.load(id);
     emitter.emit('account-was-updated', account);
+
 
     return account;
   },

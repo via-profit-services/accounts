@@ -4,11 +4,8 @@ import type {
   AccountsTableModel, AccountsTableModelResult,
 } from '@via-profit-services/accounts';
 import '@via-profit-services/redis';
-import { OutputFilter, ListResponse, extractNodeField } from '@via-profit-services/core';
-import {
-  convertWhereToKnex, convertOrderByToKnex,
-  convertSearchToKnex, extractTotalCountPropOfNode,
-} from '@via-profit-services/knex';
+import { OutputFilter, ListResponse, arrayOfIdsToArrayOfObjectIds } from '@via-profit-services/core';
+import { convertWhereToKnex, convertOrderByToKnex, extractTotalCountPropOfNode } from '@via-profit-services/knex';
 import bcryptjs from 'bcryptjs';
 import moment from 'moment-timezone';
 import '@via-profit-services/phones';
@@ -56,27 +53,66 @@ class AccountsService implements AccountsServiceInterface {
 
   public async getAccounts(filter: Partial<OutputFilter>): Promise<ListResponse<Account>> {
     const { context } = this.props;
-    const { knex, services } = context;
+    const { knex } = context;
     const { limit, offset, orderBy, where, search } = filter;
 
     const response = await knex
       .select([
         'accounts.*',
         knex.raw('count(*) over() as "totalCount"'),
+        knex.raw('string_agg(??::text, ?::text) AS "recoveryPhone"', ['phones.id', '|']),
       ])
       .from<AccountsTableModel, AccountsTableModelResult[]>('accounts')
-      .orderBy(convertOrderByToKnex(orderBy))
-      .where((builder) => convertWhereToKnex(builder, where))
-      .where((builder) => convertSearchToKnex(builder, search))
+      .leftJoin('phones', 'phones.entity', 'accounts.id')
+      .leftJoin('users', 'accounts.entity', 'users.id')
+      .orderBy(convertOrderByToKnex(orderBy, {
+        accounts: ['*'],
+        users: ['name'],
+      }))
+      .groupBy('accounts.id')
+      .groupBy('users.name')
+      .where((builder) => convertWhereToKnex(builder, where, {
+        accounts: '*',
+        users: ['name'],
+      }))
+      .where((builder) => {
+        const whereArrayStr: string[] = [];
+        const bindings: Record<string, any> = {};
+
+        if (search && search.length) {
+          search.forEach(({ field, query }, index) => {
+            switch (field) {
+              case 'recoveryPhone':
+                whereArrayStr.push(`:SearchFieldPhone${index}: ilike :SearchQueryPhone${index}`);
+                bindings[`SearchFieldPhone${index}`] = 'phones.number';
+                bindings[`SearchQueryPhone${index}`] = `%${query}%`;
+                break;
+
+              case 'name':
+                whereArrayStr.push(`:SearchField${field}${index}: ilike :SearchQuery${field}${index}`);
+                bindings[`SearchField${field}${index}`] = `users.${field}`;
+                bindings[`SearchQuery${field}${index}`] = `%${query}%`;
+                break;
+
+              default:
+                whereArrayStr.push(`:SearchField${field}${index}: ilike :SearchQuery${field}${index}`);
+                bindings[`SearchField${field}${index}`] = `accounts.${field}`;
+                bindings[`SearchQuery${field}${index}`] = `%${query}%`;
+                break;
+            }
+           });
+        }
+
+        return builder.orWhereRaw(whereArrayStr.join(' or '), bindings);
+      })
       .limit(limit || 1)
       .offset(offset || 0);
 
-    const accountIDs = extractNodeField(response, 'id');
-    const phonesBundle = await services.phones.getPhonesByEntities(accountIDs);
-
     const nodes = response.map((node) => {
-      const recoveryPhones = phonesBundle.nodes.filter((phone) => phone.entity.id === node.id);
       const entity = node.entity ? { id: node.entity } : null
+      const recoveryPhones = node.recoveryPhones
+        ? arrayOfIdsToArrayOfObjectIds(node.recoveryPhones.split('|'))
+        : null
 
       return {
         ...node,
@@ -115,6 +151,21 @@ class AccountsService implements AccountsServiceInterface {
     return nodes.length ? nodes[0] : false;
   }
 
+  public async getAccountsByEntities(entitiesIDs: string[]): Promise<ListResponse<Account>> {
+    const phones = await this.getAccounts({
+      limit: Number.MAX_SAFE_INTEGER,
+      where: [
+        ['entity', 'in', entitiesIDs],
+      ],
+    });
+
+    return phones;
+  }
+
+  public async getAccountsByEntity(entityID: string): Promise<ListResponse<Account>> {
+    return this.getAccountsByEntities([entityID]);
+  }
+
   public async getAccountByLogin(login: string): Promise<Account | false> {
     const { nodes } = await this.getAccounts({
       limit: 1,
@@ -133,7 +184,10 @@ class AccountsService implements AccountsServiceInterface {
       ...accountData,
       updatedAt: moment.tz(timezone).toDate(),
       password: accountData.password
-        ? authentification.cryptUserPassword(accountData.password)
+        ? authentification.cryptUserPassword(
+          accountData.login,
+          accountData.password,
+        )
         : undefined,
     });
 
@@ -151,7 +205,10 @@ class AccountsService implements AccountsServiceInterface {
     const data = this.prepareDataToInsert({
       ...accountData,
       id: accountData.id ? accountData.id : uuidv4(),
-      password: authentification.cryptUserPassword(accountData.password),
+      password: authentification.cryptUserPassword(
+        accountData.login,
+        accountData.password,
+      ),
       createdAt,
       updatedAt: createdAt,
     });
@@ -160,13 +217,17 @@ class AccountsService implements AccountsServiceInterface {
     return result[0];
   }
 
-  public async deleteAccount(id: string) {
-    return this.updateAccount(id, {
+  public async deleteAccounts(ids: string[]) {
+    await Promise.all(ids.map((id) => this.updateAccount(id, {
       login: uuidv4(),
       password: uuidv4(),
       deleted: true,
       status: 'forbidden',
-    });
+    })));
+  }
+
+  public async deleteAccount(id: string) {
+    return this.deleteAccounts([id]);
   }
 
   public async checkLoginExists(login: string, skipId?: string): Promise<boolean> {
@@ -188,10 +249,19 @@ class AccountsService implements AccountsServiceInterface {
 
 
   public async getAccountByCredentials(login: string, password: string): Promise<Account | false> {
+    const { context } = this.props;
+    const { services } = context;
+    const composedCredentials = services.authentification.composeCredentials(login, password);
     const account = await this.getAccountByLogin(login);
-    if (account && bcryptjs.compareSync(String(password), String(account.password))) {
+
+    if (!account) {
+      return false;
+    }
+
+    if (bcryptjs.compareSync(composedCredentials, account.password)) {
       return account;
     }
+
 
     return false;
   }
@@ -199,6 +269,21 @@ class AccountsService implements AccountsServiceInterface {
 
   public getAccountStatusesList(): string[] {
     return ['allowed', 'forbidden'];
+  }
+
+  public async rebaseTypes(types: string[]): Promise<void> {
+    const { context } = this.props;
+    const { knex } = context;
+
+    const payload = types.map((type) => ({ type }));
+    await knex.raw(`${knex('accountsTypes').insert(payload).toString()} on conflict ("type") do nothing;`);
+    await knex('accountsTypes').del().whereNotIn('type', types);
+  }
+
+  public getEntitiesTypes() {
+    const { entities } = this.props;
+
+    return entities;
   }
 }
 
