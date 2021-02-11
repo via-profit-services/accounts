@@ -1015,7 +1015,7 @@ __metadata:
     "@typescript-eslint/parser": ^4.9.1
     "@via-profit-services/core": ^1.0.2
     "@via-profit-services/eslint-config": ^0.1.11
-    "@via-profit-services/knex": ^1.0.0
+    "@via-profit-services/knex": ^1.0.1
     "@via-profit-services/permissions": ^1.0.0
     "@via-profit-services/phones": ^1.0.1
     "@via-profit-services/redis": ^1.0.0
@@ -1068,7 +1068,7 @@ __metadata:
     winston-daily-rotate-file: ^4.5.0
   peerDependencies:
     "@via-profit-services/core": ^1.0.0
-    "@via-profit-services/knex": ^1.0.0
+    "@via-profit-services/knex": "*"
     "@via-profit-services/permissions": ^1.0.0
     "@via-profit-services/phones": ^1.0.0
     "@via-profit-services/redis": ^1.0.0
@@ -1115,14 +1115,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@via-profit-services/knex@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "@via-profit-services/knex@npm:1.0.0"
+"@via-profit-services/knex@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@via-profit-services/knex@npm:1.0.1"
   peerDependencies:
     "@via-profit-services/core": 1.x.x
     knex: ^0.21.12
     pg: ^8.5.1
-  checksum: 14cc53b35675001071ada4d3d4addd2c0c26003dc5ec561f9783d55aec5e165394881b959cb1b10f205f6a42d46d22c3ec9bbd5305597eac36c80a9ab78fbf53
+  checksum: 673d61d7fc8c34b760871828c16e5cde73512cdd227e35c8778837906f1fb036cd6c342654d842a6976c8b8f6692a44b3c26f480fd4ca4060374abf9fdf91a1f
   languageName: node
   linkType: hard
 
