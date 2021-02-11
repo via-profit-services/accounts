@@ -165,8 +165,8 @@ declare module '@via-profit-services/accounts' {
   export interface User {
     id: string;
     name: string;
-    accounts: Account[];
-    phones: Phone[];
+    phones: Array<{ id: string }> | null;
+    accounts: Array<{ id: string }> | null;
     createdAt: Date;
     updatedAt: Date;
     deleted: boolean;
@@ -218,6 +218,8 @@ declare module '@via-profit-services/accounts' {
     readonly updatedAt: Date;
     readonly deleted: boolean;
     readonly totalCount: number;
+    readonly phones: string;
+    readonly accounts: string;
   }
 
 

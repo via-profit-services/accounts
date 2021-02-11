@@ -64,28 +64,40 @@ class AccountsService implements AccountsServiceInterface {
       ])
       .from<AccountsTableModel, AccountsTableModelResult[]>('accounts')
       .leftJoin('phones', 'phones.entity', 'accounts.id')
-      .orderBy(convertOrderByToKnex(orderBy))
+      .leftJoin('users', 'accounts.entity', 'users.id')
+      .orderBy(convertOrderByToKnex(orderBy, {
+        accounts: ['*'],
+        users: ['name'],
+      }))
       .groupBy('accounts.id')
+      .groupBy('users.name')
       .where((builder) => convertWhereToKnex(builder, where, {
         accounts: '*',
+        users: ['name'],
       }))
       .where((builder) => {
         const whereArrayStr: string[] = [];
         const bindings: Record<string, any> = {};
 
         if (search && search.length) {
-          search.forEach(({ field, query }) => {
+          search.forEach(({ field, query }, index) => {
             switch (field) {
               case 'recoveryPhone':
-                whereArrayStr.push(':SearchFieldPhone: ilike :SearchQueryPhone');
-                bindings.SearchFieldPhone = 'phones.number';
-                bindings.SearchQueryPhone = `%${query}%`;
+                whereArrayStr.push(`:SearchFieldPhone${index}: ilike :SearchQueryPhone${index}`);
+                bindings[`SearchFieldPhone${index}`] = 'phones.number';
+                bindings[`SearchQueryPhone${index}`] = `%${query}%`;
+                break;
+
+              case 'name':
+                whereArrayStr.push(`:SearchField${field}${index}: ilike :SearchQuery${field}${index}`);
+                bindings[`SearchField${field}${index}`] = `users.${field}`;
+                bindings[`SearchQuery${field}${index}`] = `%${query}%`;
                 break;
 
               default:
-                whereArrayStr.push(`:SearchField${field}: ilike :SearchQuery${field}`);
-                bindings[`SearchField${field}`] = `accounts.${field}`;
-                bindings[`SearchQuery${field}`] = `%${query}%`;
+                whereArrayStr.push(`:SearchField${field}${index}: ilike :SearchQuery${field}${index}`);
+                bindings[`SearchField${field}${index}`] = `accounts.${field}`;
+                bindings[`SearchQuery${field}${index}`] = `%${query}%`;
                 break;
             }
            });

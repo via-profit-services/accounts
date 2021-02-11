@@ -1,11 +1,8 @@
 /* eslint-disable import/max-dependencies */
 import type { User, UsersServiceProps, UsersTableModelResult, UsersTableModel } from '@via-profit-services/accounts';
 import '@via-profit-services/redis';
-import { OutputFilter, ListResponse, extractNodeField } from '@via-profit-services/core';
-import {
-  convertWhereToKnex, convertOrderByToKnex,
-  convertSearchToKnex, extractTotalCountPropOfNode,
-} from '@via-profit-services/knex';
+import { OutputFilter, ListResponse, arrayOfIdsToArrayOfObjectIds } from '@via-profit-services/core';
+import { convertWhereToKnex, convertOrderByToKnex, extractTotalCountPropOfNode } from '@via-profit-services/knex';
 import moment from 'moment-timezone';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -19,34 +16,66 @@ class UsersService {
 
   public async getUsers(filter: Partial<OutputFilter>): Promise<ListResponse<User>> {
     const { context } = this.props;
-    const { knex, services } = context;
+    const { knex } = context;
     const { limit, offset, orderBy, where, search } = filter;
 
     const response = await knex
       .select([
         'users.*',
         knex.raw('count(*) over() as "totalCount"'),
+        knex.raw('string_agg(??::text, ?::text) AS "phones"', ['phones.id', '|']),
+        knex.raw('string_agg(??::text, ?::text) AS "accounts"', ['accounts.id', '|']),
       ])
       .from<UsersTableModel, UsersTableModelResult[]>('users')
-      .orderBy(convertOrderByToKnex(orderBy))
-      .where((builder) => convertWhereToKnex(builder, where))
-      .where((builder) => convertSearchToKnex(builder, search))
+      .leftJoin('phones', 'phones.entity', 'users.id')
+      .leftJoin('accounts', 'accounts.entity', 'users.id')
+      .orderBy(convertOrderByToKnex(orderBy, {
+        users: '*',
+        accounts: ['login'],
+      }))
+      .groupBy('users.id')
+      .where((builder) => convertWhereToKnex(builder, where, {
+        users: '*',
+        accounts: ['login'],
+      }))
+      .where((builder) => {
+        const whereArrayStr: string[] = [];
+        const bindings: Record<string, any> = {};
+
+        if (search && search.length) {
+          search.forEach(({ field, query }, index) => {
+            switch (field) {
+              case 'phone':
+                whereArrayStr.push(`:SearchFieldPhone${index}: ilike :SearchQueryPhone${index}`);
+                bindings[`SearchFieldPhone${index}`] = 'phones.number';
+                bindings[`SearchQueryPhone${index}`] = `%${query}%`;
+                break;
+
+              case 'login':
+                whereArrayStr.push(`:SearchField${field}${index}: ilike :SearchQuery${field}${index}`);
+                bindings[`SearchField${field}${index}`] = `accounts.${field}`;
+                bindings[`SearchQuery${field}${index}`] = `%${query}%`;
+                break;
+
+              default:
+                whereArrayStr.push(`:SearchField${field}${index}: ilike :SearchQuery${field}${index}`);
+                bindings[`SearchField${field}${index}`] = `users.${field}`;
+                bindings[`SearchQuery${field}${index}`] = `%${query}%`;
+                break;
+            }
+           });
+        }
+
+        return builder.orWhereRaw(whereArrayStr.join(' or '), bindings);
+      })
       .limit(limit || 1)
       .offset(offset || 0);
 
-    const userIDs = extractNodeField(response, 'id');
-    const accountsBundle = await services.accounts.getAccountsByEntities(userIDs);
-    const phonesBundle = await services.phones.getPhonesByEntities(userIDs);
-    const nodes = response.map((node) => {
-      const accounts = accountsBundle.nodes.filter((account) => account.entity.id === node.id);
-      const phones = phonesBundle.nodes.filter((phone) => phone.entity.id === node.id);
-
-      return {
-        ...node,
-        phones,
-        accounts,
-      }
-    });
+    const nodes = response.map((node) => ({
+      ...node,
+      phones: !node.phones ? null :arrayOfIdsToArrayOfObjectIds(node.phones.split('|')),
+      accounts: !node.accounts ? null :arrayOfIdsToArrayOfObjectIds(node.accounts.split('|')),
+    }));
 
     const result: ListResponse<User> = {
       ...extractTotalCountPropOfNode(response),
