@@ -32,7 +32,7 @@ class UsersService {
       .leftJoin('phones', 'phones.entity', 'users.id')
       .leftJoin('accounts', 'accounts.entity', 'users.id')
       .leftJoin('fileStorage', 'fileStorage.owner', 'users.id')
-      .joinRaw('left join "fileStorage" as avatars on "fileStorage"."owner" = "users".id and "fileStorage"."category" = ?', ['avatar'])
+      .joinRaw('left join "fileStorage" as avatars on "fileStorage"."owner" = "users".id and "fileStorage"."category" = ?', ['Avatar'])
       .orderBy(convertOrderByToKnex(orderBy, {
         users: '*',
         accounts: ['login'],

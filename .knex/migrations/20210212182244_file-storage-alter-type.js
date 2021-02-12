@@ -3,7 +3,7 @@ module.exports =
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 909:
+/***/ 445:
 /***/ (function(__unused_webpack_module, exports) {
 
 
@@ -21,47 +21,13 @@ exports.down = exports.up = void 0;
 function up(knex) {
     return __awaiter(this, void 0, void 0, function* () {
         return knex.raw(`
-
-    -- create types table
-    drop table if exists "accountsTypes" cascade;
-    create table "accountsTypes" (
-      "type" varchar(100) not null,
-      CONSTRAINT "accountTypes_un" UNIQUE ("type")
+    drop table if exists "fileStorageCategories" cascade;
+    create table "fileStorageCategories" (
+      "category" varchar(100) not null,
+      CONSTRAINT "fileStorageCategories_un" UNIQUE ("category")
     );
 
-
-    insert into "accountsTypes"
-      ("type")
-    values
-      ('User')
-    on conflict ("type") do nothing;
-
-    -- add column entity
-    alter table "accounts" add column "entity" uuid default null;
-    alter table "accounts" alter column "type" type varchar(50) using "type"::varchar;
-    alter table "accounts" alter column "type" set default 'User';
-    update "accounts" set "type" = 'User';
-
-    alter table "accounts" add constraint "accounts_type_fk" foreign key ("type") references "accountsTypes"("type") on delete cascade;
-
-    -- delete type
-    drop type if exists "accountType";
-
-
-    -- set unique login
-    alter table "accounts" add constraint "accounts_login_un" unique ("login");
-
-    -- link accounts and users
-    update
-      "accounts"
-    set
-      "type" = 'User',
-      "entity" = (
-        select id from users where "name" ='Developer' or "comment" ilike 'Development account%'
-      )
-    where id = '40491ee1-a365-454f-b3ec-8a325ccfc371';
-
-
+    alter table "fileStorage" add constraint "fileStorage_category_fk" foreign key ("category") references "fileStorageCategories"("category") on delete cascade;
   `);
     });
 }
@@ -69,23 +35,8 @@ exports.up = up;
 function down(knex) {
     return __awaiter(this, void 0, void 0, function* () {
         return knex.raw(`
-
-    update "accounts"
-      set
-    "entity" = null
-    where id = '40491ee1-a365-454f-b3ec-8a325ccfc371';
-
-
-    alter table "accounts" drop constraint "accounts_type_fk";
-    alter table "accounts" alter column "type" drop default;
-    alter table "accounts" drop column "entity" cascade;
-    create type "accountType" as enum (
-      'stuff',
-      'client'
-    );
-    alter table "accounts" alter column "type" type "accountType" using 'stuff'::"accountType";
-    alter table "accounts" alter column "type" set default 'stuff'::"accountType";
-    alter table "accounts" drop constraint "accounts_login_un";
+    alter table "fileStorage" drop constraint "fileStorage_category_fk";
+    drop table  "fileStorageCategories" cascade;
   `);
     });
 }
@@ -123,6 +74,6 @@ exports.down = down;
 /******/ 	// module exports must be returned from runtime so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(909);
+/******/ 	return __webpack_require__(445);
 /******/ })()
 ;

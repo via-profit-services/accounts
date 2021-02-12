@@ -1472,7 +1472,7 @@ __metadata:
     "@typescript-eslint/parser": ^4.9.1
     "@via-profit-services/core": ^1.0.2
     "@via-profit-services/eslint-config": ^0.1.11
-    "@via-profit-services/file-storage": ^1.0.0
+    "@via-profit-services/file-storage": ^1.0.2
     "@via-profit-services/knex": ^1.0.2
     "@via-profit-services/permissions": ^1.0.0
     "@via-profit-services/phones": ^1.0.2
@@ -1580,9 +1580,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@via-profit-services/file-storage@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "@via-profit-services/file-storage@npm:1.0.0"
+"@via-profit-services/file-storage@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@via-profit-services/file-storage@npm:1.0.2"
   dependencies:
     busboy: ^0.3.1
     fs-capacitor: ^6.2.0
@@ -1602,7 +1602,7 @@ __metadata:
     uuid: "*"
     winston: "*"
     winston-daily-rotate-file: "*"
-  checksum: db612d449a74be5567b71580f23eabe6a5963acfc09435b0beb980199f8d52a3efa6b9ec1cf80f9a222fe15b51c8afc11732a8e3f7025bbe1a8988012bb80f70
+  checksum: 47a9f936aeb80f6116ff910304bca873af78434370b725e6a348e2967eaa8109205b2cc92308c14ebb31ace54d89b41a69e0006f22ac9c2afba0c6e9c19dd3d7
   languageName: node
   linkType: hard
 

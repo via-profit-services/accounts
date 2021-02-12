@@ -1,6 +1,6 @@
 declare module '@via-profit-services/accounts' {
   import { Algorithm } from 'jsonwebtoken';
-  import { Phone } from '@via-profit-services/phones';
+  import { ImageTransform } from '@via-profit-services/file-storage';
   import { PermissionsResolverObject, Privileges, PermissionsResolver } from '@via-profit-services/permissions';
   import { InputFilter, Middleware, Context, ErrorHandler, OutputFilter, ListResponse, MiddlewareProps, MaybePromise } from '@via-profit-services/core';
   import { IncomingMessage } from 'http';
@@ -400,7 +400,9 @@ declare module '@via-profit-services/accounts' {
   export type TokenBagResolver = Record<keyof TokenPackage, GraphQLFieldResolver<TokenRegistrationResponseSuccess, Context>>;
   export type AccountResolver = Record<keyof Account, GraphQLFieldResolver<{  id: string }, Context>>;
   export type MyAccountResolver = Record<keyof MyAccount, GraphQLFieldResolver<{  id: string }, Context>>;
-  export type UserResolver = Record<keyof User, GraphQLFieldResolver<{  id: string }, Context>>;
+  export type UserResolver = Record<keyof User, GraphQLFieldResolver<{  id: string }, Context, {
+    transform: ImageTransform;
+  }>>;
 
 
   

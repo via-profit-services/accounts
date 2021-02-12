@@ -2,7 +2,7 @@
 /* eslint-disable no-console */
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { factory, resolvers, typeDefs } from '@via-profit-services/core';
-import * as files from '@via-profit-services/file-storage';
+import { factory as filesFactory } from '@via-profit-services/file-storage';
 import * as knex from '@via-profit-services/knex';
 import * as permissions from '@via-profit-services/permissions';
 import { factory as phonesFactory } from '@via-profit-services/phones';
@@ -49,12 +49,9 @@ const server = http.createServer(app);
     entities: ['Driver'],
   });
 
-  const {
-    fileStorageMiddleware,
-    graphQLFilesStaticExpress,
-    graphQLFilesUploadExpress,
-  } = files.factory({
+  const files = await filesFactory({
     hostname: `http://${process.env.SERVER_HOST}:${process.env.SERVER_PORT}`,
+    categories: ['Avatar'],
   });
 
   const permissionsMiddleware = await permissions.factory({
@@ -116,18 +113,16 @@ const server = http.createServer(app);
       phones.middleware,
       permissionsMiddleware,
       accounts.middleware, // <-- After all
-      fileStorageMiddleware,
+      files.fileStorageMiddleware,
     ],
   });
 
-  app.use(process.env.GRAPHQL_ENDPOINT, graphQLFilesUploadExpress); // <-- First
-  app.use(graphQLFilesStaticExpress); // < -- Second
+  app.use(process.env.GRAPHQL_ENDPOINT, files.graphQLFilesUploadExpress); // <-- First
+  app.use(files.graphQLFilesStaticExpress); // < -- Second
   app.use(process.env.GRAPHQL_ENDPOINT, graphQLExpress); // <-- Last
 
   server.listen(Number(process.env.SERVER_PORT), process.env.SERVER_HOST, () => {
-
-
     console.log(`GraphQL Server started at http://${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/graphql`);
-  })
+  });
 
 })();

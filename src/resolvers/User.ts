@@ -13,12 +13,26 @@ const userResolver = new Proxy<UserResolver>({
   avatar: () => ({}),
 }, {
   get: (target, prop: keyof UserResolver) => {
-    const resolver: UserResolver[keyof UserResolver] = async (parent, _args, context) => {
+    const resolver: UserResolver[keyof UserResolver] = async (parent, args, context) => {
       const { id } = parent;
       const { dataloader } = context;
 
       try {
         const user = await dataloader.users.load(id);
+
+        if (prop === 'avatar' && user.avatar) {
+          return {
+            ...user.avatar,
+            transform: args.transform || null,
+          };
+        }
+
+        if (prop === 'files' && user.files) {
+          return {
+            ...user.files,
+            transform: args.transform || null,
+          };
+        }
 
         return user[prop];
       } catch ( err ) {
