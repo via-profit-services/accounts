@@ -51,10 +51,20 @@ export async function seed(knex: Knex): Promise<any>{
     .del()
     .whereNotIn('id', ['40491ee1-a365-454f-b3ec-8a325ccfc371']);
 
-  await knex('users')
-    .del()
-    .where('name', '<>', 'Developer');
+  await knex('users').del();
 
+  const devUser = {
+    id: uuidv4(),
+    name: 'Developer',
+    createdAt: faker.date.past().toDateString(),
+    updatedAt: faker.date.past().toDateString(),
+    deleted: false,
+    comment: '',
+  }
+
+  users.push(devUser);
+
+  await knex('accounts').update({ entity: devUser.id });
   await knex<AccountsTableModel>('accounts').insert(accounts);
   await knex<UsersTableModel>('users').insert(users);
 }

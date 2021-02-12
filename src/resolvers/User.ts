@@ -9,6 +9,8 @@ const userResolver = new Proxy<UserResolver>({
   phones: () => ({}),
   accounts: () => ({}),
   deleted: () => ({}),
+  files: () => ({}),
+  avatar: () => ({}),
 }, {
   get: (target, prop: keyof UserResolver) => {
     const resolver: UserResolver[keyof UserResolver] = async (parent, _args, context) => {

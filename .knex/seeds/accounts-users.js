@@ -63,9 +63,17 @@ function seed(knex) {
         yield knex('accounts')
             .del()
             .whereNotIn('id', ['40491ee1-a365-454f-b3ec-8a325ccfc371']);
-        yield knex('users')
-            .del()
-            .where('name', '<>', 'Developer');
+        yield knex('users').del();
+        const devUser = {
+            id: uuid_1.v4(),
+            name: 'Developer',
+            createdAt: faker_1.default.date.past().toDateString(),
+            updatedAt: faker_1.default.date.past().toDateString(),
+            deleted: false,
+            comment: '',
+        };
+        users.push(devUser);
+        yield knex('accounts').update({ entity: devUser.id });
         yield knex('accounts').insert(accounts);
         yield knex('users').insert(users);
     });

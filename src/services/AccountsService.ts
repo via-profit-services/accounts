@@ -60,7 +60,7 @@ class AccountsService implements AccountsServiceInterface {
       .select([
         'accounts.*',
         knex.raw('count(*) over() as "totalCount"'),
-        knex.raw('string_agg(??::text, ?::text) AS "recoveryPhone"', ['phones.id', '|']),
+        knex.raw('string_agg(distinct ??::text, ?::text) AS "recoveryPhone"', ['phones.id', '|']),
       ])
       .from<AccountsTableModel, AccountsTableModelResult[]>('accounts')
       .leftJoin('phones', 'phones.entity', 'accounts.id')
@@ -69,41 +69,31 @@ class AccountsService implements AccountsServiceInterface {
         accounts: ['*'],
         users: ['name'],
       }))
-      .groupBy('accounts.id')
-      .groupBy('users.name')
+      .groupBy('accounts.id', 'users.name')
       .where((builder) => convertWhereToKnex(builder, where, {
         accounts: '*',
         users: ['name'],
       }))
       .where((builder) => {
-        const whereArrayStr: string[] = [];
-        const bindings: Record<string, any> = {};
-
         if (search && search.length) {
-          search.forEach(({ field, query }, index) => {
+          search.forEach(({ field, query }) => {
             switch (field) {
               case 'recoveryPhone':
-                whereArrayStr.push(`:SearchFieldPhone${index}: ilike :SearchQueryPhone${index}`);
-                bindings[`SearchFieldPhone${index}`] = 'phones.number';
-                bindings[`SearchQueryPhone${index}`] = `%${query}%`;
+                builder.orWhere('phones.number', 'ilike', `%${query}%`);
                 break;
 
               case 'name':
-                whereArrayStr.push(`:SearchField${field}${index}: ilike :SearchQuery${field}${index}`);
-                bindings[`SearchField${field}${index}`] = `users.${field}`;
-                bindings[`SearchQuery${field}${index}`] = `%${query}%`;
+                builder.orWhere(`users.${field}`, 'ilike', `%${query}%`);
                 break;
 
               default:
-                whereArrayStr.push(`:SearchField${field}${index}: ilike :SearchQuery${field}${index}`);
-                bindings[`SearchField${field}${index}`] = `accounts.${field}`;
-                bindings[`SearchQuery${field}${index}`] = `%${query}%`;
+                builder.orWhere(`accounts.${field}`, 'ilike', `%${query}%`);
                 break;
             }
            });
         }
 
-        return builder.orWhereRaw(whereArrayStr.join(' or '), bindings);
+        return builder;
       })
       .limit(limit || 1)
       .offset(offset || 0);

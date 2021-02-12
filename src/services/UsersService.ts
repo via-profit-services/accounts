@@ -23,59 +23,64 @@ class UsersService {
       .select([
         'users.*',
         knex.raw('count(*) over() as "totalCount"'),
-        knex.raw('string_agg(??::text, ?::text) AS "phones"', ['phones.id', '|']),
-        knex.raw('string_agg(??::text, ?::text) AS "accounts"', ['accounts.id', '|']),
+        knex.raw('string_agg(distinct ??::text, ?::text) AS "avatars"', ['avatars.id', '|']),
+        knex.raw('string_agg(distinct ??::text, ?::text) AS "phones"', ['phones.id', '|']),
+        knex.raw('string_agg(distinct ??::text, ?::text) AS "accounts"', ['accounts.id', '|']),
+        knex.raw('string_agg(distinct ??::text, ?::text) AS "files"', ['fileStorage.id', '|']),
       ])
       .from<UsersTableModel, UsersTableModelResult[]>('users')
       .leftJoin('phones', 'phones.entity', 'users.id')
       .leftJoin('accounts', 'accounts.entity', 'users.id')
+      .leftJoin('fileStorage', 'fileStorage.owner', 'users.id')
+      .joinRaw('left join "fileStorage" as avatars on "fileStorage"."owner" = "users".id and "fileStorage"."category" = ?', ['avatar'])
       .orderBy(convertOrderByToKnex(orderBy, {
         users: '*',
         accounts: ['login'],
       }))
-      .groupBy('users.id')
+      .groupBy(['users.id', 'users.name'])
       .where((builder) => convertWhereToKnex(builder, where, {
         users: '*',
         accounts: ['login'],
       }))
       .where((builder) => {
-        const whereArrayStr: string[] = [];
-        const bindings: Record<string, any> = {};
-
         if (search && search.length) {
-          search.forEach(({ field, query }, index) => {
+          search.forEach(({ field, query }) => {
             switch (field) {
               case 'phone':
-                whereArrayStr.push(`:SearchFieldPhone${index}: ilike :SearchQueryPhone${index}`);
-                bindings[`SearchFieldPhone${index}`] = 'phones.number';
-                bindings[`SearchQueryPhone${index}`] = `%${query}%`;
+                builder.orWhere('phones.number', 'ilike', `%${query}%`);
                 break;
 
               case 'login':
-                whereArrayStr.push(`:SearchField${field}${index}: ilike :SearchQuery${field}${index}`);
-                bindings[`SearchField${field}${index}`] = `accounts.${field}`;
-                bindings[`SearchQuery${field}${index}`] = `%${query}%`;
+                builder.orWhere(`accounts.${field}`, 'ilike', `%${query}%`);
                 break;
 
               default:
-                whereArrayStr.push(`:SearchField${field}${index}: ilike :SearchQuery${field}${index}`);
-                bindings[`SearchField${field}${index}`] = `users.${field}`;
-                bindings[`SearchQuery${field}${index}`] = `%${query}%`;
+                  builder.orWhere(`users.${field}`, 'ilike', `%${query}%`);
                 break;
             }
            });
         }
 
-        return builder.orWhereRaw(whereArrayStr.join(' or '), bindings);
+        return builder;
       })
       .limit(limit || 1)
       .offset(offset || 0);
 
-    const nodes = response.map((node) => ({
-      ...node,
-      phones: !node.phones ? null :arrayOfIdsToArrayOfObjectIds(node.phones.split('|')),
-      accounts: !node.accounts ? null :arrayOfIdsToArrayOfObjectIds(node.accounts.split('|')),
-    }));
+    const nodes = response.map((node) => {
+      const phones = !node.phones ? null : arrayOfIdsToArrayOfObjectIds(node.phones.split('|'));
+      const accounts = !node.accounts ? null : arrayOfIdsToArrayOfObjectIds(node.accounts.split('|'));
+      const files = !node.files ? null : arrayOfIdsToArrayOfObjectIds(node.files.split('|'));
+      const avatars = !node.avatars ? null : arrayOfIdsToArrayOfObjectIds(node.avatars.split('|'));
+      const avatar = !avatars ? null : avatars[0];
+
+      return {
+        ...node,
+        accounts,
+        avatar,
+        files,
+        phones,
+      }
+    });
 
     const result: ListResponse<User> = {
       ...extractTotalCountPropOfNode(response),

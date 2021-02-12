@@ -107,7 +107,7 @@ type Account implements Node {
   createdAt: DateTime!
   updatedAt: DateTime!
   roles: [AccountRole!]!
-  recoveryPhones: [Phone!]!
+  recoveryPhones: [Phone!]
   deleted: Boolean!
   entity: AccountEntity!
   type: AccountType!
@@ -134,6 +134,8 @@ type User implements Node & Profile {
   name: String!
   accounts: [Account!]
   phones: [Phone!]
+  files: [File!]
+  avatar: File
 }
 
 enum AccountStatus {
@@ -391,6 +393,7 @@ Possible fields to search users
 """
 enum UserFilterSearchField {
   name
+  phone
   login
 }
 

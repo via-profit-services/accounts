@@ -167,6 +167,8 @@ declare module '@via-profit-services/accounts' {
     name: string;
     phones: Array<{ id: string }> | null;
     accounts: Array<{ id: string }> | null;
+    files: Array<{ id: string }> | null;
+    avatar: { id: string } | null;
     createdAt: Date;
     updatedAt: Date;
     deleted: boolean;
@@ -218,8 +220,10 @@ declare module '@via-profit-services/accounts' {
     readonly updatedAt: Date;
     readonly deleted: boolean;
     readonly totalCount: number;
-    readonly phones: string;
-    readonly accounts: string;
+    readonly phones: string | null;
+    readonly accounts: string | null;
+    readonly files: string | null;
+    readonly avatars: string | null;
   }
 
 

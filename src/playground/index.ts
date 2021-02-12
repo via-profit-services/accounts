@@ -2,6 +2,7 @@
 /* eslint-disable no-console */
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { factory, resolvers, typeDefs } from '@via-profit-services/core';
+import * as files from '@via-profit-services/file-storage';
 import * as knex from '@via-profit-services/knex';
 import * as permissions from '@via-profit-services/permissions';
 import { factory as phonesFactory } from '@via-profit-services/phones';
@@ -48,6 +49,14 @@ const server = http.createServer(app);
     entities: ['Driver'],
   });
 
+  const {
+    fileStorageMiddleware,
+    graphQLFilesStaticExpress,
+    graphQLFilesUploadExpress,
+  } = files.factory({
+    hostname: `http://${process.env.SERVER_HOST}:${process.env.SERVER_PORT}`,
+  });
+
   const permissionsMiddleware = await permissions.factory({
     defaultAccess: 'grant',
     enableIntrospection: true,
@@ -77,6 +86,7 @@ const server = http.createServer(app);
       typeDefs,
       phones.typeDefs,
       accounts.typeDefs,
+      files.typeDefs,
       `type Driver {
         name: String!
       }`,
@@ -85,6 +95,7 @@ const server = http.createServer(app);
       resolvers,
       phones.resolvers,
       accounts.resolvers,
+      files.resolvers,
       {
         Driver: ({
           name: () => 'Driver ivan',
@@ -105,10 +116,14 @@ const server = http.createServer(app);
       phones.middleware,
       permissionsMiddleware,
       accounts.middleware, // <-- After all
+      fileStorageMiddleware,
     ],
   });
 
-  app.use(graphQLExpress);
+  app.use(process.env.GRAPHQL_ENDPOINT, graphQLFilesUploadExpress); // <-- First
+  app.use(graphQLFilesStaticExpress); // < -- Second
+  app.use(process.env.GRAPHQL_ENDPOINT, graphQLExpress); // <-- Last
+
   server.listen(Number(process.env.SERVER_PORT), process.env.SERVER_HOST, () => {
 
 
