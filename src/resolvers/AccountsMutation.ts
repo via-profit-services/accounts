@@ -61,6 +61,7 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
 
           await services.phones.updatePhone(phone.id, {
             ...phone,
+            entity: accountInput.id,
             type: 'Account',
           });
 
@@ -71,10 +72,8 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
 
           await services.phones.createPhone({
             ...phone,
+            entity: accountInput.id,
             type: 'Account',
-            entity: {
-              id: accountInput.id,
-            },
           });
         }
 

@@ -54,21 +54,11 @@ function up(knex) {
 exports.up = up;
 function down(knex) {
     return __awaiter(this, void 0, void 0, function* () {
-        const users = yield knex('users').select('*').whereNotNull('account');
         yield knex.raw(`
     drop table if exists "users" cascade;
     alter table "accounts" add column "name" varchar(100) NOT NULL default '';
     alter table "accounts" add column "comment" text NULL;
   `);
-        yield users.reduce((prev, user) => __awaiter(this, void 0, void 0, function* () {
-            yield prev;
-            knex('accounts').update({
-                name: user.name,
-                comment: user.comment,
-            }).where({
-                id: user.account,
-            });
-        }), Promise.resolve());
     });
 }
 exports.down = down;

@@ -2,6 +2,7 @@
 /* eslint-disable no-console */
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { factory, resolvers, typeDefs } from '@via-profit-services/core';
+import { factory as filesFactory } from '@via-profit-services/file-storage';
 import * as knex from '@via-profit-services/knex';
 import * as permissions from '@via-profit-services/permissions';
 import { factory as phonesFactory } from '@via-profit-services/phones';
@@ -26,7 +27,7 @@ const redisConfig: redis.InitialProps = {
 const server = http.createServer(app);
 (async () => {
 
-  const phones = phonesFactory({
+  const phones = await phonesFactory({
     entities: ['User', 'Account'],
   });
 
@@ -46,6 +47,11 @@ const server = http.createServer(app);
     publicKey: path.resolve(__dirname, './jwtRS256.key.pub'),
     accessTokenExpiresIn: 60 * 60 * 24,
     entities: ['Driver'],
+  });
+
+  const files = await filesFactory({
+    hostname: `http://${process.env.SERVER_HOST}:${process.env.SERVER_PORT}`,
+    categories: ['Avatar'],
   });
 
   const permissionsMiddleware = await permissions.factory({
@@ -77,6 +83,7 @@ const server = http.createServer(app);
       typeDefs,
       phones.typeDefs,
       accounts.typeDefs,
+      files.typeDefs,
       `type Driver {
         name: String!
       }`,
@@ -85,6 +92,7 @@ const server = http.createServer(app);
       resolvers,
       phones.resolvers,
       accounts.resolvers,
+      files.resolvers,
       {
         Driver: ({
           name: () => 'Driver ivan',
@@ -105,14 +113,16 @@ const server = http.createServer(app);
       phones.middleware,
       permissionsMiddleware,
       accounts.middleware, // <-- After all
+      files.fileStorageMiddleware,
     ],
   });
 
-  app.use(graphQLExpress);
+  app.use(process.env.GRAPHQL_ENDPOINT, files.graphQLFilesUploadExpress); // <-- First
+  app.use(files.graphQLFilesStaticExpress); // < -- Second
+  app.use(process.env.GRAPHQL_ENDPOINT, graphQLExpress); // <-- Last
+
   server.listen(Number(process.env.SERVER_PORT), process.env.SERVER_HOST, () => {
-
-
     console.log(`GraphQL Server started at http://${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/graphql`);
-  })
+  });
 
 })();

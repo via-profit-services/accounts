@@ -1,6 +1,6 @@
 declare module '@via-profit-services/accounts' {
   import { Algorithm } from 'jsonwebtoken';
-  import { Phone } from '@via-profit-services/phones';
+  import { ImageTransform } from '@via-profit-services/file-storage';
   import { PermissionsResolverObject, Privileges, PermissionsResolver } from '@via-profit-services/permissions';
   import { InputFilter, Middleware, Context, ErrorHandler, OutputFilter, ListResponse, MiddlewareProps, MaybePromise } from '@via-profit-services/core';
   import { IncomingMessage } from 'http';
@@ -167,6 +167,8 @@ declare module '@via-profit-services/accounts' {
     name: string;
     phones: Array<{ id: string }> | null;
     accounts: Array<{ id: string }> | null;
+    files: Array<{ id: string }> | null;
+    avatar: { id: string } | null;
     createdAt: Date;
     updatedAt: Date;
     deleted: boolean;
@@ -218,8 +220,10 @@ declare module '@via-profit-services/accounts' {
     readonly updatedAt: Date;
     readonly deleted: boolean;
     readonly totalCount: number;
-    readonly phones: string;
-    readonly accounts: string;
+    readonly phones: string | null;
+    readonly accounts: string | null;
+    readonly files: string | null;
+    readonly avatars: string | null;
   }
 
 
@@ -290,45 +294,49 @@ declare module '@via-profit-services/accounts' {
         input: {
           id?: string;
           name?: string;
-          accounts?: Account[];
-          phones?: Phone[];
+          accounts?: AccountInputUpdate[];
+          phones?: Array<{
+            id: string;
+            number?: string;
+            country?: string;
+            description?: string;
+            primary?: boolean;
+            confirmed?: boolean;
+          }>;
         };
       }>;
       create: GraphQLFieldResolver<unknown, Context, {
         input: {
           id?: string;
           name: string;
-          accounts?: Account[];
-          phones?: Phone[];
+          accounts?: AccountInputCreate[];
+          phones?: Array<{
+            id: string;
+            number: string;
+            country: string;
+            description?: string;
+            primary?: boolean;
+            confirmed?: boolean;
+          }>;
         };
       }>;
       delete: GraphQLFieldResolver<unknown, Context, {
-        id: string;
+        id?: string;
+        ids?: string[];
+        dropAccount?: boolean;
       }>
     };
     AccountsMutation: {
       update: GraphQLFieldResolver<unknown, Context, {
         id: string;
-        input: {
-          id?: string;
-          login?: string;
-          password?: string;
-          status?: AccountStatus;
-          roles?: AccountRole[];
-          recoveryPhones?: Phone[];
-        };
+        input: AccountInputUpdate;
       }>;
       create: GraphQLFieldResolver<unknown, Context, {
-        input: {
-          id?: string;
-          login: string;
-          password: string;
-          roles: AccountRole[];
-          recoveryPhones: Phone[];
-        };
+        input: AccountInputCreate;
       }>;
       delete: GraphQLFieldResolver<unknown, Context, {
-        id: string;
+        id?: string;
+        ids?: string[];
       }>
     };
     AuthentificationQuery: {
@@ -359,11 +367,42 @@ declare module '@via-profit-services/accounts' {
     TokenBag: TokenBagResolver;
   }
 
+  export type AccountInputCreate = {
+    id?: string;
+    login?: string;
+    password?: string;
+    status?: AccountStatus;
+    roles?: AccountRole[];
+    recoveryPhones?: Array<{
+      id: string;
+      country?: string;
+      number?: string;
+      primary?: boolean;
+      confirmed?: boolean;
+    }>;
+  }
+
+  export type AccountInputUpdate = {
+    id?: string;
+    login?: string;
+    password?: string;
+    status?: AccountStatus;
+    roles?: AccountRole[];
+    recoveryPhones?: Array<{
+      id: string;
+      country?: string;
+      number?: string;
+      primary?: boolean;
+      confirmed?: boolean;
+    }>;
+  };
 
   export type TokenBagResolver = Record<keyof TokenPackage, GraphQLFieldResolver<TokenRegistrationResponseSuccess, Context>>;
   export type AccountResolver = Record<keyof Account, GraphQLFieldResolver<{  id: string }, Context>>;
   export type MyAccountResolver = Record<keyof MyAccount, GraphQLFieldResolver<{  id: string }, Context>>;
-  export type UserResolver = Record<keyof User, GraphQLFieldResolver<{  id: string }, Context>>;
+  export type UserResolver = Record<keyof User, GraphQLFieldResolver<{  id: string }, Context, {
+    transform: ImageTransform;
+  }>>;
 
 
   
@@ -476,6 +515,7 @@ declare module '@via-profit-services/accounts' {
     createUser(userData: Partial<User>): Promise<string>;
     updateUser(id: string, userData: Partial<User>): Promise<void>;
     deleteUser(id: string): Promise<void>;
+    deleteUsers(ids: string[]): Promise<void>;
   }
 
 
