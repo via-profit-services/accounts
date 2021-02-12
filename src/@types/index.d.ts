@@ -294,45 +294,49 @@ declare module '@via-profit-services/accounts' {
         input: {
           id?: string;
           name?: string;
-          accounts?: Account[];
-          phones?: Phone[];
+          accounts?: AccountInputUpdate[];
+          phones?: Array<{
+            id: string;
+            number?: string;
+            country?: string;
+            description?: string;
+            primary?: boolean;
+            confirmed?: boolean;
+          }>;
         };
       }>;
       create: GraphQLFieldResolver<unknown, Context, {
         input: {
           id?: string;
           name: string;
-          accounts?: Account[];
-          phones?: Phone[];
+          accounts?: AccountInputCreate[];
+          phones?: Array<{
+            id: string;
+            number: string;
+            country: string;
+            description?: string;
+            primary?: boolean;
+            confirmed?: boolean;
+          }>;
         };
       }>;
       delete: GraphQLFieldResolver<unknown, Context, {
-        id: string;
+        id?: string;
+        ids?: string[];
+        dropAccount?: boolean;
       }>
     };
     AccountsMutation: {
       update: GraphQLFieldResolver<unknown, Context, {
         id: string;
-        input: {
-          id?: string;
-          login?: string;
-          password?: string;
-          status?: AccountStatus;
-          roles?: AccountRole[];
-          recoveryPhones?: Phone[];
-        };
+        input: AccountInputUpdate;
       }>;
       create: GraphQLFieldResolver<unknown, Context, {
-        input: {
-          id?: string;
-          login: string;
-          password: string;
-          roles: AccountRole[];
-          recoveryPhones: Phone[];
-        };
+        input: AccountInputCreate;
       }>;
       delete: GraphQLFieldResolver<unknown, Context, {
-        id: string;
+        id?: string;
+        ids?: string[];
       }>
     };
     AuthentificationQuery: {
@@ -363,6 +367,35 @@ declare module '@via-profit-services/accounts' {
     TokenBag: TokenBagResolver;
   }
 
+  export type AccountInputCreate = {
+    id?: string;
+    login?: string;
+    password?: string;
+    status?: AccountStatus;
+    roles?: AccountRole[];
+    recoveryPhones?: Array<{
+      id: string;
+      country?: string;
+      number?: string;
+      primary?: boolean;
+      confirmed?: boolean;
+    }>;
+  }
+
+  export type AccountInputUpdate = {
+    id?: string;
+    login?: string;
+    password?: string;
+    status?: AccountStatus;
+    roles?: AccountRole[];
+    recoveryPhones?: Array<{
+      id: string;
+      country?: string;
+      number?: string;
+      primary?: boolean;
+      confirmed?: boolean;
+    }>;
+  };
 
   export type TokenBagResolver = Record<keyof TokenPackage, GraphQLFieldResolver<TokenRegistrationResponseSuccess, Context>>;
   export type AccountResolver = Record<keyof Account, GraphQLFieldResolver<{  id: string }, Context>>;
@@ -480,6 +513,7 @@ declare module '@via-profit-services/accounts' {
     createUser(userData: Partial<User>): Promise<string>;
     updateUser(id: string, userData: Partial<User>): Promise<void>;
     deleteUser(id: string): Promise<void>;
+    deleteUsers(ids: string[]): Promise<void>;
   }
 
 

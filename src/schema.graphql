@@ -278,9 +278,13 @@ type AccountsMutation {
   """
   Delete account
   """
-  delete(id: ID!): Boolean!
+  delete(id: ID ids: [ID!]): DeleteAccountResult!
 }
 
+
+type DeleteAccountResult {
+  deleted: [ID!]!
+}
 
 type UsersMutation {
   """
@@ -296,8 +300,13 @@ type UsersMutation {
   """
   Delete exists user
   """
-  delete(id: ID!): Boolean!
+  delete(id: ID ids: [ID!] dropAccount: Boolean): DeleteUserResult!
 }
+
+type DeleteUserResult {
+  deleted: [ID!]!
+}
+
 
 type AuthentificationMutation {
   """
@@ -325,14 +334,32 @@ input UserInputUpdate {
   id: String
   name: String
   accounts: [AccountInputUpdate]
-  phones: [PhoneInputUpdate]
+  phones: [UserPhoneInputUpdate]
 }
 
 input UserInputCreate {
   id: String
   name: String!
-  accounts: [AccountInputCreate]!
-  phones: [PhoneInputCreate]!
+  accounts: [AccountInputCreate]
+  phones: [UserPhoneInputCreate]
+}
+
+input UserPhoneInputUpdate {
+  id: ID!
+  number: String
+  country: PhoneCountry
+  description: String
+  primary: Boolean
+  confirmed: Boolean
+}
+
+input UserPhoneInputCreate {
+  id: ID
+  number: String!
+  country: PhoneCountry!
+  description: String
+  primary: Boolean
+  confirmed: Boolean
 }
 
 input AccountInputUpdate {
@@ -345,7 +372,7 @@ input AccountInputUpdate {
   """
   Phones list for password recovery
   """
-  recoveryPhones: [PhoneInputUpdate!]
+  recoveryPhones: [AccountRecoveryPhoneInputUpdate!]
 }
 
 input AccountInputCreate {
@@ -356,7 +383,23 @@ input AccountInputCreate {
   """
   Phones list for password recovery
   """
-  recoveryPhones: [PhoneInputCreate!]!
+  recoveryPhones: [AccountRecoveryPhoneInputCreate!]
+}
+
+input AccountRecoveryPhoneInputCreate {
+  id: ID
+  country: PhoneCountry!
+  number: String!
+  primary: Boolean!
+  confirmed: Boolean
+}
+
+input AccountRecoveryPhoneInputUpdate {
+  id: ID!
+  country: PhoneCountry
+  number: String
+  primary: Boolean
+  confirmed: Boolean
 }
 
 

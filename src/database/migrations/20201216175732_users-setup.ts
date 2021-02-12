@@ -38,23 +38,10 @@ export async function up(knex: Knex): Promise<any> {
 }
 
 export async function down(knex: Knex): Promise<any> {
-  const users = await knex('users').select('*').whereNotNull('account');
-
   await knex.raw(`
     drop table if exists "users" cascade;
     alter table "accounts" add column "name" varchar(100) NOT NULL default '';
     alter table "accounts" add column "comment" text NULL;
   `);
 
-  await users.reduce(async (prev, user) => {
-    await prev;
-
-    knex('accounts').update({
-      name: user.name,
-      comment: user.comment,
-    }).where({
-      id: user.account,
-    })
-
-  }, Promise.resolve());
 }

@@ -86,6 +86,7 @@ function down(knex) {
     );
     alter table "accounts" alter column "type" type "accountType" using 'stuff'::"accountType";
     alter table "accounts" alter column "type" set default 'stuff'::"accountType";
+    alter table "accounts" drop constraint "accounts_login_un";
   `);
     });
 }

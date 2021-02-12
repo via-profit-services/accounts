@@ -27,7 +27,7 @@ const redisConfig: redis.InitialProps = {
 const server = http.createServer(app);
 (async () => {
 
-  const phones = phonesFactory({
+  const phones = await phonesFactory({
     entities: ['User', 'Account'],
   });
 

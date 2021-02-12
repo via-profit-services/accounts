@@ -147,15 +147,19 @@ class UsersService {
       createdAt,
       updatedAt: createdAt,
     });
-    const result = await knex<UsersTableModel>('accounts').insert(data).returning('id');
+    const result = await knex<UsersTableModel>('users').insert(data).returning('id');
 
     return result[0];
   }
 
-  public async deleteUser(id: string) {
-    return this.updateUser(id, {
+  public async deleteUsers(ids: string[]) {
+    await Promise.all(ids.map((id) => this.updateUser(id, {
       deleted: true,
-    });
+    })));
+  }
+
+  public async deleteUser(id: string) {
+    return this.deleteUsers([id]);
   }
 
 }

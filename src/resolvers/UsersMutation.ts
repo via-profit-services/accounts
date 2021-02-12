@@ -1,4 +1,4 @@
-import type { Resolvers, User } from '@via-profit-services/accounts';
+import type { Resolvers } from '@via-profit-services/accounts';
 import { BadRequestError, ServerError } from '@via-profit-services/core';
 
 
@@ -86,9 +86,7 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
           await services.phones.createPhone({
             ...phone,
             type: 'User',
-            entity: {
-              id: userInput.id,
-            },
+            entity: userInput.id,
           });
         }
 
@@ -136,8 +134,8 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
       try {
         await accounts.reduce(async (prev, account) => {
           await prev;
-          await services.accounts.createAccount(account);
-          const newAccount = dataloader.accounts.load(account.id);
+          const newAccountID = await services.accounts.createAccount(account);
+          const newAccount = dataloader.accounts.load(newAccountID);
           emitter.emit('account-was-created', newAccount);
         }, Promise.resolve());
       } catch (err) {
@@ -151,42 +149,47 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
     return user;
   },
   delete: async (_parent, args, context) => {
-    const { id } = args;
+    const { id, ids, dropAccount } = args;
     const { logger, token, services, emitter, dataloader } = context;
+    const deleted: string[] = [].concat(ids || []).concat(id ? [id] : []);
 
-    logger.server.debug(`Delete user ${id} request`, { initiator: token.uuid });
+    // delete users
+    await services.users.deleteUsers(deleted);
+    deleted.forEach((idToDelete) => {
+      dataloader.clients.clear(idToDelete);
+      emitter.emit('user-was-deleted', idToDelete);
+      logger.server.debug(`Delete user ${idToDelete} request`, { initiator: token.uuid });
+    });
 
-    let user: User;
-    try {
-      user = await dataloader.users.load(id);
-    } catch (err) {
-      throw new ServerError(`Failed to load user ${id}`, { err });
-    }
+    // delete user files
+    await services.files.deleteFilesByOwner(deleted);
 
-    // delete account first
-    try {
-      if (user.accounts && user.accounts.length) {
-        const userAccountIDs = user.accounts.map((account) => account.id);
+    // delete accounts
+    if (dropAccount) {
+      const accounts = await services.accounts.getAccounts({
+        limit: Number.MAX_SAFE_INTEGER,
+        where: [
+          ['entity', 'in', deleted],
+          ['deleted', '=', false],
+        ],
+      });
+
+      if (accounts.totalCount) {
+        const userAccountIDs = accounts.nodes.map(({ id }) => id);
         await services.accounts.deleteAccounts(userAccountIDs);
+
         userAccountIDs.map((userAccountID) => {
           dataloader.accounts.clear(userAccountID);
           emitter.emit('account-was-deleted', userAccountID);
         });
-
       }
-    } catch (err) {
-      throw new ServerError(`Failed to delete accounts of user ${user.id}`, { err });
     }
 
-    // delete user first
-    try {
-      await services.users.deleteUser(id);
-      emitter.emit('user-was-deleted', id);
-    } catch (err) {
-      throw new ServerError(`Failed to delete user ${id}`, { err });
-    }
 
-    return true;
+    return {
+      __typename: 'DeleteUserResult',
+      deleted,
+    }
 
   },
 };

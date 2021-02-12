@@ -1473,9 +1473,9 @@ __metadata:
     "@via-profit-services/core": ^1.0.2
     "@via-profit-services/eslint-config": ^0.1.11
     "@via-profit-services/file-storage": ^1.0.0
-    "@via-profit-services/knex": ^1.0.1
+    "@via-profit-services/knex": ^1.0.2
     "@via-profit-services/permissions": ^1.0.0
-    "@via-profit-services/phones": ^1.0.1
+    "@via-profit-services/phones": ^1.0.2
     "@via-profit-services/redis": ^1.0.0
     "@via-profit-services/sms": ^1.0.0
     bcryptjs: ^2.4.3
@@ -1606,14 +1606,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@via-profit-services/knex@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "@via-profit-services/knex@npm:1.0.1"
+"@via-profit-services/knex@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@via-profit-services/knex@npm:1.0.2"
   peerDependencies:
     "@via-profit-services/core": 1.x.x
     knex: ^0.21.12
     pg: ^8.5.1
-  checksum: 673d61d7fc8c34b760871828c16e5cde73512cdd227e35c8778837906f1fb036cd6c342654d842a6976c8b8f6692a44b3c26f480fd4ca4060374abf9fdf91a1f
+  checksum: 8ae338062b5f2d547bbaa6776349540b32bf61d8b0b2a5476ec2a068e60b90e50b121dadcdd6635d48860846190d380522303c71eb7fa6027f2019cf6dd2a08c
   languageName: node
   linkType: hard
 
@@ -1629,9 +1629,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@via-profit-services/phones@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "@via-profit-services/phones@npm:1.0.1"
+"@via-profit-services/phones@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@via-profit-services/phones@npm:1.0.2"
   peerDependencies:
     "@via-profit-services/core": ^1.0.0
     "@via-profit-services/knex": ^1.0.0
@@ -1640,7 +1640,7 @@ __metadata:
     moment: ""
     moment-timezone: "*"
     uuid: "*"
-  checksum: d75406f4a9de9e611bc6b1cb73befcc67c990b20d6b7d161c3c826fa6a8ffcd0a388471c199160e75a91b9c84946753ee066880971b24df50f37f78f791b0663
+  checksum: 7bf515d243296ca8bda21f4a2a7b5dc06f72d9db44786150452e08d562c34d81e7abd11887ea5ffbee8b1a610645bc8f3b6e32ee5dd906c7e067afe6ce9f48fb
   languageName: node
   linkType: hard
 
