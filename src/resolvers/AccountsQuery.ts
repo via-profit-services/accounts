@@ -19,13 +19,14 @@ export const accountsQueryResolver: Resolvers['AccountsQuery'] = {
       });
 
       return connection;
+
     } catch (err) {
       console.error(err)
       throw new ServerError('Failed to get Accounts list', { err });
     }
   },
   statusesList: (): AccountStatus[] => ['allowed', 'forbidden'],
-  me: () => ({}),
+  me: (_parent, _args, context) => ({ id: context.token.uuid }),
   account: (_parent, args) => args,
   checkLoginExists: async (_parent, args, context): Promise<boolean> => {
     const { login, skipId } = args;
