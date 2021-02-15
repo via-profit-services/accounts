@@ -244,7 +244,7 @@ declare module '@via-profit-services/accounts' {
     };
   }
 
-  export type MyAccount = Omit<Account, 'deleted'>;
+  // export type MyAccount = Omit<Account, 'deleted'>;
 
   export type AccountsMiddlewareFactory = (config: Configuration) => Promise<{
     resolvers: Resolvers;
@@ -362,7 +362,7 @@ declare module '@via-profit-services/accounts' {
       user: GraphQLFieldResolver<unknown, Context, { id: string }>;
     };
     Account: AccountResolver;
-    MyAccount: MyAccountResolver;
+    // MyAccount: MyAccountResolver;
     User: UserResolver;
     TokenBag: TokenBagResolver;
   }
@@ -399,7 +399,7 @@ declare module '@via-profit-services/accounts' {
 
   export type TokenBagResolver = Record<keyof TokenPackage, GraphQLFieldResolver<TokenRegistrationResponseSuccess, Context>>;
   export type AccountResolver = Record<keyof Account, GraphQLFieldResolver<{  id: string }, Context>>;
-  export type MyAccountResolver = Record<keyof MyAccount, GraphQLFieldResolver<{  id: string }, Context>>;
+  // export type MyAccountResolver = Record<keyof MyAccount, GraphQLFieldResolver<{  id: string }, Context>>;
   export type UserResolver = Record<keyof User, GraphQLFieldResolver<{  id: string }, Context, {
     transform: ImageTransform;
   }>>;

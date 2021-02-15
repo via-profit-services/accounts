@@ -8,7 +8,9 @@ export const UsersQueryResolver: Resolvers['UsersQuery'] = {
     const filter = buildQueryFilter(args);
 
     try {
-      filter.where.push(['deleted', '=', false]);
+      filter.where.push(
+        ['deleted', '=', false], // exclude deleted users
+      );
       const usersConnection = await services.users.getUsers(filter);
       const connection = buildCursorConnection(usersConnection, 'users');
 

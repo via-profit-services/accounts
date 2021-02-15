@@ -7,7 +7,9 @@ export const accountsQueryResolver: Resolvers['AccountsQuery'] = {
     const filter = buildQueryFilter(args);
 
     try {
-      filter.where.push(['deleted', '=', false]);
+      filter.where.push(
+        ['deleted', '=', false], // exclude deleted accounts
+      );
       const accountsConnection = await services.accounts.getAccounts(filter);
       const connection = buildCursorConnection(accountsConnection, 'accounts');
 
