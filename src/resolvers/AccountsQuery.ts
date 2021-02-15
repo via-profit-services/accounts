@@ -3,7 +3,7 @@ import { ServerError, buildCursorConnection, buildQueryFilter, CursorConnection 
 
 export const accountsQueryResolver: Resolvers['AccountsQuery'] = {
   list: async (_parent, args, context): Promise<CursorConnection<Account>> => {
-    const { dataloader, services, token } = context;
+    const { dataloader, services } = context;
     const filter = buildQueryFilter(args);
 
     try {
