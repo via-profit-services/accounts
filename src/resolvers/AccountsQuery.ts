@@ -3,11 +3,13 @@ import { ServerError, buildCursorConnection, buildQueryFilter, CursorConnection 
 
 export const accountsQueryResolver: Resolvers['AccountsQuery'] = {
   list: async (_parent, args, context): Promise<CursorConnection<Account>> => {
-    const { dataloader, services } = context;
+    const { dataloader, services, token } = context;
     const filter = buildQueryFilter(args);
 
     try {
-      filter.where.push(['deleted', '=', false]);
+      filter.where.push(
+        ['deleted', '=', false], // exclude deleted accounts
+      );
       const accountsConnection = await services.accounts.getAccounts(filter);
       const connection = buildCursorConnection(accountsConnection, 'accounts');
 

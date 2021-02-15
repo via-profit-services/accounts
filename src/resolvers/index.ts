@@ -7,7 +7,7 @@ import AccountsQuery from './AccountsQuery';
 import AuthentificationMutation from './AuthentificationMutation';
 import AuthentificationQuery from './AuthentificationQuery';
 import Mutation from './Mutation';
-import MyAccount from './MyAccount';
+// import MyAccount from './MyAccount';
 import Query from './Query';
 import TokenBag from './TokenBag';
 import User from './User';
@@ -19,7 +19,7 @@ const resolvers: Resolvers = {
   AccountsMutation,
   AccountsQuery,
   Mutation,
-  MyAccount,
+  // MyAccount,
   AuthentificationQuery,
   AuthentificationMutation,
   Query,

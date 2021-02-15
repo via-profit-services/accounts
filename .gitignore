@@ -8,6 +8,7 @@
 20210120105405_phones-setup.js
 20200509030327_file-storage-setup.js
 20200723164537_file-storage-alter-filetype.js
+/public
 
 # jest
 /coverage

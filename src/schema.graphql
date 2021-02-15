@@ -98,7 +98,6 @@ interface Profile {
 }
 
 
-
 type Account implements Node {
   id: ID!
   login: String!
@@ -113,18 +112,6 @@ type Account implements Node {
   type: AccountType!
 }
 
-type MyAccount implements Node {
-  id: ID!
-  login: String!
-  password: String!
-  status: AccountStatus!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  roles: [AccountRole!]!
-  recoveryPhones: [Phone!]!
-  entity: AccountEntity!
-  type: AccountType!
-}
 
 type User implements Node & Profile {
   id: ID!
@@ -182,7 +169,7 @@ type AccountsQuery {
   """
   Returns Your account
   """
-  me: MyAccount!
+  me: Account!
 
   """
   Returns account if exists
@@ -263,6 +250,7 @@ type AccountListConnection implements Connection {
   pageInfo: PageInfo!
   edges: [AccountsEdge!]!
 }
+
 
 type AccountsMutation {
   """
