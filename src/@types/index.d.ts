@@ -573,6 +573,7 @@ declare module '@via-profit-services/core' {
     on(event: 'user-was-updated', callback: (user: User) => void): this;
     on(event: 'user-was-created', callback: (user: User) => void): this;
     on(event: 'user-was-deleted', callback: (userID: string) => void): this;
+    on(event: 'token-was-revoked', callback: (revokedTokenID: string) => void): this;
 
     once(event: 'got-access-token', callback: (tokenBag: AccessTokenPayload) => void): this;
     once(event: 'authentification-success', callback: (tokenBag: TokenPackage) => void): this;
@@ -582,6 +583,7 @@ declare module '@via-profit-services/core' {
     once(event: 'user-was-updated', callback: (user: User) => void): this;
     once(event: 'user-was-created', callback: (user: User) => void): this;
     once(event: 'user-was-deleted', callback: (userID: string) => void): this;
+    once(event: 'token-was-revoked', callback: (revokedTokenID: string) => void): this;
   }
   
   interface DataLoaderCollection {

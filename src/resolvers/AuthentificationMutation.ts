@@ -56,7 +56,7 @@ const authentificationMutation: Resolvers['AuthentificationMutation'] = {
    * Revoke Access token
    */
   revoke: async (parent, args, context) => {
-    const { services } = context;
+    const { services, emitter } = context;
     const { accountID, tokenID } = args;
     const { authentification } = services;
 
@@ -69,7 +69,11 @@ const authentificationMutation: Resolvers['AuthentificationMutation'] = {
 
     if (accountID) {
       try {
-        await authentification.revokeAccountTokens(accountID);
+        const revokedIDs = await authentification.revokeAccountTokens(accountID);
+        revokedIDs.forEach((revokedID) => {
+          emitter.emit('token-was-revoked', revokedID);
+        });
+
       } catch (err) {
         throw new ServerError('Failed to revoke account tokens', { err });
       }
@@ -78,6 +82,7 @@ const authentificationMutation: Resolvers['AuthentificationMutation'] = {
     if (tokenID) {
       try {
         await authentification.revokeToken(tokenID);
+        emitter.emit('token-was-revoked', tokenID);
       } catch (err) {
          throw new ServerError('Failed to revoke token', { err });
       }
