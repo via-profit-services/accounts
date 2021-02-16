@@ -83,7 +83,10 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
     if (accountInput.status === 'forbidden') {
       // revoke all tokens of this account
       try {
-        services.authentification.revokeAccountTokens(id);
+        const revokedIDs = await services.authentification.revokeAccountTokens(id);
+        revokedIDs.forEach((revokedID) => {
+          emitter.emit('token-was-revoked', revokedID);
+        });
       } catch (err) {
         throw new ServerError('Failed to revoke account tokens', { err });
       }
