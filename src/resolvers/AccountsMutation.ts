@@ -145,8 +145,11 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
       logger.server.debug(`Delete account ${idToDelete} request`, { initiator: token.uuid });
 
       try {
-        await services.authentification.revokeAccountTokens(idToDelete);
         logger.server.debug(`Revoke account ${idToDelete} tokens request`, { initiator: token.uuid });
+        const revokedTokenIDs = await services.authentification.revokeAccountTokens(idToDelete);
+        revokedTokenIDs.forEach((revokedID) => {
+          emitter.emit('token-was-revoked', revokedID);
+        });
       } catch (err) {
         throw new ServerError('Failed to revoke account tokens', { err });
       }
