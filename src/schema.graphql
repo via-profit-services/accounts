@@ -321,15 +321,15 @@ type AuthentificationMutation {
 input UserInputUpdate {
   id: String
   name: String
-  accounts: [AccountInputUpdate]
-  phones: [UserPhoneInputUpdate]
+  accounts: [AccountInputUpdate!]
+  phones: [UserPhoneInputUpdate!]
 }
 
 input UserInputCreate {
   id: String
   name: String!
-  accounts: [AccountInputCreate]
-  phones: [UserPhoneInputCreate]
+  accounts: [AccountInputCreate!]
+  phones: [UserPhoneInputCreate!]
 }
 
 input UserPhoneInputUpdate {
