@@ -132,31 +132,43 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
     return result;
   },
   delete: async (_parent, args, context) => {
-    const { id } = args;
+    const { id, ids } = args;
     const { logger, token, services, emitter, dataloader } = context;
 
-    logger.server.debug(`Delete account ${id} request`, { initiator: token.uuid });
+    const deleted: string[] = [].concat(ids || []).concat(id ? [id] : []);
+
 
     // revoke all tokens of this account
-    try {
-      services.authentification.revokeAccountTokens(id);
-      logger.server.debug(`Revoke account ${id} tokens request`, { initiator: token.uuid });
-    } catch (err) {
-      throw new ServerError('Failed to revoke account tokens', { err });
+    await deleted.reduce(async (prev, idToDelete) => {
+      await prev;
+
+      logger.server.debug(`Delete account ${idToDelete} request`, { initiator: token.uuid });
+
+      try {
+        await services.authentification.revokeAccountTokens(idToDelete);
+        logger.server.debug(`Revoke account ${idToDelete} tokens request`, { initiator: token.uuid });
+      } catch (err) {
+        throw new ServerError('Failed to revoke account tokens', { err });
+      }
+
+      // delete account
+      try {
+        await services.accounts.deleteAccount(idToDelete);
+        dataloader.accounts.clear(idToDelete);
+
+        emitter.emit('account-was-deleted', idToDelete);
+
+      } catch (err) {
+        throw new ServerError(`Failed to delete account ${idToDelete}`, { err });
+      }
+
+    }, Promise.resolve());
+
+
+    return {
+      __typename: 'DeleteAccountResult',
+      deleted,
     }
-
-    // delete account
-    try {
-      await services.accounts.deleteAccount(id);
-      dataloader.accounts.clear(id);
-
-      emitter.emit('account-was-deleted', id);
-
-      return true;
-    } catch (err) {
-      throw new ServerError(`Failed to delete account ${id}`, { id });
-    }
-
   },
 };
 
