@@ -122,7 +122,11 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
       try {
         await phones.reduce(async (prev, phone) => {
           await prev;
-          await services.phones.createPhone(phone);
+          await services.phones.createPhone({
+            ...phone,
+            entity: userInput.id,
+            type: 'User',
+          });
         }, Promise.resolve());
       } catch (err) {
         throw new ServerError('Failed to create user phones', { err });
