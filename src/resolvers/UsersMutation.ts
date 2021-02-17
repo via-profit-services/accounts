@@ -75,6 +75,7 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
 
           await services.phones.updatePhone(phone.id, {
             ...phone,
+            entity: userInput.id,
             type: 'User',
           });
 

@@ -122,7 +122,11 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
       try {
         await recoveryPhones.reduce(async (prev, phone) => {
           await prev;
-          await services.phones.createPhone(phone);
+          await services.phones.createPhone({
+            ...phone,
+            type: 'Account',
+            entity: accountInput.id,
+          });
         }, Promise.resolve());
       } catch (err) {
         throw new ServerError('Failed to create account phones', { err });
