@@ -23,18 +23,28 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
 
     // update accounts
     if (typeof accounts !== 'undefined') {
-      try {
-        await accounts.reduce(async (prev, account) => {
-          await prev;
-          await services.accounts.updateAccount(account.id, account);
-          dataloader.accounts.clear(account.id);
-          const updatedAccount = await dataloader.accounts.load(account.id);
+      await accounts.reduce(async (prev, account) => {
+        await prev;
 
-          emitter.emit('account-was-updated', updatedAccount);
-        }, Promise.resolve());
-      } catch (err) {
-        throw new ServerError('Failed to update accounts', { err });
-      }
+        if (typeof account.login !== 'undefined') {
+          const { login, id } = account;
+          const isLoginExists = await services.accounts.checkLoginExists(login, id);
+          if (isLoginExists) {
+            throw new BadRequestError(`An account with login «${login}» already exists`);
+          }
+        }
+
+        try {
+          await services.accounts.updateAccount(account.id, account);
+        } catch (err) {
+          throw new ServerError('Failed to update account', { err });
+        }
+        dataloader.accounts.clear(account.id);
+        const updatedAccount = await dataloader.accounts.load(account.id);
+
+        emitter.emit('account-was-updated', updatedAccount);
+      }, Promise.resolve());
+
     }
 
 
@@ -113,9 +123,40 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
       logger.auth.debug(`New user was created with id «${result.id}»`);
 
     } catch (err) {
-      throw new ServerError('Failed to create user', { input });
+      throw new ServerError('Failed to create user', { err });
     }
 
+
+    // create accounts
+    if (typeof accounts !== 'undefined') {
+
+      await accounts.reduce(async (prev, account) => {
+        await prev;
+
+        // check to login unique
+        const isLoginExists = await services.accounts.checkLoginExists(account.login);
+        if (isLoginExists) {
+          await services.users.deleteUser(result.id);
+          throw new BadRequestError(`An account with login «${account.login}» already exists`);
+        }
+
+        // create account
+        try {
+          const newAccountID = await services.accounts.createAccount({
+            ...account,
+            entity: result.id,
+            type: 'User',
+          });
+
+          const newAccount = dataloader.accounts.load(newAccountID);
+          emitter.emit('account-was-created', newAccount);
+        } catch (err) {
+
+          await services.users.deleteUser(result.id);
+          throw new ServerError('Failed to create user accounts', { err });
+        }
+      }, Promise.resolve());
+    }
 
     // create phones
     if (typeof phones !== 'undefined') {
@@ -133,20 +174,6 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
       }
     }
 
-
-    // create accounts
-    if (typeof accounts !== 'undefined') {
-      try {
-        await accounts.reduce(async (prev, account) => {
-          await prev;
-          const newAccountID = await services.accounts.createAccount(account);
-          const newAccount = dataloader.accounts.load(newAccountID);
-          emitter.emit('account-was-created', newAccount);
-        }, Promise.resolve());
-      } catch (err) {
-        throw new ServerError('Failed to create user phones', { err });
-      }
-    }
 
     const user = await dataloader.users.load(result.id);
     emitter.emit('user-was-created', user);

@@ -43,6 +43,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/bcryptjs", "npm:2.4.2"],
             ["@types/express", "npm:4.17.9"],
             ["@types/faker", "npm:5.1.6"],
+            ["@types/graphql", "npm:14.5.0"],
             ["@types/ioredis", "npm:4.17.8"],
             ["@types/jest", "npm:24.9.1"],
             ["@types/jsonwebtoken", "npm:8.5.0"],
@@ -382,7 +383,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["@graphql-tools/schema", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:7.1.2"],
             ["@graphql-tools/utils", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:7.1.2"],
-            ["@types/graphql", null],
+            ["@types/graphql", "npm:14.5.0"],
             ["graphql", "npm:15.4.0"],
             ["tslib", "npm:2.0.3"]
           ],
@@ -406,7 +407,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["@graphql-tools/utils", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:7.1.2"],
             ["@ardatan/aggregate-error", "npm:0.0.6"],
-            ["@types/graphql", null],
+            ["@types/graphql", "npm:14.5.0"],
             ["camel-case", "npm:4.1.1"],
             ["graphql", "npm:15.4.0"],
             ["tslib", "npm:2.0.3"]
@@ -1664,6 +1665,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["@types/graphql", [
+        ["npm:14.5.0", {
+          "packageLocation": "./.yarn/cache/@types-graphql-npm-14.5.0-2018ec7160-93ecac6502.zip/node_modules/@types/graphql/",
+          "packageDependencies": [
+            ["@types/graphql", "npm:14.5.0"],
+            ["graphql", "npm:15.5.0"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
       ["@types/ioredis", [
         ["npm:4.17.8", {
           "packageLocation": "./.yarn/cache/@types-ioredis-npm-4.17.8-7a29387416-35180bf4e8.zip/node_modules/@types/ioredis/",
@@ -2178,6 +2189,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/bcryptjs", "npm:2.4.2"],
             ["@types/express", "npm:4.17.9"],
             ["@types/faker", "npm:5.1.6"],
+            ["@types/graphql", "npm:14.5.0"],
             ["@types/ioredis", "npm:4.17.8"],
             ["@types/jest", "npm:24.9.1"],
             ["@types/jsonwebtoken", "npm:8.5.0"],
@@ -2269,7 +2281,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@via-profit-services/core", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.2"],
             ["@types/dataloader", null],
             ["@types/express", "npm:4.17.9"],
-            ["@types/graphql", null],
+            ["@types/graphql", "npm:14.5.0"],
             ["@types/moment", null],
             ["@types/moment-timezone", null],
             ["@types/winston", null],
@@ -2326,7 +2338,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/unplugged/@via-profit-services-file-storage-virtual-e2dfaf7184/node_modules/@via-profit-services/file-storage/",
           "packageDependencies": [
             ["@via-profit-services/file-storage", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.2"],
-            ["@types/graphql", null],
+            ["@types/graphql", "npm:14.5.0"],
             ["@types/imagemin", null],
             ["@types/imagemin-mozjpeg", null],
             ["@types/imagemin-optipng", null],
@@ -2433,7 +2445,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/$$virtual/@via-profit-services-permissions-virtual-7ac8fc3e2d/0/cache/@via-profit-services-permissions-npm-1.0.0-8d23637d63-ad1a6c72d8.zip/node_modules/@via-profit-services/permissions/",
           "packageDependencies": [
             ["@via-profit-services/permissions", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.0"],
-            ["@types/graphql", null],
+            ["@types/graphql", "npm:14.5.0"],
             ["@types/via-profit-services__core", null],
             ["@types/winston", null],
             ["@types/winston-daily-rotate-file", null],
@@ -7409,6 +7421,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["graphql", "npm:15.4.0"]
           ],
           "linkType": "HARD",
+        }],
+        ["npm:15.5.0", {
+          "packageLocation": "./.yarn/cache/graphql-npm-15.5.0-65986c56be-789cdcb069.zip/node_modules/graphql/",
+          "packageDependencies": [
+            ["graphql", "npm:15.5.0"]
+          ],
+          "linkType": "HARD",
         }]
       ]],
       ["graphql-tag", [
@@ -7423,7 +7442,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/$$virtual/graphql-tag-virtual-7261bd8be9/0/cache/graphql-tag-npm-2.11.0-d505ecf590-4003555901.zip/node_modules/graphql-tag/",
           "packageDependencies": [
             ["graphql-tag", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:2.11.0"],
-            ["@types/graphql", null],
+            ["@types/graphql", "npm:14.5.0"],
             ["graphql", "npm:15.4.0"]
           ],
           "packagePeers": [

@@ -321,15 +321,31 @@ type AuthentificationMutation {
 input UserInputUpdate {
   id: String
   name: String
-  accounts: [AccountInputUpdate!]
+  accounts: [UserAccountInputUpdate!]
   phones: [UserPhoneInputUpdate!]
 }
 
 input UserInputCreate {
   id: String
   name: String!
-  accounts: [AccountInputCreate!]
+  accounts: [UserAccountInputCreate!]
   phones: [UserPhoneInputCreate!]
+}
+
+input UserAccountInputCreate {
+  id: String
+  login: String!
+  password: String!
+  roles: [AccountRole!]!
+  recoveryPhones: [AccountRecoveryPhoneInputCreate!]
+}
+
+input UserAccountInputUpdate {
+  id: String!
+  login: String
+  password: String
+  roles: [AccountRole!]
+  recoveryPhones: [AccountRecoveryPhoneInputCreate!]
 }
 
 input UserPhoneInputUpdate {
@@ -356,7 +372,8 @@ input AccountInputUpdate {
   password: String
   status: AccountStatus
   roles: [AccountRole!]
-
+  type: AccountType
+  entity: String
   """
   Phones list for password recovery
   """
@@ -368,6 +385,8 @@ input AccountInputCreate {
   login: String!
   password: String!
   roles: [AccountRole!]!
+  type: AccountType!
+  entity: String!
   """
   Phones list for password recovery
   """

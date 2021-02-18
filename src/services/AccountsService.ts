@@ -1,7 +1,7 @@
 /* eslint-disable import/max-dependencies */
 import type {
   Account, AccountsServiceProps, AccountsService as AccountsServiceInterface,
-  AccountsTableModel, AccountsTableModelResult,
+  AccountsTableModel, AccountsTableModelResult, AccountInputCreate, AccountInputUpdate,
 } from '@via-profit-services/accounts';
 import '@via-profit-services/redis';
 import { OutputFilter, ListResponse, arrayOfIdsToArrayOfObjectIds } from '@via-profit-services/core';
@@ -36,16 +36,13 @@ class AccountsService implements AccountsServiceInterface {
     };
   }
 
-  public prepareDataToInsert(input: Partial<Account>): Partial<AccountsTableModel> {
-    const { context } = this.props;
-    const { timezone } = context;
+  public prepareDataToInsert(
+      input: Partial<AccountInputCreate | AccountInputUpdate>,
+    ): Partial<AccountsTableModel> {
     const accountData: Partial<AccountsTableModel> = {
       ...input,
-      entity: input?.entity?.id ? input.entity.id : undefined,
       status: input.status ? String(input.status) : undefined,
       roles: input.roles ? JSON.stringify(input.roles) : undefined,
-      createdAt: input.createdAt ? moment.tz(input.createdAt, timezone).format() : undefined,
-      updatedAt: input.updatedAt ? moment.tz(input.updatedAt, timezone).format() : undefined,
     };
 
     return accountData;
@@ -167,12 +164,11 @@ class AccountsService implements AccountsServiceInterface {
   }
 
 
-  public async updateAccount(id: string, accountData: Partial<Account>) {
+  public async updateAccount(id: string, accountData: AccountInputUpdate) {
     const { knex, timezone, services } = this.props.context;
     const { authentification } = services;
     const data = this.prepareDataToInsert({
       ...accountData,
-      updatedAt: moment.tz(timezone).toDate(),
       password: accountData.password
         ? authentification.cryptUserPassword(
           accountData.login,
@@ -182,15 +178,18 @@ class AccountsService implements AccountsServiceInterface {
     });
 
     await knex<AccountsTableModel>('accounts')
-      .update(data)
+      .update({
+        ...data,
+        updatedAt: moment.tz(timezone).format(),
+      })
       .where('id', id)
       .returning('id');
   }
 
-  public async createAccount(accountData: Partial<Account>) {
+  public async createAccount(accountData: AccountInputCreate) {
     const { knex, timezone, services } = this.props.context;
     const { authentification } = services;
-    const createdAt = moment.tz(timezone).toDate();
+    const createdAt = moment.tz(timezone).format();
 
     const data = this.prepareDataToInsert({
       ...accountData,
@@ -199,10 +198,14 @@ class AccountsService implements AccountsServiceInterface {
         accountData.login,
         accountData.password,
       ),
-      createdAt,
-      updatedAt: createdAt,
     });
-    const result = await knex<AccountsTableModel>('accounts').insert(data).returning('id');
+    const result = await knex<AccountsTableModel>('accounts')
+      .insert({
+        ...data,
+        createdAt,
+        updatedAt: createdAt,
+      })
+      .returning('id');
 
     return result[0];
   }

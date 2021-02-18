@@ -1,5 +1,5 @@
 /* eslint-disable import/max-dependencies */
-import type { User, UsersServiceProps, UsersTableModelResult, UsersTableModel } from '@via-profit-services/accounts';
+import type { User, UsersServiceProps, UsersTableModelResult, UsersTableModel, UserInputCreate, UserInputUpdate } from '@via-profit-services/accounts';
 import '@via-profit-services/redis';
 import { OutputFilter, ListResponse, arrayOfIdsToArrayOfObjectIds } from '@via-profit-services/core';
 import { convertWhereToKnex, convertOrderByToKnex, extractTotalCountPropOfNode } from '@via-profit-services/knex';
@@ -111,43 +111,43 @@ class UsersService {
   }
 
 
-  public prepareDataToInsert(input: Partial<User>): Partial<UsersTableModel> {
-    const { context } = this.props;
-    const { timezone } = context;
+  public prepareDataToInsert(
+    input: Partial<UserInputCreate | UserInputUpdate>,
+  ): Partial<UsersTableModel> {
     const userData: Partial<UsersTableModel> = {
       ...input,
-      createdAt: input.createdAt ? moment.tz(input.createdAt, timezone).format() : undefined,
-      updatedAt: input.updatedAt ? moment.tz(input.updatedAt, timezone).format() : undefined,
     };
 
     return userData;
   }
 
-  public async updateUser(id: string, userData: Partial<User>) {
+  public async updateUser(id: string, userData: UserInputUpdate) {
     const { knex, timezone } = this.props.context;
 
-    const data = this.prepareDataToInsert({
-      ...userData,
-      updatedAt: moment.tz(timezone).toDate(),
-    });
-
     await knex<UsersTableModel>('users')
-      .update(data)
+      .update({
+        ...this.prepareDataToInsert(userData),
+        updatedAt: moment.tz(timezone).format(),
+      })
       .where('id', id)
       .returning('id');
   }
 
-  public async createUser(userData: Partial<User>) {
+  public async createUser(userData: UserInputCreate) {
     const { knex, timezone } = this.props.context;
-    const createdAt = moment.tz(timezone).toDate();
+    const createdAt = moment.tz(timezone).format();
 
     const data = this.prepareDataToInsert({
       ...userData,
       id: userData.id ? userData.id : uuidv4(),
-      createdAt,
-      updatedAt: createdAt,
     });
-    const result = await knex<UsersTableModel>('users').insert(data).returning('id');
+    const result = await knex<UsersTableModel>('users')
+      .insert({
+        ...data,
+        createdAt,
+        updatedAt: createdAt,
+      })
+      .returning('id');
 
     return result[0];
   }

@@ -19,6 +19,14 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
 
     accountInput.id = id;
 
+    // check to account login is unique
+    if (typeof accountInput.login !== 'undefined') {
+      const isLoginExists = await services.accounts.checkLoginExists(accountInput.login, id);
+      if (isLoginExists) {
+        throw new BadRequestError(`An account with login «${accountInput.login}» already exists`);
+      }
+    }
+
     try {
       await services.accounts.updateAccount(id, accountInput);
     } catch (err) {
@@ -106,6 +114,15 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
     const { recoveryPhones, ...accountInput } = input;
 
     const result = { id: '' };
+
+    try {
+      const isLoginExists = await services.accounts.checkLoginExists(accountInput.login);
+      if (isLoginExists) {
+        throw new BadRequestError(`An account with login «${accountInput.login}» already exists`);
+      }
+    } catch (err) {
+      throw new ServerError('Failed to check account login', { err });
+    }
 
     try {
       const id = await services.accounts.createAccount(accountInput);

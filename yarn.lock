@@ -1056,6 +1056,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/graphql@npm:^14.5.0":
+  version: 14.5.0
+  resolution: "@types/graphql@npm:14.5.0"
+  dependencies:
+    graphql: "*"
+  checksum: 93ecac6502808bb6b043d7a651b895dbbf1017cfd412b8ea7a923325ad9ddfee1b7cf3ae6997f15eccf44a53bf045cd85c28d594966559dd8b261826a7434288
+  languageName: node
+  linkType: hard
+
 "@types/ioredis@npm:^4.17.8":
   version: 4.17.8
   resolution: "@types/ioredis@npm:4.17.8"
@@ -1457,6 +1466,7 @@ __metadata:
     "@types/bcryptjs": ^2.4.2
     "@types/express": ^4.17.9
     "@types/faker": ^5.1.6
+    "@types/graphql": ^14.5.0
     "@types/ioredis": ^4.17.8
     "@types/jest": ^24.0.23
     "@types/jsonwebtoken": ^8.5.0
@@ -5858,6 +5868,13 @@ fsevents@~2.1.2:
   peerDependencies:
     graphql: ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
   checksum: 400355590180cce2f39df5c599cad20ee982bb7e4a63ad70857aa0fe2e82e3ef6233a4db2b80a03e6dfa84bf3ecb13dc2947936eaf31753c94876e22be45ea78
+  languageName: node
+  linkType: hard
+
+"graphql@npm:*":
+  version: 15.5.0
+  resolution: "graphql@npm:15.5.0"
+  checksum: 789cdcb069a3e00592e779002217a6bc5fd09efad63ee8c4190c4b3ea96c89010e74f085fb1cba876a0bb0e324e01df2eddb84d79dca90a28e582bc425fef9ef
   languageName: node
   linkType: hard
 
