@@ -125,7 +125,7 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
           await services.phones.createPhone({
             ...phone,
             type: 'Account',
-            entity: accountInput.id,
+            entity: result.id,
           });
         }, Promise.resolve());
       } catch (err) {

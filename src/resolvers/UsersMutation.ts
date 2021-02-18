@@ -124,7 +124,7 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
           await prev;
           await services.phones.createPhone({
             ...phone,
-            entity: userInput.id,
+            entity: result.id,
             type: 'User',
           });
         }, Promise.resolve());
