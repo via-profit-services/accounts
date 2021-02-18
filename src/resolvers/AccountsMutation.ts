@@ -29,6 +29,7 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
 
     try {
       await services.accounts.updateAccount(id, accountInput);
+      dataloader.accounts.clear(accountInput.id);
     } catch (err) {
       throw new ServerError('Failed to update account', { err });
     }
@@ -78,11 +79,13 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
           // create new phone
         } else {
 
-          await services.phones.createPhone({
+          const phoneID = await services.phones.createPhone({
             ...phone,
             entity: accountInput.id,
             type: 'Account',
           });
+
+          dataloader.phones.clear(phoneID);
         }
 
       }, Promise.resolve());
@@ -110,7 +113,7 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
   },
   create: async (_parent, args, context) => {
     const { input } = args;
-    const { services, logger } = context;
+    const { services, logger, dataloader } = context;
     const { recoveryPhones, ...accountInput } = input;
 
     const result = { id: '' };
@@ -126,6 +129,8 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
 
     try {
       const id = await services.accounts.createAccount(accountInput);
+
+      dataloader.accounts.clear(id);
       logger.auth.debug(`New account was created with id «${id}»`);
 
      result.id = id;
@@ -139,11 +144,13 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
       try {
         await recoveryPhones.reduce(async (prev, phone) => {
           await prev;
-          await services.phones.createPhone({
+          const phoneID = await services.phones.createPhone({
             ...phone,
             type: 'Account',
             entity: result.id,
           });
+
+          dataloader.phones.clear(phoneID);
         }, Promise.resolve());
       } catch (err) {
         throw new ServerError('Failed to create account phones', { err });

@@ -17,6 +17,8 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
 
     try {
       await services.users.updateUser(id, userInput);
+      dataloader.users.clear(id);
+      dataloader.users.clear(userInput.id);
     } catch (err) {
       throw new ServerError('Failed to update user', { err });
     }
@@ -36,10 +38,12 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
 
         try {
           await services.accounts.updateAccount(account.id, account);
+          dataloader.accounts.clear(account.id)
+
         } catch (err) {
           throw new ServerError('Failed to update account', { err });
         }
-        dataloader.accounts.clear(account.id);
+
         const updatedAccount = await dataloader.accounts.load(account.id);
 
         emitter.emit('account-was-updated', updatedAccount);
@@ -94,18 +98,17 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
           // create new phone
         } else {
 
-          await services.phones.createPhone({
+          const phoneID = await services.phones.createPhone({
             ...phone,
             type: 'User',
             entity: userInput.id,
           });
+          dataloader.phones.clear(phoneID);
         }
 
       }, Promise.resolve());
     }
 
-    dataloader.users.clear(id);
-    dataloader.users.clear(userInput.id);
     const user = await dataloader.users.load(userInput.id);
     emitter.emit('user-was-updated', user);
 
@@ -120,6 +123,7 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
 
     try {
       result.id = await services.users.createUser(userInput);
+      dataloader.users.clear(result.id);
       logger.auth.debug(`New user was created with id «${result.id}»`);
 
     } catch (err) {
@@ -137,6 +141,7 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
         const isLoginExists = await services.accounts.checkLoginExists(account.login);
         if (isLoginExists) {
           await services.users.deleteUser(result.id);
+          dataloader.users.clear(result.id);
           throw new BadRequestError(`An account with login «${account.login}» already exists`);
         }
 
@@ -148,11 +153,12 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
             type: 'User',
           });
 
-          const newAccount = dataloader.accounts.load(newAccountID);
+          const newAccount = await dataloader.accounts.clear(newAccountID).load(newAccountID);
           emitter.emit('account-was-created', newAccount);
         } catch (err) {
 
           await services.users.deleteUser(result.id);
+          dataloader.users.clear(result.id);
           throw new ServerError('Failed to create user accounts', { err });
         }
       }, Promise.resolve());
@@ -163,11 +169,12 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
       try {
         await phones.reduce(async (prev, phone) => {
           await prev;
-          await services.phones.createPhone({
+          const phoneID = await services.phones.createPhone({
             ...phone,
             entity: result.id,
             type: 'User',
           });
+          dataloader.phones.clear(phoneID);
         }, Promise.resolve());
       } catch (err) {
         throw new ServerError('Failed to create user phones', { err });
