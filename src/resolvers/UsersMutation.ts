@@ -193,17 +193,6 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
     const deletedUsers: string[] = [].concat(ids || []).concat(id ? [id] : []);
     const deletedAccounts: string[] = [];
 
-    // delete users
-    await services.users.deleteUsers(deletedUsers);
-    deletedUsers.forEach((idToDelete) => {
-      dataloader.clients.clear(idToDelete);
-      emitter.emit('user-was-deleted', idToDelete);
-      logger.server.debug(`Delete user ${idToDelete} request`, { initiator: token.uuid });
-    });
-
-    // delete user files
-    await services.files.deleteFilesByOwner(deletedUsers);
-
     // delete accounts
     if (dropAccount) {
       const accounts = await services.accounts.getAccounts({
@@ -225,6 +214,18 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
         });
       }
     }
+
+    // delete users
+    await services.users.deleteUsers(deletedUsers);
+    deletedUsers.forEach((idToDelete) => {
+      dataloader.clients.clear(idToDelete);
+      emitter.emit('user-was-deleted', idToDelete);
+      logger.server.debug(`Delete user ${idToDelete} request`, { initiator: token.uuid });
+    });
+
+    // delete user files
+    await services.files.deleteFilesByOwner(deletedUsers);
+
 
     const response: DeleteUserResult = {
       deletedAccounts,
