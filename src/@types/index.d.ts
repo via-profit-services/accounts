@@ -280,7 +280,14 @@ declare module '@via-profit-services/accounts' {
     config: MiddlewareProps['config'];
   }) => MaybePromise<ValidationRule>;
 
+  export type DeleteUserResult = {
+    deletedUsers: string[];
+    deletedAccounts: string[];
+  };
 
+  export type DeleteAccountResult = {
+    deletedAccounts: string[];
+  }
 
   export type Resolvers = {
     Query: {

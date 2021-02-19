@@ -271,7 +271,7 @@ type AccountsMutation {
 
 
 type DeleteAccountResult {
-  deleted: [ID!]!
+  deletedAccounts: [ID!]!
 }
 
 type UsersMutation {
@@ -292,7 +292,8 @@ type UsersMutation {
 }
 
 type DeleteUserResult {
-  deleted: [ID!]!
+  deletedUsers: [ID!]!
+  deletedAccounts: [ID!]!
 }
 
 

@@ -1,4 +1,4 @@
-import type { Resolvers } from '@via-profit-services/accounts';
+import type { Resolvers, DeleteAccountResult } from '@via-profit-services/accounts';
 import { BadRequestError, ServerError } from '@via-profit-services/core';
 
 
@@ -195,11 +195,11 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
 
     }, Promise.resolve());
 
+    const response: DeleteAccountResult = {
+      deletedAccounts: deleted,
+    };
 
-    return {
-      __typename: 'DeleteAccountResult',
-      deleted,
-    }
+    return response;
   },
 };
 

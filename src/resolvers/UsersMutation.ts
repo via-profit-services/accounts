@@ -1,4 +1,4 @@
-import type { Resolvers } from '@via-profit-services/accounts';
+import type { Resolvers, DeleteUserResult } from '@via-profit-services/accounts';
 import { BadRequestError, ServerError } from '@via-profit-services/core';
 
 
@@ -190,25 +190,26 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
   delete: async (_parent, args, context) => {
     const { id, ids, dropAccount } = args;
     const { logger, token, services, emitter, dataloader } = context;
-    const deleted: string[] = [].concat(ids || []).concat(id ? [id] : []);
+    const deletedUsers: string[] = [].concat(ids || []).concat(id ? [id] : []);
+    const deletedAccounts: string[] = [];
 
     // delete users
-    await services.users.deleteUsers(deleted);
-    deleted.forEach((idToDelete) => {
+    await services.users.deleteUsers(deletedUsers);
+    deletedUsers.forEach((idToDelete) => {
       dataloader.clients.clear(idToDelete);
       emitter.emit('user-was-deleted', idToDelete);
       logger.server.debug(`Delete user ${idToDelete} request`, { initiator: token.uuid });
     });
 
     // delete user files
-    await services.files.deleteFilesByOwner(deleted);
+    await services.files.deleteFilesByOwner(deletedUsers);
 
     // delete accounts
     if (dropAccount) {
       const accounts = await services.accounts.getAccounts({
         limit: Number.MAX_SAFE_INTEGER,
         where: [
-          ['entity', 'in', deleted],
+          ['entity', 'in', deletedUsers],
           ['deleted', '=', false],
         ],
       });
@@ -218,18 +219,19 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
         await services.accounts.deleteAccounts(userAccountIDs);
 
         userAccountIDs.map((userAccountID) => {
+          deletedAccounts.push(userAccountID);
           dataloader.accounts.clear(userAccountID);
           emitter.emit('account-was-deleted', userAccountID);
         });
       }
     }
 
+    const response: DeleteUserResult = {
+      deletedAccounts,
+      deletedUsers,
+    };
 
-    return {
-      __typename: 'DeleteUserResult',
-      deleted,
-    }
-
+    return response;
   },
 };
 
