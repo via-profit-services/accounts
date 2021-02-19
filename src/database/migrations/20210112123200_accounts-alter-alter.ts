@@ -55,15 +55,6 @@ export async function up(knex: Knex): Promise<void> {
 
 export async function down(knex: Knex): Promise<void> {
   return knex.raw(`
-
-    alter table "accounts" alter column "entity" set default null;
-
-    update "accounts"
-      set
-    "entity" = null
-    where id = '40491ee1-a365-454f-b3ec-8a325ccfc371';
-
-
     alter table "accounts" drop constraint "accounts_type_fk";
     alter table "accounts" alter column "type" drop default;
     alter table "accounts" drop column "entity" cascade;
