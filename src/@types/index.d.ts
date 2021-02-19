@@ -23,11 +23,6 @@ declare module '@via-profit-services/accounts' {
     entities?: string[];
 
     /**
-     * If `true` then all fields will be required authorization \
-     * Default: `true`
-     */
-    requireAuthorization?: boolean;
-    /**
      * Signature algorithm. Could be one of these values :
      * - HS256:    HMAC using SHA-256 hash algorithm (default)
      * - HS384:    HMAC using SHA-384 hash algorithm
