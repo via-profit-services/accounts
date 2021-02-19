@@ -56,6 +56,8 @@ export async function up(knex: Knex): Promise<void> {
 export async function down(knex: Knex): Promise<void> {
   return knex.raw(`
 
+    alter table "accounts" alter column "entity" set default null;
+
     update "accounts"
       set
     "entity" = null

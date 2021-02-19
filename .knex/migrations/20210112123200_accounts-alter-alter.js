@@ -74,6 +74,8 @@ function down(knex) {
     return __awaiter(this, void 0, void 0, function* () {
         return knex.raw(`
 
+    alter table "accounts" alter column "entity" set default null;
+
     update "accounts"
       set
     "entity" = null
