@@ -1,6 +1,6 @@
 import type { Resolvers, DeleteAccountResult } from '@via-profit-services/accounts';
 import { BadRequestError, ServerError } from '@via-profit-services/core';
-
+import { v4 as uuidv4 } from 'uuid';
 
 const accountsMutationResolver: Resolvers['AccountsMutation'] = {
   update: async (_parent, args, context) => {
@@ -35,60 +35,11 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
     }
 
     if (recoveryPhones) {
-      const allClientPhones = await services.phones.getPhonesByEntities([id, accountInput.id]);
-
-      // delete old phones
-      await allClientPhones.nodes.reduce(async (prev, phone) => {
-        await prev;
-
-        if (!recoveryPhones.find((p) => p.id === phone.id)) {
-          await services.phones.deletePhones([phone.id]);
-          dataloader.phones.clear(phone.id);
-        }
-      }, Promise.resolve())
-
-      // check and create/update new phones
-      await recoveryPhones.reduce(async (prev, phone) => {
-        await prev;
-
-        if (!phone.id) {
-          throw new BadRequestError('Phone number must be contain ID');
-        }
-
-        // try to load phone
-        const existsPhone = await dataloader.phones.load(phone.id);
-
-        // Clearing!, since the dataloader remembered this phone as not existing
-        dataloader.phones.clear(phone.id);
-
-        // update phone
-        if (existsPhone) {
-
-          if (existsPhone.entity.id !== accountInput.id) {
-            throw new BadRequestError('This phone number belongs to another entity');
-          }
-
-          await services.phones.updatePhone(phone.id, {
-            ...phone,
-            entity: accountInput.id,
-            type: 'Account',
-          });
-
-          dataloader.phones.clear(phone.id);
-
-          // create new phone
-        } else {
-
-          const phoneID = await services.phones.createPhone({
-            ...phone,
-            entity: accountInput.id,
-            type: 'Account',
-          });
-
-          dataloader.phones.clear(phoneID);
-        }
-
-      }, Promise.resolve());
+      await services.phones.replacePhones(accountInput.id, recoveryPhones.map((phone) => ({
+        ...phone,
+        id: phone.id || uuidv4(),
+        type: 'Account',
+      })));
     }
 
     if (accountInput.status === 'forbidden') {
@@ -141,20 +92,11 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
 
     // create phones
     if (typeof recoveryPhones !== 'undefined') {
-      try {
-        await recoveryPhones.reduce(async (prev, phone) => {
-          await prev;
-          const phoneID = await services.phones.createPhone({
-            ...phone,
-            type: 'Account',
-            entity: result.id,
-          });
-
-          dataloader.phones.clear(phoneID);
-        }, Promise.resolve());
-      } catch (err) {
-        throw new ServerError('Failed to create account phones', { err });
-      }
+      await services.phones.replacePhones(result.id, recoveryPhones.map((phone) => ({
+        ...phone,
+        id: phone.id || uuidv4(),
+        type: 'Account',
+      })));
     }
 
     return result;

@@ -1485,7 +1485,7 @@ __metadata:
     "@via-profit-services/file-storage": ^1.0.6
     "@via-profit-services/knex": ^1.0.2
     "@via-profit-services/permissions": ^1.0.0
-    "@via-profit-services/phones": ^1.0.2
+    "@via-profit-services/phones": ^1.0.11
     "@via-profit-services/redis": ^1.0.0
     "@via-profit-services/sms": ^1.0.0
     bcryptjs: ^2.4.3
@@ -1639,9 +1639,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@via-profit-services/phones@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "@via-profit-services/phones@npm:1.0.2"
+"@via-profit-services/phones@npm:^1.0.11":
+  version: 1.0.11
+  resolution: "@via-profit-services/phones@npm:1.0.11"
   peerDependencies:
     "@via-profit-services/core": ^1.0.0
     "@via-profit-services/knex": ^1.0.0
@@ -1650,7 +1650,7 @@ __metadata:
     moment: ""
     moment-timezone: "*"
     uuid: "*"
-  checksum: 7bf515d243296ca8bda21f4a2a7b5dc06f72d9db44786150452e08d562c34d81e7abd11887ea5ffbee8b1a610645bc8f3b6e32ee5dd906c7e067afe6ce9f48fb
+  checksum: 16fd549638737306f8957418c4b20839f9a9d30f29c90d39a9d4277815761aa1f3b26f7a2a095275c616f133ceca762434c777d4e89ee7bca39baa48ed290c4d
   languageName: node
   linkType: hard
 
