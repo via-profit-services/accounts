@@ -121,7 +121,7 @@ type User implements Node & Profile {
   name: String!
   accounts: [Account!]
   phones: [Phone!]
-  files(transform: ImageTransformInput): [File!]
+  files: [File!]
   avatar(transform: ImageTransformInput): File
 }
 

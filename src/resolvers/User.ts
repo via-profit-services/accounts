@@ -37,13 +37,6 @@ const userResolver = new Proxy<UserResolver>({
           };
         }
 
-        if (prop === 'files' && user.files) {
-          return {
-            ...user.files,
-            transform: args.transform || null,
-          };
-        }
-
         return user[prop];
       } catch ( err ) {
         throw new ServerError(
