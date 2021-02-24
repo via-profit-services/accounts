@@ -37,7 +37,11 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
 
         try {
           await services.accounts.updateAccount(account.id, account);
-          dataloader.accounts.clear(account.id)
+          dataloader.accounts.clear(account.id);
+
+          [...account.recoveryPhones || []].forEach((phone) => {
+            dataloader.phones.clear(phone.id);
+          });
 
         } catch (err) {
           throw new ServerError('Failed to update account', { err });
@@ -57,6 +61,10 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
         ...phone,
         type: 'User',
       })));
+
+      phones.forEach((phone) => {
+        dataloader.phones.clear(phone.id);
+      });
     }
 
     dataloader.users.clear(id);
@@ -122,7 +130,11 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
       type: 'User',
     })));
 
+    phones.forEach((phone) => {
+      dataloader.phones.clear(phone.id);
+    });
 
+    dataloader.users.clear(result.id);
     const user = await dataloader.users.load(result.id);
     emitter.emit('user-was-created', user);
 
