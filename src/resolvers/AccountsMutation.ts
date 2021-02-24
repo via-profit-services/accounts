@@ -99,6 +99,8 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
       })));
     }
 
+    dataloader.accounts.clear(result.id);
+
     return result;
   },
   delete: async (_parent, args, context) => {

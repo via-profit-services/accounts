@@ -17,8 +17,7 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
 
     try {
       await services.users.updateUser(id, userInput);
-      dataloader.users.clear(id);
-      dataloader.users.clear(userInput.id);
+
     } catch (err) {
       throw new ServerError('Failed to update user', { err });
     }
@@ -60,6 +59,8 @@ const usersMutationResolver: Resolvers['UsersMutation'] = {
       })));
     }
 
+    dataloader.users.clear(id);
+    dataloader.users.clear(userInput.id);
     const user = await dataloader.users.load(userInput.id);
     emitter.emit('user-was-updated', user);
 
