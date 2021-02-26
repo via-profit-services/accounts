@@ -33,3 +33,5 @@
 !.yarn/plugins
 !.yarn/sdks
 !.yarn/versions
+
+/public
