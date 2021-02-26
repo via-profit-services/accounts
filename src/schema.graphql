@@ -121,7 +121,7 @@ type User implements Node & Profile {
   name: String!
   accounts: [Account!]
   phones: [Phone!]
-  files(transform: ImageTransformInput): [File!]
+  files: [File!]
   avatar(transform: ImageTransformInput): File
 }
 
@@ -271,7 +271,7 @@ type AccountsMutation {
 
 
 type DeleteAccountResult {
-  deleted: [ID!]!
+  deletedAccounts: [ID!]!
 }
 
 type UsersMutation {
@@ -292,7 +292,8 @@ type UsersMutation {
 }
 
 type DeleteUserResult {
-  deleted: [ID!]!
+  deletedUsers: [ID!]!
+  deletedAccounts: [ID!]!
 }
 
 
@@ -321,15 +322,31 @@ type AuthentificationMutation {
 input UserInputUpdate {
   id: String
   name: String
-  accounts: [AccountInputUpdate]
-  phones: [UserPhoneInputUpdate]
+  accounts: [UserAccountInputUpdate!]
+  phones: [UserPhoneInputUpdate!]
 }
 
 input UserInputCreate {
   id: String
   name: String!
-  accounts: [AccountInputCreate]
-  phones: [UserPhoneInputCreate]
+  accounts: [UserAccountInputCreate!]
+  phones: [UserPhoneInputCreate!]
+}
+
+input UserAccountInputCreate {
+  id: String
+  login: String!
+  password: String!
+  roles: [AccountRole!]!
+  recoveryPhones: [AccountRecoveryPhoneInputCreate!]
+}
+
+input UserAccountInputUpdate {
+  id: String!
+  login: String
+  password: String
+  roles: [AccountRole!]
+  recoveryPhones: [AccountRecoveryPhoneInputCreate!]
 }
 
 input UserPhoneInputUpdate {
@@ -356,7 +373,8 @@ input AccountInputUpdate {
   password: String
   status: AccountStatus
   roles: [AccountRole!]
-
+  type: AccountType
+  entity: String
   """
   Phones list for password recovery
   """
@@ -368,6 +386,8 @@ input AccountInputCreate {
   login: String!
   password: String!
   roles: [AccountRole!]!
+  type: AccountType!
+  entity: String!
   """
   Phones list for password recovery
   """

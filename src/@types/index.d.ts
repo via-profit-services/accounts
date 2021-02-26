@@ -1,5 +1,6 @@
 declare module '@via-profit-services/accounts' {
   import { Algorithm } from 'jsonwebtoken';
+  import { CountryCode } from 'libphonenumber-js';
   import { ImageTransform } from '@via-profit-services/file-storage';
   import { PermissionsResolverObject, Privileges, PermissionsResolver } from '@via-profit-services/permissions';
   import { InputFilter, Middleware, Context, ErrorHandler, OutputFilter, ListResponse, MiddlewareProps, MaybePromise } from '@via-profit-services/core';
@@ -21,11 +22,6 @@ declare module '@via-profit-services/accounts' {
      */
     entities?: string[];
 
-    /**
-     * If `true` then all fields will be required authorization \
-     * Default: `true`
-     */
-    requireAuthorization?: boolean;
     /**
      * Signature algorithm. Could be one of these values :
      * - HS256:    HMAC using SHA-256 hash algorithm (default)
@@ -174,6 +170,17 @@ declare module '@via-profit-services/accounts' {
     deleted: boolean;
   }
 
+  export type UserInputCreate = {
+    id: string;
+    name: string;
+  };
+
+  export type UserInputUpdate = {
+    id?: string;
+    name?: string;
+    deleted?: boolean;
+  }
+
   export interface AccountsTableModel {
     readonly id: string;
     readonly login: string;
@@ -244,7 +251,21 @@ declare module '@via-profit-services/accounts' {
     };
   }
 
-  // export type MyAccount = Omit<Account, 'deleted'>;
+  export type AccountInputCreate = {
+    id?: string;
+    status?: AccountStatus;
+    login: string;
+    password: string;
+    roles: AccountRole[];
+    type: string;
+    entity: string;
+  }
+
+  export type AccountInputUpdate = Partial<AccountInputCreate> & {
+    deleted?: boolean;
+  }
+
+
 
   export type AccountsMiddlewareFactory = (config: Configuration) => Promise<{
     resolvers: Resolvers;
@@ -259,7 +280,14 @@ declare module '@via-profit-services/accounts' {
     config: MiddlewareProps['config'];
   }) => MaybePromise<ValidationRule>;
 
+  export type DeleteUserResult = {
+    deletedUsers: string[];
+    deletedAccounts: string[];
+  };
 
+  export type DeleteAccountResult = {
+    deletedAccounts: string[];
+  }
 
   export type Resolvers = {
     Query: {
@@ -294,29 +322,54 @@ declare module '@via-profit-services/accounts' {
         input: {
           id?: string;
           name?: string;
-          accounts?: AccountInputUpdate[];
+          accounts?: Array<{
+            id: string;
+            login?: string;
+            password?: string;
+            status?: AccountStatus;
+            roles?: AccountRole[];
+            recoveryPhones?: Array<{
+              id: string;
+              country?: CountryCode;
+              number?: string;
+              primary?: boolean;
+              confirmed?: boolean;
+            }>;
+          }>;
           phones?: Array<{
             id: string;
+            country?: CountryCode;
             number?: string;
-            country?: string;
-            description?: string;
             primary?: boolean;
+            description?: string;
             confirmed?: boolean;
           }>;
         };
       }>;
       create: GraphQLFieldResolver<unknown, Context, {
         input: {
-          id?: string;
+          id: string;
           name: string;
-          accounts?: AccountInputCreate[];
+          accounts?: Array<{
+            id?: string;
+            login: string;
+            password: string;
+            roles: AccountRole[];
+            recoveryPhones: Array<{
+              id?: string;
+              country: CountryCode;
+              number: string;
+              primary: boolean;
+              confirmed: boolean;
+            }>;
+          }>;
           phones?: Array<{
-            id: string;
+            id?: string;
+            country: CountryCode;
             number: string;
-            country: string;
-            description?: string;
-            primary?: boolean;
-            confirmed?: boolean;
+            primary: boolean;
+            description: string;
+            confirmed: boolean;
           }>;
         };
       }>;
@@ -329,10 +382,39 @@ declare module '@via-profit-services/accounts' {
     AccountsMutation: {
       update: GraphQLFieldResolver<unknown, Context, {
         id: string;
-        input: AccountInputUpdate;
+        input: {
+          id?: string;
+          login?: string;
+          password?: string;
+          status?: AccountStatus;
+          type?: string;
+          entity?: string;
+          roles?: AccountRole[];
+          recoveryPhones?: Array<{
+            id: string;
+            country?: CountryCode;
+            number?: string;
+            primary?: boolean;
+            confirmed?: boolean;
+          }>;
+        };
       }>;
       create: GraphQLFieldResolver<unknown, Context, {
-        input: AccountInputCreate;
+        input: {
+          id?: string;
+          login: string;
+          password: string;
+          roles: AccountRole[];
+          type: string;
+          entity: string;
+          recoveryPhones: Array<{
+            id?: string;
+            country: CountryCode;
+            number: string;
+            primary: boolean;
+            confirmed?: boolean;
+          }>;
+        };
       }>;
       delete: GraphQLFieldResolver<unknown, Context, {
         id?: string;
@@ -367,35 +449,7 @@ declare module '@via-profit-services/accounts' {
     TokenBag: TokenBagResolver;
   }
 
-  export type AccountInputCreate = {
-    id?: string;
-    login?: string;
-    password?: string;
-    status?: AccountStatus;
-    roles?: AccountRole[];
-    recoveryPhones?: Array<{
-      id: string;
-      country?: string;
-      number?: string;
-      primary?: boolean;
-      confirmed?: boolean;
-    }>;
-  }
 
-  export type AccountInputUpdate = {
-    id?: string;
-    login?: string;
-    password?: string;
-    status?: AccountStatus;
-    roles?: AccountRole[];
-    recoveryPhones?: Array<{
-      id: string;
-      country?: string;
-      number?: string;
-      primary?: boolean;
-      confirmed?: boolean;
-    }>;
-  };
 
   export type TokenBagResolver = Record<keyof TokenPackage, GraphQLFieldResolver<TokenRegistrationResponseSuccess, Context>>;
   export type AccountResolver = Record<keyof Account, GraphQLFieldResolver<{  id: string }, Context>>;
@@ -481,16 +535,15 @@ declare module '@via-profit-services/accounts' {
   class AccountsService {
     props: AccountsServiceProps;
     constructor(props: AccountsServiceProps);
-    
     getAccountStatusesList(): string[];
     getDefaultAccountData(): Account;
-    prepareDataToInsert(accountInputData: Partial<Account>): Partial<AccountsTableModel>;
+    prepareDataToInsert(accountInputData: Partial<AccountInputCreate | AccountInputUpdate>): Partial<AccountsTableModel>;
     getAccounts(filter: Partial<OutputFilter>): Promise<ListResponse<Account>>;
     getAccountsByIds(ids: string[]): Promise<Account[]>;
     getAccount(id: string): Promise<Account | false>;
     getAccountByLogin(login: string): Promise<Account | false>;
-    updateAccount(id: string, accountData: Partial<Account>): Promise<void>;
-    createAccount(accountData: Partial<Account>): Promise<string>;
+    updateAccount(id: string, accountData: AccountInputUpdate): Promise<void>;
+    createAccount(accountData: AccountInputCreate): Promise<string>;
     deleteAccount(id: string): Promise<void>;
     deleteAccounts(ids: string[]): Promise<void>;
     checkLoginExists(login: string, skipId?: string): Promise<boolean>;
@@ -511,9 +564,9 @@ declare module '@via-profit-services/accounts' {
     getUsers(filter: Partial<OutputFilter>): Promise<ListResponse<User>>;
     getUsersByIds(ids: string[]): Promise<User[]>;
     getUser(id: string): Promise<User | false>;
-    prepareDataToInsert(input: Partial<User>): Partial<UsersTableModel>;
-    createUser(userData: Partial<User>): Promise<string>;
-    updateUser(id: string, userData: Partial<User>): Promise<void>;
+    prepareDataToInsert(input: Partial<UserInputCreate | UserInputUpdate>): Partial<UsersTableModel>;
+    createUser(userData: UserInputCreate): Promise<string>;
+    updateUser(id: string, userData: UserInputUpdate): Promise<void>;
     deleteUser(id: string): Promise<void>;
     deleteUsers(ids: string[]): Promise<void>;
   }

@@ -1,6 +1,6 @@
-import type { Resolvers } from '@via-profit-services/accounts';
+import type { Resolvers, DeleteAccountResult } from '@via-profit-services/accounts';
 import { BadRequestError, ServerError } from '@via-profit-services/core';
-
+import { v4 as uuidv4 } from 'uuid';
 
 const accountsMutationResolver: Resolvers['AccountsMutation'] = {
   update: async (_parent, args, context) => {
@@ -19,65 +19,27 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
 
     accountInput.id = id;
 
+    // check to account login is unique
+    if (typeof accountInput.login !== 'undefined') {
+      const isLoginExists = await services.accounts.checkLoginExists(accountInput.login, id);
+      if (isLoginExists) {
+        throw new BadRequestError(`An account with login «${accountInput.login}» already exists`);
+      }
+    }
+
     try {
       await services.accounts.updateAccount(id, accountInput);
+      dataloader.accounts.clear(accountInput.id);
     } catch (err) {
       throw new ServerError('Failed to update account', { err });
     }
 
     if (recoveryPhones) {
-      const allClientPhones = await services.phones.getPhonesByEntities([id, accountInput.id]);
-
-      // delete old phones
-      await allClientPhones.nodes.reduce(async (prev, phone) => {
-        await prev;
-
-        if (!recoveryPhones.find((p) => p.id === phone.id)) {
-          await services.phones.deletePhones([phone.id]);
-          dataloader.phones.clear(phone.id);
-        }
-      }, Promise.resolve())
-
-      // check and create/update new phones
-      await recoveryPhones.reduce(async (prev, phone) => {
-        await prev;
-
-        if (!phone.id) {
-          throw new BadRequestError('Phone number must be contain ID');
-        }
-
-        // try to load phone
-        const existsPhone = await dataloader.phones.load(phone.id);
-
-        // Clearing!, since the dataloader remembered this phone as not existing
-        dataloader.phones.clear(phone.id);
-
-        // update phone
-        if (existsPhone) {
-
-          if (existsPhone.entity.id !== accountInput.id) {
-            throw new BadRequestError('This phone number belongs to another entity');
-          }
-
-          await services.phones.updatePhone(phone.id, {
-            ...phone,
-            entity: accountInput.id,
-            type: 'Account',
-          });
-
-          dataloader.phones.clear(phone.id);
-
-          // create new phone
-        } else {
-
-          await services.phones.createPhone({
-            ...phone,
-            entity: accountInput.id,
-            type: 'Account',
-          });
-        }
-
-      }, Promise.resolve());
+      await services.phones.replacePhones(accountInput.id, recoveryPhones.map((phone) => ({
+        ...phone,
+        id: phone.id || uuidv4(),
+        type: 'Account',
+      })));
     }
 
     if (accountInput.status === 'forbidden') {
@@ -102,13 +64,24 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
   },
   create: async (_parent, args, context) => {
     const { input } = args;
-    const { services, logger } = context;
+    const { services, logger, dataloader } = context;
     const { recoveryPhones, ...accountInput } = input;
 
     const result = { id: '' };
 
     try {
+      const isLoginExists = await services.accounts.checkLoginExists(accountInput.login);
+      if (isLoginExists) {
+        throw new BadRequestError(`An account with login «${accountInput.login}» already exists`);
+      }
+    } catch (err) {
+      throw new ServerError('Failed to check account login', { err });
+    }
+
+    try {
       const id = await services.accounts.createAccount(accountInput);
+
+      dataloader.accounts.clear(id);
       logger.auth.debug(`New account was created with id «${id}»`);
 
      result.id = id;
@@ -119,44 +92,58 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
 
     // create phones
     if (typeof recoveryPhones !== 'undefined') {
-      try {
-        await recoveryPhones.reduce(async (prev, phone) => {
-          await prev;
-          await services.phones.createPhone(phone);
-        }, Promise.resolve());
-      } catch (err) {
-        throw new ServerError('Failed to create account phones', { err });
-      }
+      await services.phones.replacePhones(result.id, recoveryPhones.map((phone) => ({
+        ...phone,
+        id: phone.id || uuidv4(),
+        type: 'Account',
+      })));
     }
+
+    dataloader.accounts.clear(result.id);
 
     return result;
   },
   delete: async (_parent, args, context) => {
-    const { id } = args;
+    const { id, ids } = args;
     const { logger, token, services, emitter, dataloader } = context;
 
-    logger.server.debug(`Delete account ${id} request`, { initiator: token.uuid });
+    const deleted: string[] = [].concat(ids || []).concat(id ? [id] : []);
+
 
     // revoke all tokens of this account
-    try {
-      services.authentification.revokeAccountTokens(id);
-      logger.server.debug(`Revoke account ${id} tokens request`, { initiator: token.uuid });
-    } catch (err) {
-      throw new ServerError('Failed to revoke account tokens', { err });
-    }
+    await deleted.reduce(async (prev, idToDelete) => {
+      await prev;
 
-    // delete account
-    try {
-      await services.accounts.deleteAccount(id);
-      dataloader.accounts.clear(id);
+      logger.server.debug(`Delete account ${idToDelete} request`, { initiator: token.uuid });
 
-      emitter.emit('account-was-deleted', id);
+      try {
+        logger.server.debug(`Revoke account ${idToDelete} tokens request`, { initiator: token.uuid });
+        const revokedTokenIDs = await services.authentification.revokeAccountTokens(idToDelete);
+        revokedTokenIDs.forEach((revokedID) => {
+          emitter.emit('token-was-revoked', revokedID);
+        });
+      } catch (err) {
+        throw new ServerError('Failed to revoke account tokens', { err });
+      }
 
-      return true;
-    } catch (err) {
-      throw new ServerError(`Failed to delete account ${id}`, { id });
-    }
+      // delete account
+      try {
+        await services.accounts.deleteAccount(idToDelete);
+        dataloader.accounts.clear(idToDelete);
 
+        emitter.emit('account-was-deleted', idToDelete);
+
+      } catch (err) {
+        throw new ServerError(`Failed to delete account ${idToDelete}`, { err });
+      }
+
+    }, Promise.resolve());
+
+    const response: DeleteAccountResult = {
+      deletedAccounts: deleted,
+    };
+
+    return response;
   },
 };
 

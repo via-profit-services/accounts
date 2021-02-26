@@ -1,7 +1,7 @@
 {
     "name": "@via-profit-services/accounts",
     "support": "https://via-profit.ru",
-    "version": "1.0.6",
+    "version": "1.0.27",
     "description": "Via Profit Accounts Schema",
     "main": "dist/index.js",
     "engines": {
@@ -24,7 +24,7 @@
         "debug": "cross-env DEBUG=true yarn build:dev --watch",
         "analyze": "cross-env ANALYZE=true yarn build:dist",
         "test": "jest",
-        "lint": "eslint --ext .ts ./src/ --fix .",
+        "lint": "yarn dlx eslint --ext .ts ./src/ --fix .",
         "migrate:latest": "yarn knex migrate:latest --knexfile ./.knex/knexfile.js",
         "migrate:rollback": "yarn knex migrate:rollback --knexfile ./.knex/knexfile.js",
         "migrate:rollback:all": "yarn knex migrate:rollback --all --knexfile ./.knex/knexfile.js",
@@ -34,10 +34,10 @@
         "seed:run": "yarn knex seed:run --knexfile ./.knex/knexfile.js",
         "seed:run:specific": "yarn knex seed:run --knexfile ./.knex/knexfile.js --specific=",
         "postversion": "git push --tags",
-        "release:patch": "yarn version --patch",
-        "release:minor": "yarn version --minor",
-        "release:major": "yarn version --major",
-        "release:prerelease": "yarn version --prerelease"
+        "release:patch": "yarn version patch",
+        "release:minor": "yarn version minor",
+        "release:major": "yarn version major",
+        "release:prerelease": "yarn version prerelease"
     },
     "repository": {
         "type": "git",
@@ -60,6 +60,7 @@
         "@types/bcryptjs": "^2.4.2",
         "@types/express": "^4.17.9",
         "@types/faker": "^5.1.6",
+        "@types/graphql": "^14.5.0",
         "@types/ioredis": "^4.17.8",
         "@types/jest": "^24.0.23",
         "@types/jsonwebtoken": "^8.5.0",
@@ -75,10 +76,10 @@
         "@typescript-eslint/parser": "^4.9.1",
         "@via-profit-services/core": "^1.0.2",
         "@via-profit-services/eslint-config": "^0.1.11",
-        "@via-profit-services/file-storage": "^1.0.2",
+        "@via-profit-services/file-storage": "^1.0.6",
         "@via-profit-services/knex": "^1.0.2",
         "@via-profit-services/permissions": "^1.0.0",
-        "@via-profit-services/phones": "^1.0.2",
+        "@via-profit-services/phones": "^1.0.11",
         "@via-profit-services/redis": "^1.0.0",
         "@via-profit-services/sms": "^1.0.0",
         "cross-env": "^6.0.3",

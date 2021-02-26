@@ -1056,6 +1056,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/graphql@npm:^14.5.0":
+  version: 14.5.0
+  resolution: "@types/graphql@npm:14.5.0"
+  dependencies:
+    graphql: "*"
+  checksum: 93ecac6502808bb6b043d7a651b895dbbf1017cfd412b8ea7a923325ad9ddfee1b7cf3ae6997f15eccf44a53bf045cd85c28d594966559dd8b261826a7434288
+  languageName: node
+  linkType: hard
+
 "@types/ioredis@npm:^4.17.8":
   version: 4.17.8
   resolution: "@types/ioredis@npm:4.17.8"
@@ -1457,6 +1466,7 @@ __metadata:
     "@types/bcryptjs": ^2.4.2
     "@types/express": ^4.17.9
     "@types/faker": ^5.1.6
+    "@types/graphql": ^14.5.0
     "@types/ioredis": ^4.17.8
     "@types/jest": ^24.0.23
     "@types/jsonwebtoken": ^8.5.0
@@ -1472,10 +1482,10 @@ __metadata:
     "@typescript-eslint/parser": ^4.9.1
     "@via-profit-services/core": ^1.0.2
     "@via-profit-services/eslint-config": ^0.1.11
-    "@via-profit-services/file-storage": ^1.0.2
+    "@via-profit-services/file-storage": ^1.0.6
     "@via-profit-services/knex": ^1.0.2
     "@via-profit-services/permissions": ^1.0.0
-    "@via-profit-services/phones": ^1.0.2
+    "@via-profit-services/phones": ^1.0.11
     "@via-profit-services/redis": ^1.0.0
     "@via-profit-services/sms": ^1.0.0
     bcryptjs: ^2.4.3
@@ -1580,9 +1590,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@via-profit-services/file-storage@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "@via-profit-services/file-storage@npm:1.0.2"
+"@via-profit-services/file-storage@npm:^1.0.6":
+  version: 1.0.6
+  resolution: "@via-profit-services/file-storage@npm:1.0.6"
   dependencies:
     busboy: ^0.3.1
     fs-capacitor: ^6.2.0
@@ -1602,7 +1612,7 @@ __metadata:
     uuid: "*"
     winston: "*"
     winston-daily-rotate-file: "*"
-  checksum: 47a9f936aeb80f6116ff910304bca873af78434370b725e6a348e2967eaa8109205b2cc92308c14ebb31ace54d89b41a69e0006f22ac9c2afba0c6e9c19dd3d7
+  checksum: 2e027bd0ebcd2a5a3ca91b0a3dbf0b0106021e407690e92e5ec4ceecb6fe680b65eda494bcec5c6eeaa35fe5e5f03875cb32ecb973499e5131bf77b63ba514f2
   languageName: node
   linkType: hard
 
@@ -1629,9 +1639,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@via-profit-services/phones@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "@via-profit-services/phones@npm:1.0.2"
+"@via-profit-services/phones@npm:^1.0.11":
+  version: 1.0.11
+  resolution: "@via-profit-services/phones@npm:1.0.11"
   peerDependencies:
     "@via-profit-services/core": ^1.0.0
     "@via-profit-services/knex": ^1.0.0
@@ -1640,7 +1650,7 @@ __metadata:
     moment: ""
     moment-timezone: "*"
     uuid: "*"
-  checksum: 7bf515d243296ca8bda21f4a2a7b5dc06f72d9db44786150452e08d562c34d81e7abd11887ea5ffbee8b1a610645bc8f3b6e32ee5dd906c7e067afe6ce9f48fb
+  checksum: 16fd549638737306f8957418c4b20839f9a9d30f29c90d39a9d4277815761aa1f3b26f7a2a095275c616f133ceca762434c777d4e89ee7bca39baa48ed290c4d
   languageName: node
   linkType: hard
 
@@ -5858,6 +5868,13 @@ fsevents@~2.1.2:
   peerDependencies:
     graphql: ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
   checksum: 400355590180cce2f39df5c599cad20ee982bb7e4a63ad70857aa0fe2e82e3ef6233a4db2b80a03e6dfa84bf3ecb13dc2947936eaf31753c94876e22be45ea78
+  languageName: node
+  linkType: hard
+
+"graphql@npm:*":
+  version: 15.5.0
+  resolution: "graphql@npm:15.5.0"
+  checksum: 789cdcb069a3e00592e779002217a6bc5fd09efad63ee8c4190c4b3ea96c89010e74f085fb1cba876a0bb0e324e01df2eddb84d79dca90a28e582bc425fef9ef
   languageName: node
   linkType: hard
 

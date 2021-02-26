@@ -1,5 +1,6 @@
 import type { UserResolver } from '@via-profit-services/accounts';
 import { ServerError } from '@via-profit-services/core';
+import { ImageTransform } from '@via-profit-services/file-storage';
 
 const userResolver = new Proxy<UserResolver>({
   id: () => ({}),
@@ -21,16 +22,18 @@ const userResolver = new Proxy<UserResolver>({
         const user = await dataloader.users.load(id);
 
         if (prop === 'avatar' && user.avatar) {
+          const avatar = await dataloader.files.load(user.avatar.id);
+
+          const transform: ImageTransform | null = avatar.metaData?.transform || args.transform
+          ? {
+            ...avatar.metaData?.transform || {},
+            ...args.transform,
+          }
+          : null;
+
           return {
             ...user.avatar,
-            transform: args.transform || null,
-          };
-        }
-
-        if (prop === 'files' && user.files) {
-          return {
-            ...user.files,
-            transform: args.transform || null,
+            transform,
           };
         }
 

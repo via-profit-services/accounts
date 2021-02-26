@@ -29,12 +29,13 @@ function up(knex) {
       CONSTRAINT "accountTypes_un" UNIQUE ("type")
     );
 
-
     insert into "accountsTypes"
       ("type")
     values
       ('User')
     on conflict ("type") do nothing;
+
+
 
     -- add column entity
     alter table "accounts" add column "entity" uuid default null;
@@ -61,6 +62,9 @@ function up(knex) {
       )
     where id = '40491ee1-a365-454f-b3ec-8a325ccfc371';
 
+    delete from "accounts" where "entity" is null;
+    
+    alter table "accounts" alter column "entity" set not null;
 
   `);
     });
@@ -69,13 +73,6 @@ exports.up = up;
 function down(knex) {
     return __awaiter(this, void 0, void 0, function* () {
         return knex.raw(`
-
-    update "accounts"
-      set
-    "entity" = null
-    where id = '40491ee1-a365-454f-b3ec-8a325ccfc371';
-
-
     alter table "accounts" drop constraint "accounts_type_fk";
     alter table "accounts" alter column "type" drop default;
     alter table "accounts" drop column "entity" cascade;
