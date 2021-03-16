@@ -3,7 +3,7 @@ module.exports =
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 320:
+/***/ 340:
 /***/ (function(__unused_webpack_module, exports) {
 
 
@@ -21,7 +21,6 @@ exports.down = exports.up = void 0;
 function up(knex) {
     return __awaiter(this, void 0, void 0, function* () {
         return knex.raw(`
-    drop table if exists "domains" cascade;
     drop table if exists "roles2privileges" cascade;
     drop table if exists "tokens" cascade;
     drop table if exists "accountsTypes" cascade;
@@ -71,7 +70,6 @@ function up(knex) {
       "id" uuid NOT NULL,
       "login" varchar(100) NOT NULL,
       "password" varchar(255) NOT NULL,
-      "domain" varchar(255) NOT NULL,
       "createdAt" timestamptz NOT NULL DEFAULT now(),
       "updatedAt" timestamptz NOT NULL DEFAULT now(),
       "status" "accountStatus" NOT NULL DEFAULT 'allowed'::"accountStatus",
@@ -196,6 +194,6 @@ exports.down = down;
 /******/ 	// module exports must be returned from runtime so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(320);
+/******/ 	return __webpack_require__(340);
 /******/ })()
 ;

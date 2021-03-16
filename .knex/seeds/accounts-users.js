@@ -46,7 +46,7 @@ function seed(knex) {
                 roles: '["developer"]',
                 type: 'User',
                 status: 'allowed',
-                entity: null,
+                entity: '68158930-f5f2-46fc-8ebb-db9e5aad5fa3',
                 deleted: false,
             });
         });
