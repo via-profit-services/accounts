@@ -1,5 +1,5 @@
 /* eslint-disable import/prefer-default-export */
-import type { UsersTableModel, AccountsTableModel } from '@via-profit-services/accounts';
+import type { AccountsTableModel } from '@via-profit-services/accounts';
 import bcryptjs from 'bcryptjs';
 import faker from 'faker';
 import type Knex from 'knex';
@@ -8,13 +8,11 @@ import { v4 as uuidv4 } from 'uuid';
 export async function seed(knex: Knex): Promise<any>{
 
   const accounts: AccountsTableModel[] = [];
-  const users: UsersTableModel[] = [];
   const salt = bcryptjs.genSaltSync(10);
 
-  [...new Array(30).keys()].forEach(() => {
-    const userID = uuidv4();
+  [...new Array(30).keys()].forEach((index) => {
     const accountID = uuidv4();
-    const login = faker.internet.userName();
+    const login = `test-${index}`;
     const password = bcryptjs.hashSync(`${login}.${login}`, salt);
     const createdAt = faker.date.past().toDateString();
     const updatedAt = faker.date.past().toDateString();
@@ -32,39 +30,13 @@ export async function seed(knex: Knex): Promise<any>{
       roles: '["developer"]',
       type: 'User',
       status: 'allowed',
-      entity: userID,
+      entity: '68158930-f5f2-46fc-8ebb-db9e5aad5fa3',
       deleted: false,
     });
-
-    users.push({
-      id: userID,
-      name: faker.name.findName(),
-      createdAt,
-      updatedAt,
-      deleted: false,
-      comment: '',
-    });
-
   });
 
-  await knex('accounts')
-    .del()
-    .whereNotIn('id', ['40491ee1-a365-454f-b3ec-8a325ccfc371']);
-
-  await knex('users').del();
-
-  const devUser = {
-    id: uuidv4(),
-    name: 'Developer',
-    createdAt: faker.date.past().toDateString(),
-    updatedAt: faker.date.past().toDateString(),
-    deleted: false,
-    comment: '',
-  }
-
-  users.push(devUser);
-
-  await knex('accounts').update({ entity: devUser.id });
+  
+  await knex('accounts').del();
+  await knex.raw(`insert into "accountsTypes" ("type") values ('User') on conflict do nothing;`);
   await knex<AccountsTableModel>('accounts').insert(accounts);
-  await knex<UsersTableModel>('users').insert(users);
 }
