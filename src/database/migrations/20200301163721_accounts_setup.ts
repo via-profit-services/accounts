@@ -3,7 +3,6 @@ import Knex from 'knex';
 
 export async function up(knex: Knex): Promise<any> {
   return knex.raw(`
-    drop table if exists "domains" cascade;
     drop table if exists "roles2privileges" cascade;
     drop table if exists "tokens" cascade;
     drop table if exists "accountsTypes" cascade;
@@ -53,7 +52,6 @@ export async function up(knex: Knex): Promise<any> {
       "id" uuid NOT NULL,
       "login" varchar(100) NOT NULL,
       "password" varchar(255) NOT NULL,
-      "domain" varchar(255) NOT NULL,
       "createdAt" timestamptz NOT NULL DEFAULT now(),
       "updatedAt" timestamptz NOT NULL DEFAULT now(),
       "status" "accountStatus" NOT NULL DEFAULT 'allowed'::"accountStatus",
