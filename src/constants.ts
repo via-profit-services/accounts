@@ -31,5 +31,4 @@ export const DEFAULT_PERMISSIONS: Record<string, PermissionsResolver> = {
   'ResetPasswordSuccess.*':  { grant: ['*'] },
   'AuthentificationMutation.*':  { grant: ['*'] },
   'AuthentificationQuery.*':  { grant: ['*'] },
-  // 'MyAccount.*':  { grant: ['*'] },
 };

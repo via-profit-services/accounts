@@ -28,7 +28,7 @@ const server = http.createServer(app);
 (async () => {
 
   const phones = await phonesFactory({
-    entities: ['User', 'Account'],
+    entities: ['Account'],
   });
 
   const knexMiddleware = knex.factory({
@@ -46,7 +46,7 @@ const server = http.createServer(app);
     privateKey: path.resolve(__dirname, './jwtRS256.key'),
     publicKey: path.resolve(__dirname, './jwtRS256.key.pub'),
     accessTokenExpiresIn: 60 * 60 * 24,
-    entities: ['Driver'],
+    entities: ['User'],
   });
 
   const files = await filesFactory({
@@ -60,7 +60,6 @@ const server = http.createServer(app);
     permissions: {
       'Mutation.phones': { grant: ['*'] },
       'Query.phones': { grant: ['*'] },
-      'User.*': { grant: ['*'] },
       'Account.*': { grant: ['*'] },
       'Phone.*': { grant: ['*'] },
       'PhoneInputCreate.*': { grant: ['*'] },
@@ -84,8 +83,10 @@ const server = http.createServer(app);
       phones.typeDefs,
       accounts.typeDefs,
       files.typeDefs,
-      `type Driver {
+      `type User {
+        id: ID!
         name: String!
+        accounts: [Account!]
       }`,
     ],
     resolvers: [
@@ -94,8 +95,10 @@ const server = http.createServer(app);
       accounts.resolvers,
       files.resolvers,
       {
-        Driver: ({
-          name: () => 'Driver ivan',
+        User: ({
+          id: () => '68158930-f5f2-46fc-8ebb-db9e5aad5fa3',
+          name: () => 'John Smith',
+          accounts: () => null,
         }),
       },
     ],

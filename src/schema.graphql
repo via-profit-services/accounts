@@ -1,12 +1,10 @@
 extend type Query {
   accounts: AccountsQuery!
-  users: UsersQuery!
   authentification: AuthentificationQuery!
 }
 
 extend type Mutation {
   accounts: AccountsMutation!
-  users: UsersMutation!
   authentification: AuthentificationMutation!
 }
 
@@ -56,8 +54,8 @@ union TokenVerificationResponse = AccessTokenPayload | RefreshTokenPayload | Tok
 union ResetPasswordResponse = ResetPasswordSuccess | ResetPasswordError
 
 type TokenBag {
-  accessToken: AccessToken
-  refreshToken: RefreshToken
+  accessToken: AccessToken!
+  refreshToken: RefreshToken!
 }
 
 type AccessToken {
@@ -89,15 +87,6 @@ type RefreshTokenPayload {
   associated: AccessToken!
 }
 
-interface Profile {
-  id: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  accounts: [Account!]
-  deleted: Boolean!
-}
-
-
 type Account implements Node {
   id: ID!
   login: String!
@@ -112,18 +101,6 @@ type Account implements Node {
   type: AccountType!
 }
 
-
-type User implements Node & Profile {
-  id: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  deleted: Boolean!
-  name: String!
-  accounts: [Account!]
-  phones: [Phone!]
-  files: [File!]
-  avatar(transform: ImageTransformInput): File
-}
 
 enum AccountStatus {
   allowed
@@ -143,24 +120,6 @@ enum TokenType {
   refresh
 }
 
-type UsersQuery {
-  """
-  Returns Users list bundle
-  """
-  list(
-    first: Int
-    offset: Int
-    after: String
-    orderBy: [UserOrderBy!]
-    filter: UserListFilter
-    search: [UserFilterSearch!]
-  ): UserListConnection!
-
-  """
-  Returns user if exists
-  """
-  user(id: ID!): User
-}
 
 """
 Accounts module queries
@@ -274,28 +233,6 @@ type DeleteAccountResult {
   deletedAccounts: [ID!]!
 }
 
-type UsersMutation {
-  """
-  Create new user
-  """
-  create(input: UserInputCreate!): User!
-
-  """
-  Update exists user data
-  """
-  update(id: ID!, input: UserInputUpdate!): User!
-
-  """
-  Delete exists user
-  """
-  delete(id: ID ids: [ID!] dropAccount: Boolean): DeleteUserResult!
-}
-
-type DeleteUserResult {
-  deletedUsers: [ID!]!
-  deletedAccounts: [ID!]!
-}
-
 
 type AuthentificationMutation {
   """
@@ -316,55 +253,6 @@ type AuthentificationMutation {
   A new password will be generated and an SMS will be sent to the phone numbers that are specified as Recovery
   """
   reset(login: String!): ResetPasswordResponse!
-}
-
-
-input UserInputUpdate {
-  id: String
-  name: String
-  accounts: [UserAccountInputUpdate!]
-  phones: [UserPhoneInputUpdate!]
-}
-
-input UserInputCreate {
-  id: String
-  name: String!
-  accounts: [UserAccountInputCreate!]
-  phones: [UserPhoneInputCreate!]
-}
-
-input UserAccountInputCreate {
-  id: String
-  login: String!
-  password: String!
-  roles: [AccountRole!]!
-  recoveryPhones: [AccountRecoveryPhoneInputCreate!]
-}
-
-input UserAccountInputUpdate {
-  id: String!
-  login: String
-  password: String
-  roles: [AccountRole!]
-  recoveryPhones: [AccountRecoveryPhoneInputCreate!]
-}
-
-input UserPhoneInputUpdate {
-  id: ID!
-  number: String
-  country: PhoneCountry
-  description: String
-  primary: Boolean
-  confirmed: Boolean
-}
-
-input UserPhoneInputCreate {
-  id: ID
-  number: String!
-  country: PhoneCountry!
-  description: String
-  primary: Boolean
-  confirmed: Boolean
 }
 
 input AccountInputUpdate {
@@ -409,65 +297,3 @@ input AccountRecoveryPhoneInputUpdate {
   primary: Boolean
   confirmed: Boolean
 }
-
-
-"""
-User edge bundle
-"""
-type UsersEdge implements Edge {
-  node: User!
-  cursor: String!
-}
-
-"""
-Possible data to filter list of users
-"""
-input UserListFilter {
-  account: [ID!]
-}
-
-"""
-User search filter
-"""
-input UserFilterSearch {
-  field: UserFilterSearchField!
-
-  """
-  Search query string
-  """
-  query: String!
-}
-
-
-"""
-Possible fields to search users
-"""
-enum UserFilterSearchField {
-  name
-  phone
-  login
-}
-
-"""
-Ordering options for users returned from the connection
-"""
-input UserOrderBy {
-  field: UserOrderField!
-  direction: OrderDirection!
-}
-
-enum UserOrderField {
-  name
-  createdAt
-  updatedAt
-}
-
-"""
-Users list bundle
-"""
-type UserListConnection implements Connection {
-  totalCount: Int!
-  pageInfo: PageInfo!
-  edges: [UsersEdge!]!
-}
-

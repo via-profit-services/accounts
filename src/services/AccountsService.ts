@@ -61,15 +61,12 @@ class AccountsService implements AccountsServiceInterface {
       ])
       .from<AccountsTableModel, AccountsTableModelResult[]>('accounts')
       .leftJoin('phones', 'phones.entity', 'accounts.id')
-      .leftJoin('users', 'accounts.entity', 'users.id')
       .orderBy(convertOrderByToKnex(orderBy, {
         accounts: ['*'],
-        users: ['name'],
       }))
-      .groupBy('accounts.id', 'users.name')
+      .groupBy('accounts.id')
       .where((builder) => convertWhereToKnex(builder, where, {
         accounts: '*',
-        users: ['name'],
       }))
       .where((builder) => {
         if (search && search.length) {
@@ -77,10 +74,6 @@ class AccountsService implements AccountsServiceInterface {
             switch (field) {
               case 'recoveryPhone':
                 builder.orWhere('phones.number', 'ilike', `%${query}%`);
-                break;
-
-              case 'name':
-                builder.orWhere(`users.${field}`, 'ilike', `%${query}%`);
                 break;
 
               default:
@@ -170,7 +163,7 @@ class AccountsService implements AccountsServiceInterface {
     const data = this.prepareDataToInsert({
       ...accountData,
       password: accountData.password
-        ? authentification.cryptUserPassword(
+        ? authentification.cryptPassword(
           accountData.login,
           accountData.password,
         )
@@ -194,7 +187,7 @@ class AccountsService implements AccountsServiceInterface {
     const data = this.prepareDataToInsert({
       ...accountData,
       id: accountData.id ? accountData.id : uuidv4(),
-      password: authentification.cryptUserPassword(
+      password: authentification.cryptPassword(
         accountData.login,
         accountData.password,
       ),

@@ -5,8 +5,6 @@ import DataLoader from 'dataloader';
 import authLogger from './auth-logger';
 import AccountsService from './services/AccountsService';
 import AuthentificationService from './services/AuthentificationService';
-import UsersService from './services/UsersService';
-
 
 interface Props {
   jwt: JwtConfig;
@@ -27,9 +25,6 @@ const contextMiddleware = async (props: Props): Promise<Context> => {
   // Accounts Service
   context.services.accounts = new AccountsService({ context, entities });
 
-  // Users Service
-  context.services.users = new UsersService({ context });
-
   // Authentification Service
   context.services.authentification = new AuthentificationService({ context });
 
@@ -45,14 +40,6 @@ const contextMiddleware = async (props: Props): Promise<Context> => {
 
     return collateForDataloader(ids, nodes);
   });
-
-  // Users Dataloader
-  context.dataloader.users = new DataLoader(async (ids: string[]) => {
-    const nodes = await context.services.users.getUsersByIds(ids);
-
-    return collateForDataloader(ids, nodes);
-  });
-
 
   return context;
 }

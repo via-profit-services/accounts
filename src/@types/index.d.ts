@@ -158,28 +158,6 @@ declare module '@via-profit-services/accounts' {
     payload: RefreshTokenPayload;
   }
 
-  export interface User {
-    id: string;
-    name: string;
-    phones: Array<{ id: string }> | null;
-    accounts: Array<{ id: string }> | null;
-    files: Array<{ id: string }> | null;
-    avatar: { id: string } | null;
-    createdAt: Date;
-    updatedAt: Date;
-    deleted: boolean;
-  }
-
-  export type UserInputCreate = {
-    id: string;
-    name: string;
-  };
-
-  export type UserInputUpdate = {
-    id?: string;
-    name?: string;
-    deleted?: boolean;
-  }
 
   export interface AccountsTableModel {
     readonly id: string;
@@ -210,31 +188,6 @@ declare module '@via-profit-services/accounts' {
   }
 
   
-  export interface UsersTableModel {
-    readonly id: string;
-    readonly name: string;
-    readonly createdAt: string;
-    readonly updatedAt: string;
-    readonly deleted: boolean;
-    readonly comment: string;
-  }
-
-  export interface UsersTableModelResult {
-    readonly id: string;
-    readonly name: string;
-    readonly account: string | null;
-    readonly createdAt: Date;
-    readonly updatedAt: Date;
-    readonly deleted: boolean;
-    readonly totalCount: number;
-    readonly phones: string | null;
-    readonly accounts: string | null;
-    readonly files: string | null;
-    readonly avatars: string | null;
-  }
-
-
-
   export interface Account {
     id: string;
     login: string;
@@ -280,11 +233,6 @@ declare module '@via-profit-services/accounts' {
     config: MiddlewareProps['config'];
   }) => MaybePromise<ValidationRule>;
 
-  export type DeleteUserResult = {
-    deletedUsers: string[];
-    deletedAccounts: string[];
-  };
-
   export type DeleteAccountResult = {
     deletedAccounts: string[];
   }
@@ -292,13 +240,11 @@ declare module '@via-profit-services/accounts' {
   export type Resolvers = {
     Query: {
       accounts: GraphQLFieldResolver<unknown, Context>;
-      users: GraphQLFieldResolver<unknown, Context>;
       authentification: GraphQLFieldResolver<unknown, Context>;
     };
     Mutation: {
       accounts: GraphQLFieldResolver<unknown, Context>;
       authentification: GraphQLFieldResolver<unknown, Context>;
-      users: GraphQLFieldResolver<unknown, Context>;
     };
     AuthentificationMutation: {
       create: GraphQLFieldResolver<unknown, Context, {
@@ -315,69 +261,6 @@ declare module '@via-profit-services/accounts' {
       reset: GraphQLFieldResolver<unknown, Context, {
         login: string;
       }>;
-    };
-    UsersMutation: {
-      update: GraphQLFieldResolver<unknown, Context, {
-        id: string;
-        input: {
-          id?: string;
-          name?: string;
-          accounts?: Array<{
-            id: string;
-            login?: string;
-            password?: string;
-            status?: AccountStatus;
-            roles?: AccountRole[];
-            recoveryPhones?: Array<{
-              id: string;
-              country?: CountryCode;
-              number?: string;
-              primary?: boolean;
-              confirmed?: boolean;
-            }>;
-          }>;
-          phones?: Array<{
-            id: string;
-            country?: CountryCode;
-            number?: string;
-            primary?: boolean;
-            description?: string;
-            confirmed?: boolean;
-          }>;
-        };
-      }>;
-      create: GraphQLFieldResolver<unknown, Context, {
-        input: {
-          id: string;
-          name: string;
-          accounts?: Array<{
-            id?: string;
-            login: string;
-            password: string;
-            roles: AccountRole[];
-            recoveryPhones: Array<{
-              id?: string;
-              country: CountryCode;
-              number: string;
-              primary: boolean;
-              confirmed: boolean;
-            }>;
-          }>;
-          phones?: Array<{
-            id?: string;
-            country: CountryCode;
-            number: string;
-            primary: boolean;
-            description: string;
-            confirmed: boolean;
-          }>;
-        };
-      }>;
-      delete: GraphQLFieldResolver<unknown, Context, {
-        id?: string;
-        ids?: string[];
-        dropAccount?: boolean;
-      }>
     };
     AccountsMutation: {
       update: GraphQLFieldResolver<unknown, Context, {
@@ -439,13 +322,7 @@ declare module '@via-profit-services/accounts' {
         skipId?: string;
       }, Context>;
     };
-    UsersQuery: {
-      list: GraphQLFieldResolver<unknown, Context, InputFilter>;
-      user: GraphQLFieldResolver<unknown, Context, { id: string }>;
-    };
     Account: AccountResolver;
-    // MyAccount: MyAccountResolver;
-    User: UserResolver;
     TokenBag: TokenBagResolver;
   }
 
@@ -453,13 +330,7 @@ declare module '@via-profit-services/accounts' {
 
   export type TokenBagResolver = Record<keyof TokenPackage, GraphQLFieldResolver<TokenRegistrationResponseSuccess, Context>>;
   export type AccountResolver = Record<keyof Account, GraphQLFieldResolver<{  id: string }, Context>>;
-  // export type MyAccountResolver = Record<keyof MyAccount, GraphQLFieldResolver<{  id: string }, Context>>;
-  export type UserResolver = Record<keyof User, GraphQLFieldResolver<{  id: string }, Context, {
-    transform: ImageTransform;
-  }>>;
 
-
-  
 
 
   /**
@@ -470,12 +341,6 @@ declare module '@via-profit-services/accounts' {
     entities: string[];
   }
 
-  /**
-   * Users service constructor props
-   */
-  export interface UsersServiceProps {
-    context: Context;
-  }
 
   /**
    * Authentification service constructor props
@@ -491,7 +356,7 @@ declare module '@via-profit-services/accounts' {
     /**
      * Just crypt password
      */
-    cryptUserPassword(login: string, password: string): string;
+    cryptPassword(login: string, password: string): string;
     /**
      * Compose credentials before crypt the password
      */
@@ -554,25 +419,6 @@ declare module '@via-profit-services/accounts' {
     getAccountsByEntity(entityID: string): Promise<ListResponse<Account>>;
   }
 
-  /**
-   * Users service
-   */
-  class UsersService {
-    props: UsersServiceProps;
-    constructor(props: UsersServiceProps);
-    
-    getUsers(filter: Partial<OutputFilter>): Promise<ListResponse<User>>;
-    getUsersByIds(ids: string[]): Promise<User[]>;
-    getUser(id: string): Promise<User | false>;
-    prepareDataToInsert(input: Partial<UserInputCreate | UserInputUpdate>): Partial<UsersTableModel>;
-    createUser(userData: UserInputCreate): Promise<string>;
-    updateUser(id: string, userData: UserInputUpdate): Promise<void>;
-    deleteUser(id: string): Promise<void>;
-    deleteUsers(ids: string[]): Promise<void>;
-  }
-
-
-
   export class UnauthorizedError extends Error implements ErrorHandler {
     metaData: any;
     status: number;
@@ -600,7 +446,7 @@ declare module '@via-profit-services/accounts' {
 declare module '@via-profit-services/core' {
   import DataLoader from 'dataloader';
   import {
-    JwtConfig, AccessTokenPayload, Account, User, UsersService,
+    JwtConfig, AccessTokenPayload, Account,
     AccountsService, TokenPackage, AuthentificationService,
   } from '@via-profit-services/accounts';
 
@@ -623,9 +469,6 @@ declare module '@via-profit-services/core' {
     on(event: 'authentification-success', callback: (tokenBag: TokenPackage) => void): this;
     on(event: 'account-was-deleted', callback: (accountID: string) => void): this;
     on(event: 'account-was-updated', callback: (account: Account) => void): this;
-    on(event: 'user-was-updated', callback: (user: User) => void): this;
-    on(event: 'user-was-created', callback: (user: User) => void): this;
-    on(event: 'user-was-deleted', callback: (userID: string) => void): this;
     on(event: 'token-was-revoked', callback: (revokedTokenID: string) => void): this;
 
     once(event: 'got-access-token', callback: (tokenBag: AccessTokenPayload) => void): this;
@@ -633,9 +476,6 @@ declare module '@via-profit-services/core' {
     once(event: 'refresh-token-success', callback: (tokenBag: TokenPackage) => void): this;
     once(event: 'account-was-deleted', callback: (accountID: string) => void): this;
     once(event: 'account-was-updated', callback: (account: Account) => void): this;
-    once(event: 'user-was-updated', callback: (user: User) => void): this;
-    once(event: 'user-was-created', callback: (user: User) => void): this;
-    once(event: 'user-was-deleted', callback: (userID: string) => void): this;
     once(event: 'token-was-revoked', callback: (revokedTokenID: string) => void): this;
   }
   
@@ -644,12 +484,6 @@ declare module '@via-profit-services/core' {
      * Accounts dataloader
      */
     accounts: DataLoader<string, Node<Account>>;
-
-    /**
-     * Users dataloader
-     */
-    users: DataLoader<string, Node<User>>;
-
   }
 
   interface ServicesCollection {
@@ -658,11 +492,6 @@ declare module '@via-profit-services/core' {
      * Accounts service
      */
     accounts: AccountsService;
-
-    /**
-     * Users service
-     */
-    users: UsersService;
 
     /**
      * Authentification service

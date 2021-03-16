@@ -43,6 +43,8 @@ const authentificationMutation: Resolvers['AuthentificationMutation'] = {
       logger.auth.debug(`Authorization attempt with login «${login}» success`);
       emitter.emit('authentification-success', tokenBag);
 
+      context.token = tokenBag.accessToken.payload;
+
       return {
         ...tokenBag,
         __typename: 'TokenBag',

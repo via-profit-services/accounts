@@ -89,7 +89,7 @@ class AuthentificationService implements AuthentificationServiceInterface {
     /**
    * Just crypt password
    */
-  public cryptUserPassword(login: string, password: string) {
+  public cryptPassword(login: string, password: string) {
     const salt = bcryptjs.genSaltSync(10);
     const str = this.composeCredentials(login, password);
 
