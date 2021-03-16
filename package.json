@@ -1,7 +1,7 @@
 {
     "name": "@via-profit-services/accounts",
     "support": "https://via-profit.ru",
-    "version": "1.0.28",
+    "version": "1.1.0",
     "description": "Via Profit Accounts Schema",
     "main": "dist/index.js",
     "engines": {
@@ -11,15 +11,14 @@
     "keywords": [
         "graphql",
         "via-profit",
-        "accounts",
-        "users"
+        "accounts"
     ],
     "scripts": {
         "postinstall": "node ./scripts/postinstall.js",
         "dist": "yarn lint && yarn build:dist",
         "build:dev": "cross-env NODE_ENV=development webpack --config ./webpack/webpack-config-dev.ts",
         "build:dist": "webpack --config ./webpack/webpack-config-prod.ts",
-        "build:migrations": "webpack --config ./webpack/webpack-config-migrations.ts",
+        "build:migrations": "yarn rimraf -rf ./.knex/**/*.js && yarn rebuild && webpack --config ./webpack/webpack-config-migrations.ts",
         "start": "yarn build:dev --watch",
         "debug": "cross-env DEBUG=true yarn build:dev --watch",
         "analyze": "cross-env ANALYZE=true yarn build:dist",
