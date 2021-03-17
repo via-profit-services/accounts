@@ -45,8 +45,9 @@ const authentificationMutation: Resolvers['AuthentificationMutation'] = {
       context.token = tokenBag.accessToken.payload;
 
       return {
-        ...tokenBag,
-        __typename: 'TokenBag',
+        payload: tokenBag,
+        query: {},
+        __typename: 'TokenRegistrationSuccess',
       }
     } catch (err) {
       throw new ServerError('Failed to register tokens', { err });
@@ -117,8 +118,9 @@ const authentificationMutation: Resolvers['AuthentificationMutation'] = {
       emitter.emit('refresh-token-success', tokenBag);
 
       return {
-        ...tokenBag,
-        __typename: 'TokenBag',
+        payload: tokenBag,
+        query: {},
+        __typename: 'TokenRegistrationSuccess',
       }
     } catch (err) {
       throw new ServerError('Failed to register tokens', { err });

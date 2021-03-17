@@ -1,10 +1,9 @@
 /* eslint-disable import/max-dependencies */
 /* eslint-disable no-console */
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import { factory, resolvers, typeDefs } from '@via-profit-services/core';
+import { factory, resolvers, ServerError, typeDefs, Context } from '@via-profit-services/core';
 import { factory as filesFactory } from '@via-profit-services/file-storage';
 import * as knex from '@via-profit-services/knex';
-import * as permissions from '@via-profit-services/permissions';
 import { factory as phonesFactory } from '@via-profit-services/phones';
 import * as redis from '@via-profit-services/redis';
 import * as sms from '@via-profit-services/sms';
@@ -12,6 +11,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 import http from 'http';
 import path from 'path';
+import { isObjectType, isIntrospectionType } from 'graphql';
 
 import { factory as accountsFactory } from '../index';
 
@@ -54,23 +54,6 @@ const server = http.createServer(app);
     categories: ['Avatar'],
   });
 
-  const permissionsMiddleware = await permissions.factory({
-    defaultAccess: 'grant',
-    enableIntrospection: true,
-    permissions: {
-      'Mutation.phones': { grant: ['*'] },
-      'Query.phones': { grant: ['*'] },
-      'Account.*': { grant: ['*'] },
-      'Phone.*': { grant: ['*'] },
-      'PhoneInputCreate.*': { grant: ['*'] },
-      'PhoneInputUpdate.*': { grant: ['*'] },
-      'PhonesMutation.*': { grant: ['*'] },
-      'PhonesQuery.*': { grant: ['*'] },
-      'PhoneListConnection.*': { grant: ['*'] },
-      'PhonesEdge.*': { grant: ['*'] },
-    },
-  });
-
   const smsMiddleware = sms.factory({
     provider: 'smsc.ru',
     login: process.env.SMSC_LOGIN,
@@ -104,7 +87,7 @@ const server = http.createServer(app);
     ],
   });
 
-
+  const enableIntrospection = false;
   const { graphQLExpress } = await factory({
     server,
     schema,
@@ -114,9 +97,47 @@ const server = http.createServer(app);
       redisMiddleware,
       smsMiddleware,
       phones.middleware,
-      permissionsMiddleware,
-      accounts.middleware, // <-- After all
+      accounts.middleware,
       files.fileStorageMiddleware,
+      ({ schema, context }) => {
+        // let permissionsMap: Record<string, string[]> = {};
+        let privileges: string[] = [];;
+        const types = schema.getTypeMap();
+        Object.entries(types).forEach(([typeName, type]) => {
+
+          if (isObjectType(type)) {
+            const fieldMap = type.getFields();
+
+            Object.entries(fieldMap).forEach(([fieldName, field]) => {
+              const { resolve } = field;
+
+              if (resolve) {
+
+                field.resolve = async (parent, args, context: Context, info) => {
+
+
+                  if (!enableIntrospection && isIntrospectionType(type)) {
+                    throw new ServerError('Introspection locked');
+                  }
+                  
+                  if (!privileges.length) {
+                    const { services, token } = context;
+                    privileges = await services.authentification.extractTokenPrivileges(token);
+                  }
+
+                  console.log(type.name, privileges)
+
+                  return (await resolve(parent, args, context, info));
+                }
+              }
+            });
+          }
+        });
+
+
+
+        return schema;
+      },
     ],
   });
 

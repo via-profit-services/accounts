@@ -61,7 +61,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@via-profit-services/eslint-config", "npm:0.1.11"],
             ["@via-profit-services/file-storage", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.6"],
             ["@via-profit-services/knex", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.2"],
-            ["@via-profit-services/permissions", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.0"],
             ["@via-profit-services/phones", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.11"],
             ["@via-profit-services/redis", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.0"],
             ["@via-profit-services/sms", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.0"],
@@ -2207,7 +2206,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@via-profit-services/eslint-config", "npm:0.1.11"],
             ["@via-profit-services/file-storage", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.6"],
             ["@via-profit-services/knex", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.2"],
-            ["@via-profit-services/permissions", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.0"],
             ["@via-profit-services/phones", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.11"],
             ["@via-profit-services/redis", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.0"],
             ["@via-profit-services/sms", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.0"],
@@ -2429,40 +2427,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             "@via-profit-services/core",
             "knex",
             "pg"
-          ],
-          "linkType": "HARD",
-        }]
-      ]],
-      ["@via-profit-services/permissions", [
-        ["npm:1.0.0", {
-          "packageLocation": "./.yarn/cache/@via-profit-services-permissions-npm-1.0.0-8d23637d63-ad1a6c72d8.zip/node_modules/@via-profit-services/permissions/",
-          "packageDependencies": [
-            ["@via-profit-services/permissions", "npm:1.0.0"]
-          ],
-          "linkType": "SOFT",
-        }],
-        ["virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.0", {
-          "packageLocation": "./.yarn/$$virtual/@via-profit-services-permissions-virtual-7ac8fc3e2d/0/cache/@via-profit-services-permissions-npm-1.0.0-8d23637d63-ad1a6c72d8.zip/node_modules/@via-profit-services/permissions/",
-          "packageDependencies": [
-            ["@via-profit-services/permissions", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.0"],
-            ["@types/graphql", "npm:14.5.0"],
-            ["@types/via-profit-services__core", null],
-            ["@types/winston", null],
-            ["@types/winston-daily-rotate-file", null],
-            ["@via-profit-services/core", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.2"],
-            ["graphql", "npm:15.4.0"],
-            ["winston", "npm:3.3.3"],
-            ["winston-daily-rotate-file", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:4.5.0"]
-          ],
-          "packagePeers": [
-            "@types/graphql",
-            "@types/via-profit-services__core",
-            "@types/winston-daily-rotate-file",
-            "@types/winston",
-            "@via-profit-services/core",
-            "graphql",
-            "winston-daily-rotate-file",
-            "winston"
           ],
           "linkType": "HARD",
         }]

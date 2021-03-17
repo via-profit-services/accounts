@@ -7,7 +7,6 @@ import type {
   AuthentificationServiceProps,
 } from '@via-profit-services/accounts';
 import { ServerError } from '@via-profit-services/core';
-import { PermissionsResolverObject, Privileges } from '@via-profit-services/permissions';
 import bcryptjs from 'bcryptjs';
 import { IncomingMessage } from 'http';
 import jsonwebtoken from 'jsonwebtoken';
@@ -301,36 +300,24 @@ class AuthentificationService implements AuthentificationServiceInterface {
     });
   }
 
-  public async loadPermissions() {
-    const { context } = this.props;
-    const { knex } = context;
+  public async extractTokenPrivileges(token: AccessTokenPayload): Promise<string[]> {
+    const { roles } = token;
+    const privilegesMap = await this.loadPrivileges();
 
-    const permissions: Record<string, PermissionsResolverObject> = {};
-    const res = await knex
-      .select('*')
-      .from<PermissionsTableModel, PermissionsTableModelResult[]>('permissions');
+    const tokenPrivileges = roles.reduce<string[]>((prev, role) => {
+      const list = privilegesMap[role] || [];
 
-    if (res.length) {
-      res.forEach(({ typeName, fieldName, type, privilege }) => {
-        const field = `${typeName}.${fieldName}`;
+      return prev.concat(list);
+    }, []);
 
-        permissions[field] = permissions[field] || {
-          grant: [],
-          restrict: [],
-        };
-
-        permissions[field][type].push(privilege);
-      })
-    }
-
-    return permissions;
+    return tokenPrivileges;
   }
 
   public async loadPrivileges() {
     const { context } = this.props;
     const { knex } = context;
 
-    const privileges: Record<string, Privileges> = {};
+    const privileges: Record<string, string[]> = {};
     const res = await knex
       .select('*')
       .from<PrivilegesTableModel, PrivilegesTableModelResult[]>('roles2privileges');

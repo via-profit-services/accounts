@@ -1,9 +1,7 @@
 declare module '@via-profit-services/accounts' {
   import { Algorithm } from 'jsonwebtoken';
   import { CountryCode } from 'libphonenumber-js';
-  import { ImageTransform } from '@via-profit-services/file-storage';
-  import { PermissionsResolverObject, Privileges, PermissionsResolver } from '@via-profit-services/permissions';
-  import { InputFilter, Middleware, Context, ErrorHandler, OutputFilter, ListResponse, MiddlewareProps, MaybePromise } from '@via-profit-services/core';
+  import { InputFilter, Middleware, Context, OutputFilter, ListResponse, MiddlewareProps, MaybePromise } from '@via-profit-services/core';
   import { IncomingMessage } from 'http';
   import { GraphQLFieldResolver, ValidationRule } from 'graphql';
 
@@ -382,14 +380,9 @@ declare module '@via-profit-services/accounts' {
     isAccessTokenPayload(payload: AccessTokenPayload | RefreshTokenPayload): payload is AccessTokenPayload;
     isRefreshTokenPayload(payload: AccessTokenPayload | RefreshTokenPayload): payload is RefreshTokenPayload;
     revokeToken(accessTokenIdOrIds: string | string[]): Promise<void>;
-
-    /**
-     * Revoke all tokens by Account ID
-     */
     revokeAccountTokens(account: string): Promise<string[]>;
-
-    loadPermissions(): Promise<Record<string, PermissionsResolverObject>>;
-    loadPrivileges(): Promise<Record<string, Privileges>>;
+    loadPrivileges(): Promise<Record<string, string[]>>;
+    extractTokenPrivileges(token: AccessTokenPayload): Promise<string[]>;
   }
 
 
@@ -430,15 +423,13 @@ declare module '@via-profit-services/accounts' {
   export const TOKEN_BEARER_KEY: 'Authorization';
   export const TOKEN_BEARER: 'Bearer';
   export const REDIS_TOKENS_BLACKLIST: string;
-  export const INTROSPECTION_FIELDS: string[];
-  export const AUTHORIZED_PRIVILEGE: 'authorized';
-  export const DEFAULT_PERMISSIONS: Record<string, PermissionsResolver>;
   export const factory: AccountsMiddlewareFactory;
 }
 
 
 declare module '@via-profit-services/core' {
   import DataLoader from 'dataloader';
+  import { IncomingMessage } from 'http';
   import {
     JwtConfig, AccessTokenPayload, Account,
     AccountsService, TokenPackage, AuthentificationService,
@@ -454,6 +445,7 @@ declare module '@via-profit-services/core' {
      * Access token payload
      */
     token: AccessTokenPayload;
+    request: IncomingMessage;
   }
 
 

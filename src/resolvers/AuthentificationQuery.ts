@@ -16,10 +16,9 @@ const authentificationQuery: Resolvers['AuthentificationQuery'] = {
       const tokenPayload = await authentification.verifyToken(token);
 
       return {
-        ...tokenPayload,
-        __typename: authentification.isAccessTokenPayload(tokenPayload)
-          ? 'AccessTokenPayload'
-          : 'RefreshTokenPayload',
+        __typename: 'TokenVerificationSuccess',
+        query: {},
+        payload: tokenPayload,
       }
 
     } catch (err) {

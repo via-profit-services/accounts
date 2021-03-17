@@ -1,5 +1,7 @@
 import { AccountStatus, Account, Resolvers } from '@via-profit-services/accounts';
-import { ServerError, buildCursorConnection, buildQueryFilter, CursorConnection } from '@via-profit-services/core';
+import { ServerError, buildCursorConnection, buildQueryFilter, CursorConnection, BadRequestError } from '@via-profit-services/core';
+
+import { ACCESS_TOKEN_EMPTY_UUID } from '../constants';
 
 export const accountsQueryResolver: Resolvers['AccountsQuery'] = {
   list: async (_parent, args, context): Promise<CursorConnection<Account>> => {
@@ -26,7 +28,16 @@ export const accountsQueryResolver: Resolvers['AccountsQuery'] = {
     }
   },
   statusesList: (): AccountStatus[] => ['allowed', 'forbidden'],
-  me: (_parent, _args, context) => ({ id: context.token.uuid }),
+  me: async (_parent, _args, context) => {
+    const { token } = context;
+    if (token.uuid === ACCESS_TOKEN_EMPTY_UUID) {
+      throw new BadRequestError('You should provide a valid access token for this operation');
+    }
+
+    return {
+      id: token.uuid
+    };
+  },
   account: (_parent, args) => args,
   checkLoginExists: async (_parent, args, context): Promise<boolean> => {
     const { login, skipId } = args;

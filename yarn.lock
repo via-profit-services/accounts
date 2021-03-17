@@ -1484,7 +1484,6 @@ __metadata:
     "@via-profit-services/eslint-config": ^0.1.11
     "@via-profit-services/file-storage": ^1.0.6
     "@via-profit-services/knex": ^1.0.2
-    "@via-profit-services/permissions": ^1.0.0
     "@via-profit-services/phones": ^1.0.11
     "@via-profit-services/redis": ^1.0.0
     "@via-profit-services/sms": ^1.0.0
@@ -1544,7 +1543,6 @@ __metadata:
     "@via-profit-services/core": ^1.0.0
     "@via-profit-services/file-storage": ^1.0.0
     "@via-profit-services/knex": ^1.0.1
-    "@via-profit-services/permissions": ^1.0.0
     "@via-profit-services/phones": ^1.0.0
     "@via-profit-services/redis": ^1.0.0
     "@via-profit-services/sms": ^1.0.0
@@ -1624,18 +1622,6 @@ __metadata:
     knex: ^0.21.12
     pg: ^8.5.1
   checksum: 8ae338062b5f2d547bbaa6776349540b32bf61d8b0b2a5476ec2a068e60b90e50b121dadcdd6635d48860846190d380522303c71eb7fa6027f2019cf6dd2a08c
-  languageName: node
-  linkType: hard
-
-"@via-profit-services/permissions@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "@via-profit-services/permissions@npm:1.0.0"
-  peerDependencies:
-    "@via-profit-services/core": ^1.0.0
-    graphql: "*"
-    winston: "*"
-    winston-daily-rotate-file: "*"
-  checksum: ad1a6c72d8d47187536eafad217dad41769d95d758d0fb0585669c0e1c5ca8fc3b91d1ec69d7fa20d322a868fdaa778fab6a1225758a3ab89e94e82401e1d2cb
   languageName: node
   linkType: hard
 

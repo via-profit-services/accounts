@@ -49,9 +49,19 @@ type ResetPasswordSuccess {
 }
 
 
-union TokenRegistrationResponse = TokenBag | TokenRegistrationError
-union TokenVerificationResponse = AccessTokenPayload | RefreshTokenPayload | TokenVerificationError
+union TokenRegistrationResponse = TokenRegistrationSuccess | TokenRegistrationError
+union TokenVerificationResponse = TokenVerificationSuccess | TokenVerificationError
 union ResetPasswordResponse = ResetPasswordSuccess | ResetPasswordError
+
+type TokenVerificationSuccess {
+  payload: AccessTokenPayload!
+  query: Query!
+}
+
+type TokenRegistrationSuccess {
+  payload: TokenBag!
+  query: Query!
+}
 
 type TokenBag {
   accessToken: AccessToken!
