@@ -17,8 +17,6 @@ import {
 import contextMiddleware from './context-middleware';
 import resolvers from './resolvers';
 import typeDefs from './schema.graphql';
-import UnauthorizedError from './UnauthorizedError';
-
 
 const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuration) => {
 
@@ -176,18 +174,18 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuratio
         tokenPayload = await authentification.verifyToken(bearerToken);
 
       } catch (err) {
-        throw new UnauthorizedError(err.message);
+        throw new ServerError(err.message);
       }
 
       if (authentification.isRefreshTokenPayload(tokenPayload)) {
-        throw new UnauthorizedError(
+        throw new ServerError(
           'This is token are «Refresh» token type. You should provide «Access» token type',
         );
       }
 
       const revokeStatus = await redis.sismember(REDIS_TOKENS_BLACKLIST, tokenPayload.id);
       if (revokeStatus) {
-        throw new UnauthorizedError('Token was revoked');
+        throw new ServerError('Token was revoked');
       }
 
       pool.context.emitter.emit('got-access-token', tokenPayload);

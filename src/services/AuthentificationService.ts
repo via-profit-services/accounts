@@ -22,7 +22,6 @@ import {
   ACCESS_TOKEN_EMPTY_UUID,
   ACCESS_TOKEN_EMPTY_ISSUER,
 } from '../constants';
-import UnauthorizedError from '../UnauthorizedError';
 
 type PermissionsTableModel = {
   readonly typeName: string;
@@ -169,7 +168,7 @@ class AuthentificationService implements AuthentificationServiceInterface {
     const account = await services.accounts.getAccount(uuid);
 
     if (!account) {
-      throw new UnauthorizedError(`Account with id[${uuid}] not found`);
+      throw new ServerError(`Account with id[${uuid}] not found`);
     }
 
     const tokens = this.generateTokens({

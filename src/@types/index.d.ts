@@ -419,12 +419,6 @@ declare module '@via-profit-services/accounts' {
     getAccountsByEntity(entityID: string): Promise<ListResponse<Account>>;
   }
 
-  export class UnauthorizedError extends Error implements ErrorHandler {
-    metaData: any;
-    status: number;
-    constructor(message: string, metaData?: any);
-  }
-
   export const DEFAULT_ACCESS_TOKEN_EXPIRED: number;
   export const DEFAULT_REFRESH_TOKEN_EXPIRED: number;
   export const DEFAULT_SIGNATURE_ALGORITHM: 'RS256';

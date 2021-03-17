@@ -4,7 +4,6 @@ import '@via-profit-services/sms';
 import { parsePhoneNumberFromString, CountryCode, PhoneNumber } from 'libphonenumber-js';
 
 import { RESET_PASSWORD_MESSAGE } from '../constants';
-import UnauthorizedError from '../UnauthorizedError';
 
 const authentificationMutation: Resolvers['AuthentificationMutation'] = {
   create: async (_parent, args, context) => {
@@ -19,7 +18,7 @@ const authentificationMutation: Resolvers['AuthentificationMutation'] = {
       );
 
       return {
-        name: 'UnauthorizedError',
+        name: 'TokenRegistrationError',
         msg: 'Invalid login or password',
         __typename: 'TokenRegistrationError',
       };
@@ -31,7 +30,7 @@ const authentificationMutation: Resolvers['AuthentificationMutation'] = {
       );
 
       return {
-        name: 'UnauthorizedError',
+        name: 'TokenRegistrationError',
         msg: 'Account locked',
         __typename: 'TokenRegistrationError',
       };
@@ -103,11 +102,11 @@ const authentificationMutation: Resolvers['AuthentificationMutation'] = {
     try {
       tokenPayload = await authentification.verifyToken(refreshToken);
     } catch (err) {
-     throw new UnauthorizedError(err.message);
+     throw new ServerError(err.message);
     }
 
     if (!authentification.isRefreshTokenPayload(tokenPayload)) {
-      throw new UnauthorizedError(
+      throw new ServerError(
         'This is token are not «Refresh» token type. You should provide «Refresh» token type',
       );
     }
