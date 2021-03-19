@@ -2,7 +2,6 @@
 /* eslint-disable no-console */
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { factory, resolvers, ServerError, typeDefs, Context } from '@via-profit-services/core';
-import { factory as filesFactory } from '@via-profit-services/file-storage';
 import * as knex from '@via-profit-services/knex';
 import { factory as phonesFactory } from '@via-profit-services/phones';
 import * as redis from '@via-profit-services/redis';
@@ -49,23 +48,44 @@ const server = http.createServer(app);
     entities: ['User'],
   });
 
-  const files = await filesFactory({
-    hostname: `http://${process.env.SERVER_HOST}:${process.env.SERVER_PORT}`,
-    categories: ['Avatar'],
-  });
-
   const smsMiddleware = sms.factory({
     provider: 'smsc.ru',
     login: process.env.SMSC_LOGIN,
     password: process.env.SMSC_PASSWORD,
   });
 
+  const customTypes = `
+    extend type Query {
+      propper: Propper!
+    }
+
+    type Propper {
+      id: ID!
+      name: String!
+    }
+  `;
+
+  const customResolvers = {
+    Query: {
+      propper: () => ({}),
+    },
+    Propper: {
+      id: () => 'propperID',
+      name: (_parent: any, _args: any, context: Context) => {
+        const { token } = context;
+        console.log('Propper Name token', token.id);
+
+        return 'Propper Name'
+      },
+    },
+  };
+
   const schema = makeExecutableSchema({
     typeDefs: [
       typeDefs,
       phones.typeDefs,
+      customTypes,
       accounts.typeDefs,
-      files.typeDefs,
       `type User {
         id: ID!
         name: String!
@@ -75,8 +95,8 @@ const server = http.createServer(app);
     resolvers: [
       resolvers,
       phones.resolvers,
+      customResolvers,
       accounts.resolvers,
-      files.resolvers,
       {
         User: ({
           id: () => '68158930-f5f2-46fc-8ebb-db9e5aad5fa3',
@@ -87,7 +107,7 @@ const server = http.createServer(app);
     ],
   });
 
-  const enableIntrospection = false;
+  // const enableIntrospection = false;
   const { graphQLExpress } = await factory({
     server,
     schema,
@@ -98,51 +118,9 @@ const server = http.createServer(app);
       smsMiddleware,
       phones.middleware,
       accounts.middleware,
-      files.fileStorageMiddleware,
-      ({ schema, context }) => {
-        // let permissionsMap: Record<string, string[]> = {};
-        let privileges: string[] = [];;
-        const types = schema.getTypeMap();
-        Object.entries(types).forEach(([typeName, type]) => {
-
-          if (isObjectType(type)) {
-            const fieldMap = type.getFields();
-
-            Object.entries(fieldMap).forEach(([fieldName, field]) => {
-              const { resolve } = field;
-
-              if (resolve) {
-
-                field.resolve = async (parent, args, context: Context, info) => {
-
-
-                  if (!enableIntrospection && isIntrospectionType(type)) {
-                    throw new ServerError('Introspection locked');
-                  }
-                  
-                  if (!privileges.length) {
-                    const { services, token } = context;
-                    privileges = await services.authentification.extractTokenPrivileges(token);
-                  }
-
-                  console.log(type.name, privileges)
-
-                  return (await resolve(parent, args, context, info));
-                }
-              }
-            });
-          }
-        });
-
-
-
-        return schema;
-      },
     ],
   });
 
-  app.use(process.env.GRAPHQL_ENDPOINT, files.graphQLFilesUploadExpress); // <-- First
-  app.use(files.graphQLFilesStaticExpress); // < -- Second
   app.use(process.env.GRAPHQL_ENDPOINT, graphQLExpress); // <-- Last
 
   server.listen(Number(process.env.SERVER_PORT), process.env.SERVER_HOST, () => {

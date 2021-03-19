@@ -445,7 +445,6 @@ declare module '@via-profit-services/core' {
      * Access token payload
      */
     token: AccessTokenPayload;
-    request: IncomingMessage;
   }
 
 
