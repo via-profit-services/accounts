@@ -169,11 +169,16 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuratio
               if (context.services.authentification.isAccessTokenPayload(payload) && !isRevoked) { 
                 context.token = payload;
               }
+
+              if (isRevoked) {
+                context.logger.auth.debug('Token verification error in accounts middlweare. Token revoked');
+              }
             }
 
           } catch (err) {
             // do nothing, error of token verification
             // will be showed from resolvers
+            context.logger.auth.debug('Token verification error in accounts middlweare', { err });
           }
 
           return (await resolve(parent, args, context, info));

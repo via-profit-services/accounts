@@ -28,7 +28,7 @@ const authentificationQuery: Resolvers['AuthentificationQuery'] = {
 
     try {
       const isRevoked = await redis.sismember(REDIS_TOKENS_BLACKLIST, tokenPayload.id);
-      
+
       if (isRevoked) {
         return {
           name: 'VerificationError',
