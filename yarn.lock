@@ -1480,13 +1480,12 @@ __metadata:
     "@types/webpack-node-externals": ^2.5.0
     "@typescript-eslint/eslint-plugin": ^4.9.1
     "@typescript-eslint/parser": ^4.9.1
-    "@via-profit-services/core": ^1.0.2
+    "@via-profit-services/core": ^1.0.5
     "@via-profit-services/eslint-config": ^0.1.11
-    "@via-profit-services/file-storage": ^1.0.6
-    "@via-profit-services/knex": ^1.0.2
-    "@via-profit-services/phones": ^1.0.11
-    "@via-profit-services/redis": ^1.0.0
-    "@via-profit-services/sms": ^1.0.0
+    "@via-profit-services/knex": ^1.0.6
+    "@via-profit-services/phones": ^1.0.14
+    "@via-profit-services/redis": ^1.0.3
+    "@via-profit-services/sms": ^1.0.2
     bcryptjs: ^2.4.3
     cross-env: ^6.0.3
     dataloader: ^2.0.0
@@ -1540,9 +1539,8 @@ __metadata:
     winston: ^3.3.3
     winston-daily-rotate-file: ^4.5.0
   peerDependencies:
-    "@via-profit-services/core": ^1.0.0
-    "@via-profit-services/file-storage": ^1.0.0
-    "@via-profit-services/knex": ^1.0.1
+    "@via-profit-services/core": ^1.0.5
+    "@via-profit-services/knex": ^1.0.4
     "@via-profit-services/phones": ^1.0.0
     "@via-profit-services/redis": ^1.0.0
     "@via-profit-services/sms": ^1.0.0
@@ -1556,9 +1554,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@via-profit-services/core@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "@via-profit-services/core@npm:1.0.2"
+"@via-profit-services/core@npm:^1.0.5":
+  version: 1.0.5
+  resolution: "@via-profit-services/core@npm:1.0.5"
   dependencies:
     bufferutil: ^4.0.2
     content-type: ^1.0.4
@@ -1577,7 +1575,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: 18dc82c9317d5b2403789c00d6217ffad9acda1990f995b2da1b2b480e87ec02d70ae3c31f0fd57f031eabb018f86d6e3f057b7245b4f6f5460c25c3e8f9493e
+  checksum: 70166fa0c9d99336224af96b3d451a2da715988a02208858bf176ab7cfcba9762e9b585bf010c9e0894066662a45333c8f9445c6ffc5e8099837a0a2e2b0c403
   languageName: node
   linkType: hard
 
@@ -1588,46 +1586,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@via-profit-services/file-storage@npm:^1.0.6":
+"@via-profit-services/knex@npm:^1.0.6":
   version: 1.0.6
-  resolution: "@via-profit-services/file-storage@npm:1.0.6"
-  dependencies:
-    busboy: ^0.3.1
-    fs-capacitor: ^6.2.0
-    mime-types: ^2.1.27
-  peerDependencies:
-    "@via-profit-services/core": ^1.0.0
-    "@via-profit-services/knex": ^1.0.0
-    graphql: "*"
-    imagemin: ^7.0.1
-    imagemin-mozjpeg: ^9.0.0
-    imagemin-optipng: ^8.0.0
-    imagemin-pngquant: ^9.0.1
-    jimp: ^0.16.1
-    moment: "*"
-    moment-timezone: "*"
-    rimraf: "*"
-    uuid: "*"
-    winston: "*"
-    winston-daily-rotate-file: "*"
-  checksum: 2e027bd0ebcd2a5a3ca91b0a3dbf0b0106021e407690e92e5ec4ceecb6fe680b65eda494bcec5c6eeaa35fe5e5f03875cb32ecb973499e5131bf77b63ba514f2
-  languageName: node
-  linkType: hard
-
-"@via-profit-services/knex@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "@via-profit-services/knex@npm:1.0.2"
+  resolution: "@via-profit-services/knex@npm:1.0.6"
   peerDependencies:
     "@via-profit-services/core": 1.x.x
     knex: ^0.21.12
     pg: ^8.5.1
-  checksum: 8ae338062b5f2d547bbaa6776349540b32bf61d8b0b2a5476ec2a068e60b90e50b121dadcdd6635d48860846190d380522303c71eb7fa6027f2019cf6dd2a08c
+  checksum: 6a42e47b6d922ed473fa1d6f3ebf494ec4377023c8726237a952434983181f022a946891e2a4cb240b79816b1384ad44831b26b8593b0829a22721148929e6cb
   languageName: node
   linkType: hard
 
-"@via-profit-services/phones@npm:^1.0.11":
-  version: 1.0.11
-  resolution: "@via-profit-services/phones@npm:1.0.11"
+"@via-profit-services/phones@npm:^1.0.14":
+  version: 1.0.14
+  resolution: "@via-profit-services/phones@npm:1.0.14"
   peerDependencies:
     "@via-profit-services/core": ^1.0.0
     "@via-profit-services/knex": ^1.0.0
@@ -1636,27 +1608,27 @@ __metadata:
     moment: ""
     moment-timezone: "*"
     uuid: "*"
-  checksum: 16fd549638737306f8957418c4b20839f9a9d30f29c90d39a9d4277815761aa1f3b26f7a2a095275c616f133ceca762434c777d4e89ee7bca39baa48ed290c4d
+  checksum: 5bd06b2631db7a95956fb34b3ce6afb8d88c94ba6ffb68e0bc2f28245091abad4df81002b4e356cc888017f218616c7f595426746d63ed2d21354de3b27a9cb1
   languageName: node
   linkType: hard
 
-"@via-profit-services/redis@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "@via-profit-services/redis@npm:1.0.0"
+"@via-profit-services/redis@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "@via-profit-services/redis@npm:1.0.3"
   peerDependencies:
     "@via-profit-services/core": ^1.0.0
     ioredis: "*"
-  checksum: ed1ebec9b64a74c11b5141da37e90973acf8fe21f516ea7b21301888069f3f73f646fa5ec11c512dc6144d42e1b28290c05f205eba2ff06c6f327a9bb425a4e7
+  checksum: d8815faf22f839f47b1b37e135e2216e5c2b8ed6799ff9a1073d117de6b1d3c9f04fd4858e8cc34e63b74e9ab569d7a7311613c235a338723d14c6fcd8c78c48
   languageName: node
   linkType: hard
 
-"@via-profit-services/sms@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "@via-profit-services/sms@npm:1.0.0"
+"@via-profit-services/sms@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@via-profit-services/sms@npm:1.0.2"
   peerDependencies:
     "@via-profit-services/core": ^1.0.0
     uuid: "*"
-  checksum: 6db3783b51dd84eda10d88b3b42aa994a970f233f8074ee94d5a89fc97992443443affdc5c11cb0d303b6a6885e809c4d9e13cb5b7579456e918d94cf42c8cdb
+  checksum: a5cd2beb2952311b08435b2b485dad6cea7cdee4c77473a05941cce78dfe57d34cca3874d98c97bd3b23d25b19b821b943031321fed8c0eb044144485cbbd95b
   languageName: node
   linkType: hard
 
@@ -2877,15 +2849,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"busboy@npm:^0.3.1":
-  version: 0.3.1
-  resolution: "busboy@npm:0.3.1"
-  dependencies:
-    dicer: 0.3.0
-  checksum: acc5c3d2f806c1f43a7a9a342bb4aaaa1223bac81cf3ba35ae3cc999f4e3a2e1b6db2d3895a228a862efbbc7b6fb39a7252e830bb5943e1b4362caa221c868ea
-  languageName: node
-  linkType: hard
-
 "bytes@npm:3.1.0":
   version: 3.1.0
   resolution: "bytes@npm:3.1.0"
@@ -3889,15 +3852,6 @@ __metadata:
   version: 2.1.0
   resolution: "detect-newline@npm:2.1.0"
   checksum: 634e4a25406321b203b33ae5123c1f2091d94509d6979448081b9256c1078cec9ca5c12eee16164be79f6cbbd56c2e2232fca541e2edf3c8d374efe661e5b44a
-  languageName: node
-  linkType: hard
-
-"dicer@npm:0.3.0":
-  version: 0.3.0
-  resolution: "dicer@npm:0.3.0"
-  dependencies:
-    streamsearch: 0.1.2
-  checksum: eb06a8c283287da1f0034cde3f2bafe8bbd70636d4c9b12783f36d919c88533d6d285e044197853e03c1a2ea5d68f8ebcf59d366bd873a4a91e5d370e9871ad7
   languageName: node
   linkType: hard
 
@@ -5403,13 +5357,6 @@ __metadata:
     inherits: ^2.0.1
     readable-stream: ^2.0.0
   checksum: 5f1a9bbff02d30cf5b4f12cfef20b47455876f8318b92d275ca39e3c5adf0636d3a0d8f4821a1c245339c47e79a551dce9ce5c7d9236c16347b934dc13d1d408
-  languageName: node
-  linkType: hard
-
-"fs-capacitor@npm:^6.2.0":
-  version: 6.2.0
-  resolution: "fs-capacitor@npm:6.2.0"
-  checksum: 015a34427d7b83eb484d4d7514f0cfc6e6be66abc91f4da11f1171a195250b5ebb22894011b4f074cbad507b5d82486896371186158eb1ecefaa2156e7a6ff50
   languageName: node
   linkType: hard
 
@@ -11505,13 +11452,6 @@ resolve@1.1.7:
     to-arraybuffer: ^1.0.0
     xtend: ^4.0.0
   checksum: 7ef9e10567b1a49d6c05730427280ef7623a6b407df3981d5d14d30d56225c4d64857d7473ab8eca93dbcaaf897e4f4fda8b5b482cf26255e26f1a31d696c1b8
-  languageName: node
-  linkType: hard
-
-"streamsearch@npm:0.1.2":
-  version: 0.1.2
-  resolution: "streamsearch@npm:0.1.2"
-  checksum: f72befba95082d49be19cd4318112bc141f6cd7cbb201ee8079887f6f3cbcdf79c311977ce0eaa93d7d8c3e6b9727412f6177a87ced5b98d0fd4075723ad8eaf
   languageName: node
   linkType: hard
 
