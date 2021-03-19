@@ -109,164 +109,75 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuratio
     });
 
 
+    const types = schema.getTypeMap();
 
+    // walk all schema types and wrap field resolvers
+    Object.entries(types).forEach(([typeName, type]) => {
 
+      // skip if is not an object type or introspection
+      // also skip if type already affected (`SYMBOL_PROCESSED` marker)
+      if (!isObjectType(type) || isIntrospectionType(type) || (type as any)[SYMBOL_PROCESSED]) {
+        return;
+      }
 
+      const fieldMap = type.getFields();
 
-// return pool;
-    // const skip = [
-    //   'AuthentificationMutation.create',
-    //   'AuthentificationMutation.refresh',
-    //   'AuthentificationMutation.reset',
-    //   'AuthentificationQuery.verifyToken',
-    // ];
+      // mark this type as affected
+      (type as any)[SYMBOL_PROCESSED] = true;
 
-    // let token: string | false;
-    // const { authentification } = services;
-    // console.log(request.headers);
-    // console.log('')
-    // console.log('')
-    // console.log('')
-    // console.log('----')
-    // const requestToken = authentification.extractTokenFromRequest(request);
-    // pool.context.token = authentification.getDefaultTokenPayload();
-    // const getToken = () => ;
-    // context.token =
-    // console.log({ requestToken });
-    // console.log(request.headers);
-    // console.log('Headers Authorization are passed', request.headers['authorization'] !== undefined)
-    // const getToken = async () => {
-    //   const defaultToken = authentification.getDefaultTokenPayload();
+      Object.entries(fieldMap).forEach(([fieldName, field]) => {
+        const { resolve } = field;
 
-    //   try {
-    //     const requestToken = authentification.extractTokenFromRequest(request);
-    //     if (requestToken) {
-    //       const payload = await authentification.verifyToken(requestToken);
+        // skip if type already affected or resolver is missing
+        if ((field as any)[SYMBOL_PROCESSED] || !resolve) {
+          return;
+        }
 
-    //       const isRevoked = await redis.sismember(REDIS_TOKENS_BLACKLIST, payload.id);
-    //       if (authentification.isAccessTokenPayload(payload) && !isRevoked) { 
-    //         return payload;
-    //       }
-    //     }
+        // mark this field as affected
+        (field as any)[SYMBOL_PROCESSED] = true;
 
-    //   } catch (err) {
-    //     // context.token = authentification.getDefaultTokenPayload();
-    //     console.log(err.message);
-    //     // do nothing
-    //   }
-    //   return defaultToken;
-    // }
+        // replace original resolver to this
+        field.resolve = async (parent, args, context: Context, info) => {
 
+          // this will be token creation/verification and etc.
+          const isAuthentificationQueries = [
+            'AuthentificationMutation.create',
+            'AuthentificationMutation.refresh',
+            'AuthentificationMutation.reset',
+            'AuthentificationQuery.verifyToken',
+          ].includes(`${typeName}.${fieldName}`);
 
-    // pool.schema = pool.schema && 
-    // if (!pool.schema || pool.schema) {
+          const isRootFields = ['Query', 'Mutation', 'Subscription'].includes(typeName);
 
-      // pool.schema = schema;
-      const types = schema.getTypeMap();
-      // let token: AccessTokenPayload = context.services.authentification.getDefaultTokenPayload();
-      
-      Object.entries(types).forEach(([typeName, type]) => {
-
-        if (isObjectType(type) && !isIntrospectionType(type)) {
-          const fieldMap = type.getFields();
-
-          if ((type as any)[SYMBOL_PROCESSED]) {
-            return;
+          // we should skip this operations without token verification
+          // is not a root fields and this is not a token creation/verification
+          // operations
+          if (!isRootFields || isAuthentificationQueries) {
+            return (await resolve(parent, args, context, info));
           }
 
-          (type as any)[SYMBOL_PROCESSED] = true;
-
-          Object.entries(fieldMap).forEach(([fieldName, field]) => {
-            const { resolve } = field;
-
-            if ((field as any)[SYMBOL_PROCESSED]) {
-              return;
-            }
-
-            (field as any)[SYMBOL_PROCESSED] = true;
-
-            if (resolve) {
-
-              field.resolve = async (parent, args, context: Context, info) => {
-
-                if ([
-                  'AuthentificationMutation.create',
-                  'AuthentificationMutation.refresh',
-                  'AuthentificationMutation.reset',
-                  'AuthentificationQuery.verifyToken',
-                ].includes(`${typeName}.${fieldName}`)) {
-                  return (await resolve(parent, args, context, info));
-                }
-
-                if (['Query', 'Mutation', 'Subscription'].includes(typeName)) {
-                  
-                  // console.log('Reset token in field', typeName);
-                  // console.log('headers', context.request.headers);
-                  // token = authentification.getDefaultTokenPayload();
-
-                  try {
-                    const requestToken = context.services.authentification.extractTokenFromRequest(context.request);
-                    if (requestToken) {
-                      const payload = await context.services.authentification.verifyToken(requestToken);
-                      // console.log('token verification');
-                      const isRevoked = await context.redis.sismember(REDIS_TOKENS_BLACKLIST, payload.id);
-                      if (context.services.authentification.isAccessTokenPayload(payload) && !isRevoked) { 
-                        // console.log('Apply new token with ID', payload.id);
-                        // token = payload;
-                        context.token = payload;
-                      }
-                    }
-
-                  } catch (err) {
-                    // do nothing
-                  }
-                  // console.log(`${typeName}.${fieldName}`, context.request.headers['authorization']);
-
-                  // console.log(`${typeName}.${fieldName}`);
-
-                  // context.token = authentification.getDefaultTokenPayload();
-                  
-                }
-
-
-                // const { parentType } = info;
-                // const { request } = context;
-
-                // const token = authentification.extractTokenFromRequest(request);
-                // context.token = authentification.getDefaultTokenPayload();
-                // let tokenPayload: AccessTokenPayload | RefreshTokenPayload;
-
-                // // if (token !== false && !skip.includes(`${parentType}.${fieldName}`) && context.token.id === ACCESS_TOKEN_EMPTY_ID) {
-                // if (token) {
-                //   try {
-                //     tokenPayload = await authentification.verifyToken(token);
-
-                //   } catch (err) {
-                //     context.token = authentification.getDefaultTokenPayload();
-                //     console.log(err.message);
-                //   }
-
-                //   const isRevoked = await redis.sismember(REDIS_TOKENS_BLACKLIST, tokenPayload.id);
-                //   if (isRevoked) {
-                //     console.log('Token was revoked');
-                //   }
-
-                //   if (authentification.isAccessTokenPayload(tokenPayload) && !isRevoked) {
-                //     context.token = tokenPayload;
-                //   }
-                // }
-                // context.token = await getToken();
-                // console.log(token.id)
-                return (await resolve(parent, args, context, info));
+          try {
+            const requestToken = context.services.authentification.extractTokenFromRequest(context.request);
+            if (requestToken) {
+              const payload = await context.services.authentification.verifyToken(requestToken);
+              const isRevoked = await context.redis.sismember(REDIS_TOKENS_BLACKLIST, payload.id);
+              
+              // if is a valid access token then inject it into the context
+              if (context.services.authentification.isAccessTokenPayload(payload) && !isRevoked) { 
+                context.token = payload;
               }
             }
-          });
-        }
-      });
 
-      // pool.schema = schema;
-    // }
-    
+          } catch (err) {
+            // do nothing, error of token verification
+            // will be showed from resolvers
+          }
+
+          return (await resolve(parent, args, context, info));
+        }
+        
+      });
+    });
 
 
     // check to init tables
