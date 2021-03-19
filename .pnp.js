@@ -57,7 +57,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/webpack-node-externals", "npm:2.5.0"],
             ["@typescript-eslint/eslint-plugin", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:4.9.1"],
             ["@typescript-eslint/parser", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:4.9.1"],
-            ["@via-profit-services/core", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.5"],
+            ["@via-profit-services/core", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.8"],
             ["@via-profit-services/eslint-config", "npm:0.1.11"],
             ["@via-profit-services/knex", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.6"],
             ["@via-profit-services/phones", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.14"],
@@ -2201,7 +2201,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/webpack-node-externals", "npm:2.5.0"],
             ["@typescript-eslint/eslint-plugin", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:4.9.1"],
             ["@typescript-eslint/parser", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:4.9.1"],
-            ["@via-profit-services/core", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.5"],
+            ["@via-profit-services/core", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.8"],
             ["@via-profit-services/eslint-config", "npm:0.1.11"],
             ["@via-profit-services/knex", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.6"],
             ["@via-profit-services/phones", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.14"],
@@ -2264,17 +2264,17 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@via-profit-services/core", [
-        ["npm:1.0.5", {
-          "packageLocation": "./.yarn/cache/@via-profit-services-core-npm-1.0.5-60a1610ede-70166fa0c9.zip/node_modules/@via-profit-services/core/",
+        ["npm:1.0.8", {
+          "packageLocation": "./.yarn/cache/@via-profit-services-core-npm-1.0.8-791d34a8d9-6daa194733.zip/node_modules/@via-profit-services/core/",
           "packageDependencies": [
-            ["@via-profit-services/core", "npm:1.0.5"]
+            ["@via-profit-services/core", "npm:1.0.8"]
           ],
           "linkType": "SOFT",
         }],
-        ["virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.5", {
-          "packageLocation": "./.yarn/$$virtual/@via-profit-services-core-virtual-f605ed30b7/0/cache/@via-profit-services-core-npm-1.0.5-60a1610ede-70166fa0c9.zip/node_modules/@via-profit-services/core/",
+        ["virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.8", {
+          "packageLocation": "./.yarn/$$virtual/@via-profit-services-core-virtual-6fca785198/0/cache/@via-profit-services-core-npm-1.0.8-791d34a8d9-6daa194733.zip/node_modules/@via-profit-services/core/",
           "packageDependencies": [
-            ["@via-profit-services/core", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.5"],
+            ["@via-profit-services/core", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.8"],
             ["@types/dataloader", null],
             ["@types/express", "npm:4.17.9"],
             ["@types/graphql", "npm:14.5.0"],
@@ -2337,7 +2337,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/knex", null],
             ["@types/pg", null],
             ["@types/via-profit-services__core", null],
-            ["@via-profit-services/core", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.5"],
+            ["@via-profit-services/core", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.8"],
             ["knex", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:0.21.12"],
             ["pg", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:8.5.1"]
           ],
@@ -2371,7 +2371,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/uuid", "npm:8.3.0"],
             ["@types/via-profit-services__core", null],
             ["@types/via-profit-services__knex", null],
-            ["@via-profit-services/core", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.5"],
+            ["@via-profit-services/core", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.8"],
             ["@via-profit-services/knex", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.6"],
             ["dataloader", "npm:2.0.0"],
             ["libphonenumber-js", "npm:1.9.7"],
@@ -2412,7 +2412,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@via-profit-services/redis", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.3"],
             ["@types/ioredis", "npm:4.17.8"],
             ["@types/via-profit-services__core", null],
-            ["@via-profit-services/core", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.5"],
+            ["@via-profit-services/core", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.8"],
             ["ioredis", "npm:4.19.4"]
           ],
           "packagePeers": [
@@ -2438,7 +2438,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@via-profit-services/sms", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.2"],
             ["@types/uuid", "npm:8.3.0"],
             ["@types/via-profit-services__core", null],
-            ["@via-profit-services/core", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.5"],
+            ["@via-profit-services/core", "virtual:f081901e80a84b278d7137cda0dd9f4c9129e344392fab3e1e0b105f8c464a7ce57d57d1df0faf5347e46002283687d7baa60469c9f2cf007cf1499cca686786#npm:1.0.8"],
             ["uuid", "npm:8.3.1"]
           ],
           "packagePeers": [

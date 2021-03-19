@@ -1,4 +1,4 @@
-import type { AccountsMiddlewareFactory, JwtConfig, AccessTokenPayload, RefreshTokenPayload, } from '@via-profit-services/accounts';
+import type { AccountsMiddlewareFactory, JwtConfig } from '@via-profit-services/accounts';
 import { Middleware, ServerError, Context, collateForDataloader } from '@via-profit-services/core';
 import fs from 'fs';
 import '@via-profit-services/sms';
@@ -10,7 +10,6 @@ import AccountsService from './services/AccountsService';
 import AuthentificationService from './services/AuthentificationService';
 import {
   DEFAULT_ACCESS_TOKEN_EXPIRED,
-  ACCESS_TOKEN_EMPTY_ID,
   DEFAULT_REFRESH_TOKEN_EXPIRED,
   DEFAULT_SIGNATURE_ALGORITHM,
   DEFAULT_SIGNATURE_ISSUER,
@@ -140,19 +139,23 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuratio
         field.resolve = async (parent, args, context: Context, info) => {
 
           // this will be token creation/verification and etc.
-          const isAuthentificationQueries = [
+          const isAuthentificationOperation = [
             'AuthentificationMutation.create',
             'AuthentificationMutation.refresh',
             'AuthentificationMutation.reset',
             'AuthentificationQuery.verifyToken',
           ].includes(`${typeName}.${fieldName}`);
-
-          const isRootFields = ['Query', 'Mutation', 'Subscription'].includes(typeName);
+          
+          const isRootField = [
+            'Query',
+            'Mutation',
+            'Subscription',
+          ].includes(typeName);
 
           // we should skip this operations without token verification
-          // is not a root fields and this is not a token creation/verification
-          // operations
-          if (!isRootFields || isAuthentificationQueries) {
+          // if is not a root fields and this is not
+          // a token creation/verification operations
+          if (!isRootField || isAuthentificationOperation) {
             return (await resolve(parent, args, context, info));
           }
 
