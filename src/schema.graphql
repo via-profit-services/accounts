@@ -138,7 +138,7 @@ type AccountsQuery {
   """
   Returns Your account
   """
-  me: Account!
+  me: Account
 
   """
   Returns account if exists
