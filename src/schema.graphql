@@ -253,7 +253,7 @@ type AuthentificationMutation {
   """
   Revoke Tokens by token ID or/and account ID
   """
-  revoke(tokenID: ID accountID: ID): Void!
+  revoke(tokenID: ID accountID: ID): Void
   """
   Pass your «Refresh» token to exchange it to new «Access» and «Refresh» tokens pair
   """
