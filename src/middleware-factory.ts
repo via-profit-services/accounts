@@ -1,8 +1,7 @@
 import type { AccountsMiddlewareFactory, JwtConfig } from '@via-profit-services/accounts';
-import { Middleware, ServerError, Context, collateForDataloader } from '@via-profit-services/core';
+import { Middleware, ServerError, collateForDataloader } from '@via-profit-services/core';
 import fs from 'fs';
 import '@via-profit-services/sms';
-import { isObjectType, isIntrospectionType } from 'graphql';
 import DataLoader from 'dataloader';
 
 import authLogger from './auth-logger';
@@ -108,86 +107,6 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuratio
     });
 
 
-    const types = schema.getTypeMap();
-
-    // walk all schema types and wrap field resolvers
-    Object.entries(types).forEach(([typeName, type]) => {
-
-      // skip if is not an object type or introspection
-      // also skip if type already affected (`SYMBOL_PROCESSED` marker)
-      if (!isObjectType(type) || isIntrospectionType(type) || (type as any)[SYMBOL_PROCESSED]) {
-        return;
-      }
-
-      const fieldMap = type.getFields();
-
-      // mark this type as affected
-      (type as any)[SYMBOL_PROCESSED] = true;
-
-      Object.entries(fieldMap).forEach(([fieldName, field]) => {
-        const { resolve } = field;
-
-        // skip if type already affected or resolver is missing
-        if ((field as any)[SYMBOL_PROCESSED] || !resolve) {
-          return;
-        }
-
-        // mark this field as affected
-        (field as any)[SYMBOL_PROCESSED] = true;
-
-        // replace original resolver to this
-        field.resolve = async (parent, args, context: Context, info) => {
-
-          // this will be token creation/verification and etc.
-          const isAuthentificationOperation = [
-            'AuthentificationMutation.create',
-            'AuthentificationMutation.refresh',
-            'AuthentificationMutation.reset',
-            'AuthentificationQuery.verifyToken',
-          ].includes(`${typeName}.${fieldName}`);
-          
-          const isRootField = [
-            'Query',
-            'Mutation',
-            'Subscription',
-          ].includes(typeName);
-
-          // we should skip this operations without token verification
-          // if is not a root fields and this is not
-          // a token creation/verification operations
-          if (!isRootField || isAuthentificationOperation) {
-            return (await resolve(parent, args, context, info));
-          }
-
-          try {
-            const requestToken = context.services.authentification.extractTokenFromRequest(context.request);
-            if (requestToken) {
-              const payload = await context.services.authentification.verifyToken(requestToken);
-              const isRevoked = await context.redis.sismember(REDIS_TOKENS_BLACKLIST, payload.id);
-              
-              // if is a valid access token then inject it into the context
-              if (context.services.authentification.isAccessTokenPayload(payload) && !isRevoked) { 
-                context.token = payload;
-              }
-
-              if (isRevoked) {
-                context.logger.auth.debug('Token verification error in accounts middlweare. Token revoked');
-              }
-            }
-
-          } catch (err) {
-            // do nothing, error of token verification
-            // will be showed from resolvers
-            context.logger.auth.debug('Token verification error in accounts middlweare', { err });
-          }
-
-          return (await resolve(parent, args, context, info));
-        }
-        
-      });
-    });
-
-
     // check to init tables
     if (!cache.typesTableInit) {
       await context.services.accounts.rebaseTypes([...typeList]);
@@ -202,8 +121,31 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuratio
       }, Math.min(jwt.accessTokenExpiresIn * 1000, TIMEOUT_MAX_INT));
     }
 
+    const { services, redis, logger } = context;
+    const { authentification } = services;
+
+    try {
+      const requestToken = authentification.extractTokenFromRequest(context.request);
+      if (requestToken) {
+
+        const payload = await authentification.verifyToken(requestToken);
+        const isRevoked = await redis.sismember(REDIS_TOKENS_BLACKLIST, payload.id);
+
+        // if is a valid access token then inject it into the context
+        if (authentification.isAccessTokenPayload(payload) && !isRevoked) {
+          context.token = payload;
+        }
+
+        if (isRevoked) {
+          logger.auth.debug('Token verification error in accounts middlweare. Token revoked');
+        }
+      }
+
+    } catch (err) {
+      throw new Error(err);
+    }
+
     return {
-      schema,
       context,
     };
   }

@@ -62,6 +62,7 @@ const server = http.createServer(app);
     type Propper {
       id: ID!
       name: String!
+      token: String!
     }
   `;
 
@@ -74,8 +75,13 @@ const server = http.createServer(app);
       name: (_parent: any, _args: any, context: Context) => {
         const { token } = context;
         console.log('Propper Name token', token.id);
-
+        
         return 'Propper Name'
+      },
+      token: (_parent: any, _args: any, context: Context) => {
+        const { token } = context;
+
+        return `Token is «${token.id}»`;
       },
     },
   };
@@ -113,11 +119,42 @@ const server = http.createServer(app);
     schema,
     debug: true,
     middleware: [
+      // ({ context }) => {
+
+      //   if (context?.token) {
+      //     delete context.token;
+      //   }
+      //   // console.log('before --', context?.token);
+
+      //   return { context }
+      // },
       knexMiddleware,
       redisMiddleware,
       smsMiddleware,
       phones.middleware,
+      ({ context }) => {
+        console.log('before --', context?.token?.id);
+
+        return { context }
+      },
       accounts.middleware,
+      
+      // ({ context }) => {
+      //   console.log('before -', context?.token?.id);
+
+      //   return { context }
+      // },
+      
+      ({ context }) => {
+        console.log('after -', context?.token?.id);
+
+        return { context }
+      },
+      // ({ context }) => {
+      //   console.log('after --', context?.token?.id);
+
+      //   return { context }
+      // },
     ],
   });
 
