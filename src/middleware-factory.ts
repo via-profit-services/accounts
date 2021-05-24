@@ -1,8 +1,8 @@
 import type { AccountsMiddlewareFactory, JwtConfig } from '@via-profit-services/accounts';
-import { Middleware, ServerError, collateForDataloader } from '@via-profit-services/core';
+import { Middleware, ServerError } from '@via-profit-services/core';
 import fs from 'fs';
 import '@via-profit-services/sms';
-import DataLoader from 'dataloader';
+import DataLoader from '@via-profit/dataloader';
 
 import authLogger from './auth-logger';
 import AccountsService from './services/AccountsService';
@@ -103,7 +103,11 @@ const accountsMiddlewareFactory: AccountsMiddlewareFactory = async (configuratio
     context.dataloader.accounts = new DataLoader(async (ids: string[]) => {
       const nodes = await context.services.accounts.getAccountsByIds(ids);
 
-      return collateForDataloader(ids, nodes);
+      return nodes;
+    }, {
+      redis: context.redis,
+      cacheName: 'accounts',
+      defaultExpiration: '1min',
     });
 
 

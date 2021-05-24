@@ -48,7 +48,10 @@ class AccountsService implements AccountsServiceInterface {
     return accountData;
   }
 
-  public async getAccounts(filter: Partial<OutputFilter>): Promise<ListResponse<Account>> {
+  public async getAccounts(
+    filter: Partial<OutputFilter>,
+    skipDeleted?: boolean,
+  ): Promise<ListResponse<Account>> {
     const { context } = this.props;
     const { knex } = context;
 
@@ -71,7 +74,7 @@ class AccountsService implements AccountsServiceInterface {
       phones: ['number'],
     };
 
-    const response = await knex
+    const request = knex
       .select([
         'accounts.*',
         knex.raw('count(*) over() as "totalCount"'),
@@ -85,6 +88,14 @@ class AccountsService implements AccountsServiceInterface {
       .where((builder) => convertSearchToKnex(builder, search, aliases))
       .limit(limit || 1)
       .offset(offset || 0);
+
+    if (skipDeleted) {
+      request.where({
+        deleted: false, 
+      })
+    }
+
+    const response = await request;
 
     const nodes = response.map((node) => {
       const entity = node.entity ? { id: node.entity } : null

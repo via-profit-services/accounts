@@ -188,7 +188,7 @@ const authentificationMutation: Resolvers['AuthentificationMutation'] = {
       throw new ServerError('Failed to update account data');
     }
 
-    dataloader.accounts.clear(account.id);
+    await dataloader.accounts.clear(account.id);
     logger.auth.debug(`Reset password for account «${account.id}»`);
 
     return {

@@ -9,16 +9,9 @@ export const accountsQueryResolver: Resolvers['AccountsQuery'] = {
     const filter = buildQueryFilter(args);
 
     try {
-      filter.where.push(
-        ['deleted', '=', false], // exclude deleted accounts
-      );
-      const accountsConnection = await services.accounts.getAccounts(filter);
+      const accountsConnection = await services.accounts.getAccounts(filter, true);
       const connection = buildCursorConnection(accountsConnection, 'accounts');
-
-      // fill the cache
-      accountsConnection.nodes.forEach((node) => {
-        dataloader.accounts.clear(node.id).prime(node.id, node);
-      });
+      await dataloader.accounts.primeMany(accountsConnection.nodes);
 
       return connection;
 

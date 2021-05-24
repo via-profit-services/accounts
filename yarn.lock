@@ -1486,9 +1486,9 @@ __metadata:
     "@via-profit-services/phones": ^1.0.14
     "@via-profit-services/redis": ^1.0.3
     "@via-profit-services/sms": ^1.0.2
+    "@via-profit/dataloader": ^1.0.0
     bcryptjs: ^2.4.3
     cross-env: ^6.0.3
-    dataloader: ^2.0.0
     dotenv: ^8.2.0
     eslint: ^7.12.1
     eslint-config-prettier: ^6.15.0
@@ -1629,6 +1629,15 @@ __metadata:
     "@via-profit-services/core": ^1.0.0
     uuid: "*"
   checksum: a5cd2beb2952311b08435b2b485dad6cea7cdee4c77473a05941cce78dfe57d34cca3874d98c97bd3b23d25b19b821b943031321fed8c0eb044144485cbbd95b
+  languageName: node
+  linkType: hard
+
+"@via-profit/dataloader@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@via-profit/dataloader@npm:1.0.0"
+  peerDependencies:
+    ioredis: ^4.27.2
+  checksum: b2d9436ed6c0ab2f785b1401928089f084e0e2c88a215ac295db09d59a562a25891b5b632e9b9f9f0adc13eb05ede9b14bda5bbfdbb7e3160cc96ae144b9f95f
   languageName: node
   linkType: hard
 
@@ -3580,13 +3589,6 @@ __metadata:
     whatwg-mimetype: ^2.2.0
     whatwg-url: ^7.0.0
   checksum: 04d211e1e9f83bab75450487da34b124b32beacd1ad0df96e3a747b705c24c65579833a04a6ea30a528ea5b99d5247660408c513b38905bf855f2de585b9e91c
-  languageName: node
-  linkType: hard
-
-"dataloader@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "dataloader@npm:2.0.0"
-  checksum: 0165c2e80751d269c33d2a14b0078a4f3853cb010e2531e7aa99523aba8d0cdc922b9ad67e4c2bb9074c90e0ee0a41b6e7f5f63c40d31224a71c8a0b703f4be3
   languageName: node
   linkType: hard
 

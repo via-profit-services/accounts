@@ -396,7 +396,7 @@ declare module '@via-profit-services/accounts' {
     getAccountStatusesList(): string[];
     getDefaultAccountData(): Account;
     prepareDataToInsert(accountInputData: Partial<AccountInputCreate | AccountInputUpdate>): Partial<AccountsTableModel>;
-    getAccounts(filter: Partial<OutputFilter>): Promise<ListResponse<Account>>;
+    getAccounts(filter: Partial<OutputFilter>, skipDeleted?: boolean): Promise<ListResponse<Account>>;
     getAccountsByIds(ids: string[]): Promise<Account[]>;
     getAccount(id: string): Promise<Account | false>;
     getAccountByLogin(login: string): Promise<Account | false>;
@@ -428,7 +428,7 @@ declare module '@via-profit-services/accounts' {
 
 
 declare module '@via-profit-services/core' {
-  import DataLoader from 'dataloader';
+  import DataLoader from '@via-profit/dataloader';
   import { IncomingMessage } from 'http';
   import {
     JwtConfig, AccessTokenPayload, Account,
@@ -468,7 +468,7 @@ declare module '@via-profit-services/core' {
     /**
      * Accounts dataloader
      */
-    accounts: DataLoader<string, Node<Account>>;
+    accounts: DataLoader<Account>;
   }
 
   interface ServicesCollection {
