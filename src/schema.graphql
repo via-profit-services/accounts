@@ -266,13 +266,13 @@ type AuthentificationMutation {
 }
 
 input AccountInputUpdate {
-  id: String
+  id: ID
   login: String
   password: String
   status: AccountStatus
   roles: [AccountRole!]
   type: AccountType
-  entity: String
+  entity: ID
   """
   Phones list for password recovery
   """
@@ -280,12 +280,12 @@ input AccountInputUpdate {
 }
 
 input AccountInputCreate {
-  id: String
+  id: ID
   login: String!
   password: String!
   roles: [AccountRole!]!
   type: AccountType!
-  entity: String!
+  entity: ID!
   """
   Phones list for password recovery
   """
