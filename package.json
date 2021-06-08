@@ -1,7 +1,7 @@
 {
     "name": "@via-profit-services/accounts",
     "support": "https://via-profit.ru",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "description": "Accounts Schema",
     "main": "dist/index.js",
     "engines": {
