@@ -1,22 +1,17 @@
 import { AccountStatus, Account, Resolvers } from '@via-profit-services/accounts';
 import { ServerError, buildCursorConnection, buildQueryFilter, CursorConnection } from '@via-profit-services/core';
 
+import { ACCESS_TOKEN_EMPTY_UUID } from '../constants';
+
 export const accountsQueryResolver: Resolvers['AccountsQuery'] = {
   list: async (_parent, args, context): Promise<CursorConnection<Account>> => {
     const { dataloader, services } = context;
     const filter = buildQueryFilter(args);
 
     try {
-      filter.where.push(
-        ['deleted', '=', false], // exclude deleted accounts
-      );
-      const accountsConnection = await services.accounts.getAccounts(filter);
+      const accountsConnection = await services.accounts.getAccounts(filter, true);
       const connection = buildCursorConnection(accountsConnection, 'accounts');
-
-      // fill the cache
-      accountsConnection.nodes.forEach((node) => {
-        dataloader.accounts.clear(node.id).prime(node.id, node);
-      });
+      await dataloader.accounts.primeMany(accountsConnection.nodes);
 
       return connection;
 
@@ -26,8 +21,25 @@ export const accountsQueryResolver: Resolvers['AccountsQuery'] = {
     }
   },
   statusesList: (): AccountStatus[] => ['allowed', 'forbidden'],
-  me: (_parent, _args, context) => ({ id: context.token.uuid }),
-  account: (_parent, args) => args,
+  me: async (_parent, _args, context) => {
+    const { token, dataloader } = context;
+
+    if (token.uuid === ACCESS_TOKEN_EMPTY_UUID) {
+      return null;
+    }
+
+    const account = dataloader.accounts.load(token.uuid);
+
+    return account;
+  },
+  account: async (_parent, args, context) => {
+    const { id } = args;
+    const { dataloader } = context;
+    
+    const account = dataloader.accounts.load(id);
+
+    return account;
+  },
   checkLoginExists: async (_parent, args, context): Promise<boolean> => {
     const { login, skipId } = args;
     const { services } = context;

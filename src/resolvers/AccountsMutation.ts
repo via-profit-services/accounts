@@ -29,7 +29,7 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
 
     try {
       await services.accounts.updateAccount(id, accountInput);
-      dataloader.accounts.clear(accountInput.id);
+      await dataloader.accounts.clear(accountInput.id);
     } catch (err) {
       throw new ServerError('Failed to update account', { err });
     }
@@ -55,7 +55,7 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
     }
 
 
-    dataloader.accounts.clear(id);
+    await dataloader.accounts.clear(id);
     const account = await dataloader.accounts.load(id);
     emitter.emit('account-was-updated', account);
 
@@ -81,7 +81,7 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
     try {
       const id = await services.accounts.createAccount(accountInput);
 
-      dataloader.accounts.clear(id);
+      await dataloader.accounts.clear(id);
       logger.auth.debug(`New account was created with id «${id}»`);
 
      result.id = id;
@@ -99,7 +99,7 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
       })));
     }
 
-    dataloader.accounts.clear(result.id);
+    await dataloader.accounts.clear(result.id);
 
     return result;
   },
@@ -129,7 +129,7 @@ const accountsMutationResolver: Resolvers['AccountsMutation'] = {
       // delete account
       try {
         await services.accounts.deleteAccount(idToDelete);
-        dataloader.accounts.clear(idToDelete);
+        await dataloader.accounts.clear(idToDelete);
 
         emitter.emit('account-was-deleted', idToDelete);
 

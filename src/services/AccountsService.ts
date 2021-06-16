@@ -5,7 +5,7 @@ import type {
 } from '@via-profit-services/accounts';
 import '@via-profit-services/redis';
 import { OutputFilter, ListResponse, arrayOfIdsToArrayOfObjectIds } from '@via-profit-services/core';
-import { convertWhereToKnex, convertOrderByToKnex, extractTotalCountPropOfNode } from '@via-profit-services/knex';
+import { convertWhereToKnex, convertOrderByToKnex, convertSearchToKnex, extractTotalCountPropOfNode } from '@via-profit-services/knex';
 import bcryptjs from 'bcryptjs';
 import moment from 'moment-timezone';
 import '@via-profit-services/phones';
@@ -48,52 +48,54 @@ class AccountsService implements AccountsServiceInterface {
     return accountData;
   }
 
-  public async getAccounts(filter: Partial<OutputFilter>): Promise<ListResponse<Account>> {
+  public async getAccounts(
+    filter: Partial<OutputFilter>,
+    skipDeleted?: boolean,
+  ): Promise<ListResponse<Account>> {
     const { context } = this.props;
     const { knex } = context;
-    const { limit, offset, orderBy, where, search } = filter;
 
-    const response = await knex
+    if (filter.search) {
+      const search = [...filter.search];
+      search.forEach(({ field, query }) => {
+        if (field === 'recoveryPhone') {
+          filter.search = filter.search || [];
+          filter.search.push({
+            field: 'number',
+            query,
+          });
+        }
+      });
+    }
+
+    const { limit, offset, orderBy, where, search } = filter;
+    const aliases = {
+      accounts: ['*'],
+      phones: ['number'],
+    };
+
+    const request = knex
       .select([
         'accounts.*',
         knex.raw('count(*) over() as "totalCount"'),
-        knex.raw('string_agg(distinct ??::text, ?::text) AS "recoveryPhone"', ['phones.id', '|']),
+        knex.raw('string_agg(distinct ??::text, ?::text) AS "recoveryPhones"', ['phones.id', '|']),
       ])
       .from<AccountsTableModel, AccountsTableModelResult[]>('accounts')
       .leftJoin('phones', 'phones.entity', 'accounts.id')
-      .leftJoin('users', 'accounts.entity', 'users.id')
-      .orderBy(convertOrderByToKnex(orderBy, {
-        accounts: ['*'],
-        users: ['name'],
-      }))
-      .groupBy('accounts.id', 'users.name')
-      .where((builder) => convertWhereToKnex(builder, where, {
-        accounts: '*',
-        users: ['name'],
-      }))
-      .where((builder) => {
-        if (search && search.length) {
-          search.forEach(({ field, query }) => {
-            switch (field) {
-              case 'recoveryPhone':
-                builder.orWhere('phones.number', 'ilike', `%${query}%`);
-                break;
-
-              case 'name':
-                builder.orWhere(`users.${field}`, 'ilike', `%${query}%`);
-                break;
-
-              default:
-                builder.orWhere(`accounts.${field}`, 'ilike', `%${query}%`);
-                break;
-            }
-           });
-        }
-
-        return builder;
-      })
+      .orderBy(convertOrderByToKnex(orderBy, aliases))
+      .groupBy('accounts.id')
+      .where((builder) => convertWhereToKnex(builder, where, aliases))
+      .where((builder) => convertSearchToKnex(builder, search, aliases))
       .limit(limit || 1)
       .offset(offset || 0);
+
+    if (skipDeleted) {
+      request.where({
+        deleted: false, 
+      })
+    }
+
+    const response = await request;
 
     const nodes = response.map((node) => {
       const entity = node.entity ? { id: node.entity } : null
@@ -170,7 +172,7 @@ class AccountsService implements AccountsServiceInterface {
     const data = this.prepareDataToInsert({
       ...accountData,
       password: accountData.password
-        ? authentification.cryptUserPassword(
+        ? authentification.cryptPassword(
           accountData.login,
           accountData.password,
         )
@@ -194,7 +196,7 @@ class AccountsService implements AccountsServiceInterface {
     const data = this.prepareDataToInsert({
       ...accountData,
       id: accountData.id ? accountData.id : uuidv4(),
-      password: authentification.cryptUserPassword(
+      password: authentification.cryptPassword(
         accountData.login,
         accountData.password,
       ),

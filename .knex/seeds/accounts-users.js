@@ -27,12 +27,10 @@ const uuid_1 = __webpack_require__(231);
 function seed(knex) {
     return __awaiter(this, void 0, void 0, function* () {
         const accounts = [];
-        const users = [];
         const salt = bcryptjs_1.default.genSaltSync(10);
-        [...new Array(30).keys()].forEach(() => {
-            const userID = uuid_1.v4();
+        [...new Array(30).keys()].forEach((index) => {
             const accountID = uuid_1.v4();
-            const login = faker_1.default.internet.userName();
+            const login = `test-${index}`;
             const password = bcryptjs_1.default.hashSync(`${login}.${login}`, salt);
             const createdAt = faker_1.default.date.past().toDateString();
             const updatedAt = faker_1.default.date.past().toDateString();
@@ -48,34 +46,13 @@ function seed(knex) {
                 roles: '["developer"]',
                 type: 'User',
                 status: 'allowed',
-                entity: userID,
+                entity: '68158930-f5f2-46fc-8ebb-db9e5aad5fa3',
                 deleted: false,
-            });
-            users.push({
-                id: userID,
-                name: faker_1.default.name.findName(),
-                createdAt,
-                updatedAt,
-                deleted: false,
-                comment: '',
             });
         });
-        yield knex('accounts')
-            .del()
-            .whereNotIn('id', ['40491ee1-a365-454f-b3ec-8a325ccfc371']);
-        yield knex('users').del();
-        const devUser = {
-            id: uuid_1.v4(),
-            name: 'Developer',
-            createdAt: faker_1.default.date.past().toDateString(),
-            updatedAt: faker_1.default.date.past().toDateString(),
-            deleted: false,
-            comment: '',
-        };
-        users.push(devUser);
-        yield knex('accounts').update({ entity: devUser.id });
+        yield knex('accounts').del();
+        yield knex.raw(`insert into "accountsTypes" ("type") values ('User') on conflict do nothing;`);
         yield knex('accounts').insert(accounts);
-        yield knex('users').insert(users);
     });
 }
 exports.seed = seed;

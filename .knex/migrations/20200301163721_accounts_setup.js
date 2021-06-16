@@ -3,7 +3,7 @@ module.exports =
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 503:
+/***/ 340:
 /***/ (function(__unused_webpack_module, exports) {
 
 
@@ -21,40 +21,87 @@ exports.down = exports.up = void 0;
 function up(knex) {
     return __awaiter(this, void 0, void 0, function* () {
         return knex.raw(`
-    DROP TABLE IF EXISTS roles CASCADE;
+    drop table if exists "roles2privileges" cascade;
+    drop table if exists "tokens" cascade;
+    drop table if exists "accountsTypes" cascade;
+    drop table if exists "accounts" cascade;
+    drop table if exists "privileges" cascade;
+    drop table if exists "roles" cascade;
+    drop table if exists "permissions" CASCADE;
+    
+    drop type if exists "permissionsType";
+    drop type if exists "tokenType";
+    drop type if exists "accountStatus";
+    
+    create type "accountStatus" AS ENUM (
+      'allowed',
+      'forbidden'
+    );
 
-    CREATE TABLE roles (
+    create type "tokenType" AS enum (
+      'access',
+      'refresh'
+    );
+
+
+    create type "permissionsType" AS ENUM (
+      'grant',
+      'restrict'
+    );
+
+    create table "tokens" (
+      "type" "tokenType" NOT NULL DEFAULT 'access'::"tokenType",
+      "createdAt" timestamptz NOT NULL DEFAULT now(),
+      "updatedAt" timestamptz NOT NULL DEFAULT now(),
+      "expiredAt" timestamptz NOT NULL,
+      "account" uuid NULL,
+      "id" uuid NOT NULL,
+      "associated" uuid NULL,
+      "deviceInfo" jsonb NULL,
+      CONSTRAINT tokens_pk PRIMARY KEY (id)
+    );
+
+    create table "accountsTypes" (
+      "type" varchar(100) not null,
+      CONSTRAINT "accountTypes_un" UNIQUE ("type")
+    );
+
+    create table "accounts" (
+      "id" uuid NOT NULL,
+      "login" varchar(100) NOT NULL,
+      "password" varchar(255) NOT NULL,
+      "createdAt" timestamptz NOT NULL DEFAULT now(),
+      "updatedAt" timestamptz NOT NULL DEFAULT now(),
+      "status" "accountStatus" NOT NULL DEFAULT 'allowed'::"accountStatus",
+      "type" varchar(50) NOT NULL DEFAULT 'User'::character varying,
+      "roles" jsonb NOT NULL DEFAULT '[]'::jsonb,
+      "deleted" bool NOT NULL DEFAULT false,
+      "entity" uuid NULL,
+      CONSTRAINT "accounts_login_un" UNIQUE (login),
+      CONSTRAINT "accounts_pkey" PRIMARY KEY (id)
+    );
+
+    create table "roles" (
       "name" varchar(100) NOT NULL,
       "description" text NULL,
       CONSTRAINT roles_pk PRIMARY KEY (name)
     );
 
-    DROP TABLE IF EXISTS "privileges" CASCADE;
-      CREATE TABLE "privileges" (
+
+    create table "privileges" (
       "name" varchar(100) NOT NULL,
       "description" text NULL,
       CONSTRAINT privileges_pk PRIMARY KEY (name)
     );
 
-    DROP TABLE IF EXISTS "roles2privileges" CASCADE;
-    CREATE TABLE "roles2privileges" (
+    create table "roles2privileges" (
       "role" varchar(100) NOT NULL,
       "privilege" varchar(100) NOT NULL,
       CONSTRAINT "roles2privileges_un" UNIQUE (role, privilege)
     );
 
-    ALTER TABLE "roles2privileges" ADD CONSTRAINT "roles2privileges_privilege_fk" FOREIGN KEY (privilege) REFERENCES privileges(name) ON DELETE CASCADE;
-    ALTER TABLE "roles2privileges" ADD CONSTRAINT "roles2privileges_role_fk" FOREIGN KEY (role) REFERENCES roles(name) ON DELETE CASCADE;
-  
-
-    DROP TYPE IF EXISTS "permissionsType";
-    CREATE TYPE "permissionsType" AS ENUM (
-      'grant',
-      'restrict'
-    );
-    
-    DROP TABLE IF EXISTS "permissions" CASCADE;
-    CREATE TABLE "permissions" (
+        
+    create table "permissions" (
       "typeName" varchar(100) NOT NULL,
       "fieldName" varchar(100) NOT NULL,
       "type" "permissionsType" NOT NULL DEFAULT 'grant'::"permissionsType",
@@ -62,24 +109,31 @@ function up(knex) {
       CONSTRAINT permissions_un UNIQUE ("typeName","fieldName",privilege)
     );
 
-    ALTER TABLE "permissions" ADD CONSTRAINT "permissions_privilege_fk" FOREIGN KEY (privilege) REFERENCES privileges(name) ON DELETE CASCADE;
 
-    
-    -- insert default roles set
-    insert into roles
+
+    create index "accountsDeletedIndex" ON "accounts" using btree ("deleted");
+    alter table "tokens" add constraint "tokens_account_fk" foreign key ("account") references "accounts"("id") on delete cascade;
+    alter table "tokens" add constraint "tokens_associated_fk" foreign key ("associated") references "tokens"("id") on delete cascade;
+    alter table "accounts" add constraint "accounts_type_fk" foreign key ("type") references "accountsTypes"("type") on delete cascade;
+    alter table "roles2privileges" add constraint "roles2privileges_privilege_fk" foreign key ("privilege") references "privileges"("name") on delete cascade;
+    alter table "roles2privileges" add constraint "roles2privileges_role_fk" foreign key ("role") references "roles"("name") on delete cascade;
+    alter table "permissions" add constraint "permissions_privilege_fk" foreign key ("privilege") references "privileges"("name") on delete cascade;
+  
+
+  
+
+    insert into "roles"
       ("name", "description")
     values 
       ('viewer', 'Used as viewer/reader. Accounts have this role can make request only to display data, not mutate.'),
       ('developer', 'Accounts have this role can make all requests without limits.'),
       ('administrator', 'Accounts have this role can make all requests without limits.');
 
-    -- insert privileges
-    insert into privileges
+    insert into "privileges"
       ("name", "description")
     values
       ('*', 'Unlimited access');
 
-    -- insert roles2privileges
     insert into "roles2privileges"
       ("role", "privilege")
     values
@@ -92,10 +146,17 @@ exports.up = up;
 function down(knex) {
     return __awaiter(this, void 0, void 0, function* () {
         return knex.raw(`
-    DROP TABLE IF EXISTS "permissions" CASCADE;
-    DROP TABLE IF EXISTS "roles2privileges" CASCADE;
-    DROP TABLE IF EXISTS "privileges" CASCADE;
-    DROP TABLE IF EXISTS "roles" CASCADE;
+    drop table if exists "roles2privileges" cascade;
+    drop table if exists "tokens" cascade;
+    drop table if exists "accountsTypes" cascade;
+    drop table if exists "accounts" cascade;
+    drop table if exists "privileges" cascade;
+    drop table if exists "roles" cascade;
+    drop table if exists "permissions" CASCADE;
+    
+    drop type if exists "permissionsType";
+    drop type if exists "tokenType";
+    drop type if exists "accountStatus";
   `);
     });
 }
@@ -133,6 +194,6 @@ exports.down = down;
 /******/ 	// module exports must be returned from runtime so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(503);
+/******/ 	return __webpack_require__(340);
 /******/ })()
 ;
