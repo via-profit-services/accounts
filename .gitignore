@@ -35,3 +35,6 @@
 !.yarn/versions
 
 /public
+/.env
+/.knex/.env
+/.knex/knexfile.js
